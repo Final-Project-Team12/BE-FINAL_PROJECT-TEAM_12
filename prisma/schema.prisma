@@ -111,6 +111,7 @@ model Bandara {
   alamat_bandara String
   kode_bandara   String
   id_benua       Int
+  time_visited   Int       @default(0)
   benua          Benua     @relation(fields: [id_benua], references: [id_benua])
   PesawatAsal    Pesawat[] @relation("BandaraAsal")
   PesawatTujuan  Pesawat[] @relation("BandaraTujuan")

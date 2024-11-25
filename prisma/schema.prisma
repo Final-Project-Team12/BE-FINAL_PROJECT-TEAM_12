@@ -1,0 +1,123 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Users {
+  id_user       Int          @id @default(autoincrement())
+  nama_user     String
+  nomor_telepon String
+  email         String       @unique
+  password      String
+  alamat_user   String
+  jenis_kelamin String
+  nik           String
+  usia          Int
+  role          String
+  otp           String
+  notifikasi    Notifikasi[]
+  transaksi     Transaksi[]
+}
+
+model Notifikasi {
+  id_notifikasi            Int    @id @default(autoincrement())
+  notification_title       String
+  notification_description String
+  id_user                  Int
+  user                     Users  @relation(fields: [id_user], references: [id_user])
+}
+
+model Transaksi {
+  id_transaksi      Int      @id @default(autoincrement())
+  status_pembayaran String
+  redirect_url      String
+  tanggal_transaksi DateTime
+  token             String
+  message           String
+  total_pembayaran  Float
+  id_user           Int
+  user              Users    @relation(fields: [id_user], references: [id_user])
+  tiket             Tiket[]
+}
+
+model Tiket {
+  id_tiket     Int       @id @default(autoincrement())
+  id_transaksi Int
+  id_jadwal    Int
+  id_penumpang Int
+  id_kursi     Int
+  transaksi    Transaksi @relation(fields: [id_transaksi], references: [id_transaksi])
+  penumpang    Penumpang @relation(fields: [id_penumpang], references: [id_penumpang])
+  kursi        Kursi     @relation(fields: [id_kursi], references: [id_kursi])
+}
+
+model Penumpang {
+  id_penumpang    Int      @id @default(autoincrement())
+  title           String
+  nama            String
+  nama_keluarga   String
+  kebangsaan      String
+  nomor_identitas String
+  negara_penerbit String
+  berlaku_sampai  DateTime
+  tiket           Tiket[]
+}
+
+model Kursi {
+  id_kursi    Int     @id @default(autoincrement())
+  kelas       String
+  nomor_kursi String
+  harga       Float
+  id_pesawat  Int
+  pesawat     Pesawat @relation(fields: [id_pesawat], references: [id_pesawat])
+  tiket       Tiket[]
+}
+
+model Pesawat {
+  id_pesawat          Int      @id @default(autoincrement())
+  id_maskapai         Int
+  id_bandara_asal     Int
+  id_bandara_tujuan   Int
+  waktu_keberangkatan DateTime
+  waktu_kedatangan    DateTime
+  kode_pesawat        String
+  maskapai            Maskapai @relation(fields: [id_maskapai], references: [id_maskapai])
+  kursi               Kursi[]
+  BandaraAsal         Bandara  @relation("BandaraAsal", fields: [id_bandara_asal], references: [id_bandara])
+  BandaraTujuan       Bandara  @relation("BandaraTujuan", fields: [id_bandara_tujuan], references: [id_bandara])
+}
+
+model Maskapai {
+  id_maskapai   Int       @id @default(autoincrement())
+  nama_maskapai String
+  image_url     String
+  times_used    Int
+  pesawat       Pesawat[]
+}
+
+model Bandara {
+  id_bandara     Int       @id @default(autoincrement())
+  nama_bandara   String
+  alamat_bandara String
+  kode_bandara   String
+  id_benua       Int
+  benua          Benua     @relation(fields: [id_benua], references: [id_benua])
+  PesawatAsal    Pesawat[] @relation("BandaraAsal")
+  PesawatTujuan  Pesawat[] @relation("BandaraTujuan")
+}
+
+model Benua {
+  id_benua   Int       @id @default(autoincrement())
+  nama_benua String
+  bandara    Bandara[]
+}

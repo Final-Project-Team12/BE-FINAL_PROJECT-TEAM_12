@@ -39,20 +39,22 @@ class PaginationController{
         let page = req.query.page ? parseInt(req.query.page) : 1;
         let limit = req.query.limit ? parseInt(req.query.limit) : 10;
 
-        const data = await prisma.ticket.findMany({
+        const data = await prisma.seat.findMany({
             take: limit,
             skip: (page - 1)*limit,
             orderBy: {
-                id_user: 'asc'
+                seat_id: 'asc'
             }
         })
-        const count = await prisma.ticket.count();
+        const count = await prisma.seat.count();
         let pagination = this.getPagination(req, count, limit, page, 'tickets')
 
         res.status(200).json({
             status: true,
             message: "success",
-            pagination, 
+            page,
+            limit, 
+            count,
             data
         })
         }

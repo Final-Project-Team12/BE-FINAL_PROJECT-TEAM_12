@@ -1,5 +1,8 @@
 require("dotenv").config();
+const { PrismaClient } = require("@prisma/client");
 const host = process.env.HOST;
+
+const prisma = new PrismaClient();
 
 class PaginationController{
     static getPagination(req, count, limit, page, url) {
@@ -32,14 +35,30 @@ class PaginationController{
     }
 
     static async getPaginationTickets(req, res, next) {
+        try{
         let page = req.query.page ? parseInt(req.query.page) : 1;
         let limit = req.query.limit ? parseInt(req.query.limit) : 10;
 
+        const data = await prisma.ticket.findMany({
+            take: limit,
+            skip: (page - 1)*limit,
+            orderBy: {
+                id_user: 'asc'
+            }
+        })
+        const count = await prisma.ticket.count();
         let pagination = this.getPagination(req, count, limit, page, 'tickets')
 
-        res.json({
-            data: pagination
+        res.status(200).json({
+            status: true,
+            message: "success",
+            pagination, 
+            data
         })
+        }
+        catch(err){
+            next(err)
+        }
     }
 }
 

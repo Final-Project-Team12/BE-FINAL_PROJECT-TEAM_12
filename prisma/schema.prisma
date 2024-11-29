@@ -14,110 +14,111 @@ datasource db {
 }
 
 model Users {
-  id_user       Int          @id @default(autoincrement())
-  nama_user     String
-  nomor_telepon String
-  email         String       @unique
-  password      String
-  alamat_user   String
-  jenis_kelamin String
-  nik           String
-  usia          Int
-  role          String
-  otp           String
-  notifikasi    Notifikasi[]
-  transaksi     Transaksi[]
+  user_id          Int            @id @default(autoincrement())
+  name             String
+  telephone_number String
+  email            String         @unique
+  password         String
+  address          String
+  gender           String
+  identity_number  String
+  age              Int
+  role             String
+  otp              String
+  notifications    Notification[]
+  transactions     Transaction[]
 }
 
-model Notifikasi {
-  id_notifikasi            Int    @id @default(autoincrement())
-  notification_title       String
-  notification_description String
-  id_user                  Int
-  user                     Users  @relation(fields: [id_user], references: [id_user])
+model Notification {
+  notification_id  Int     @id @default(autoincrement())
+  title            String
+  description      String
+  user_id          Int
+  user             Users   @relation(fields: [user_id], references: [user_id])
 }
 
-model Transaksi {
-  id_transaksi      Int      @id @default(autoincrement())
-  status_pembayaran String
+model Transaction {
+  transaction_id    Int         @id @default(autoincrement())
+  status            String
   redirect_url      String
-  tanggal_transaksi DateTime
+  transaction_date  DateTime
   token             String
   message           String
-  total_pembayaran  Float
-  id_user           Int
-  user              Users    @relation(fields: [id_user], references: [id_user])
-  tiket             Tiket[]
+  total_payment     Float
+  user_id           Int
+  user              Users       @relation(fields: [user_id], references: [user_id])
+  tickets           Ticket[]
 }
 
-model Tiket {
-  id_tiket     Int       @id @default(autoincrement())
-  id_transaksi Int
-  id_jadwal    Int
-  id_penumpang Int
-  id_kursi     Int
-  transaksi    Transaksi @relation(fields: [id_transaksi], references: [id_transaksi])
-  penumpang    Penumpang @relation(fields: [id_penumpang], references: [id_penumpang])
-  kursi        Kursi     @relation(fields: [id_kursi], references: [id_kursi])
+model Ticket {
+  ticket_id         Int          @id @default(autoincrement())
+  transaction_id    Int
+  plane_id          Int
+  passenger_id      Int
+  seat_id           Int
+  transaction       Transaction  @relation(fields: [transaction_id], references: [transaction_id])
+  passenger         Passenger    @relation(fields: [passenger_id], references: [passenger_id])
+  seat              Seat         @relation(fields: [seat_id], references: [seat_id])
 }
 
-model Penumpang {
-  id_penumpang    Int      @id @default(autoincrement())
-  title           String
-  nama            String
-  nama_keluarga   String
-  kebangsaan      String
-  nomor_identitas String
-  negara_penerbit String
-  berlaku_sampai  DateTime
-  tiket           Tiket[]
+model Passenger {
+  passenger_id      Int       @id @default(autoincrement())
+  title             String
+  name              String
+  last_name         String
+  nationality       String
+  identity_number   String
+  issuing_country   String
+  valid_until       DateTime
+  tickets           Ticket[]
 }
 
-model Kursi {
-  id_kursi    Int     @id @default(autoincrement())
-  kelas       String
-  nomor_kursi String
-  harga       Float
-  id_pesawat  Int
-  pesawat     Pesawat @relation(fields: [id_pesawat], references: [id_pesawat])
-  tiket       Tiket[]
+model Seat {
+  seat_id           Int        @id @default(autoincrement())
+  class             String
+  seat_number       String
+  price             Float
+  plane_id          Int
+  plane             Plane      @relation(fields: [plane_id], references: [plane_id])
+  tickets           Ticket[]
 }
 
-model Pesawat {
-  id_pesawat          Int      @id @default(autoincrement())
-  id_maskapai         Int
-  id_bandara_asal     Int
-  id_bandara_tujuan   Int
-  waktu_keberangkatan DateTime
-  waktu_kedatangan    DateTime
-  kode_pesawat        String
-  maskapai            Maskapai @relation(fields: [id_maskapai], references: [id_maskapai])
-  kursi               Kursi[]
-  BandaraAsal         Bandara  @relation("BandaraAsal", fields: [id_bandara_asal], references: [id_bandara])
-  BandaraTujuan       Bandara  @relation("BandaraTujuan", fields: [id_bandara_tujuan], references: [id_bandara])
+model Plane {
+  plane_id              Int         @id @default(autoincrement())
+  airline_id            Int
+  airport_id_origin     Int
+  airport_id_destination Int
+  departure_time        DateTime
+  arrival_time          DateTime
+  plane_code            String
+  airline               Airline    @relation(fields: [airline_id], references: [airline_id])
+  seats                 Seat[]
+  origin_airport        Airport    @relation("OriginAirport", fields: [airport_id_origin], references: [airport_id])
+  destination_airport   Airport    @relation("DestinationAirport", fields: [airport_id_destination], references: [airport_id])
 }
 
-model Maskapai {
-  id_maskapai   Int       @id @default(autoincrement())
-  nama_maskapai String
-  image_url     String
-  times_used    Int
-  pesawat       Pesawat[]
+model Airline {
+  airline_id          Int       @id @default(autoincrement())
+  airline_name        String
+  image_url           String
+  times_used          Int
+  planes              Plane[]
 }
 
-model Bandara {
-  id_bandara     Int       @id @default(autoincrement())
-  nama_bandara   String
-  alamat_bandara String
-  kode_bandara   String
-  id_benua       Int
-  benua          Benua     @relation(fields: [id_benua], references: [id_benua])
-  PesawatAsal    Pesawat[] @relation("BandaraAsal")
-  PesawatTujuan  Pesawat[] @relation("BandaraTujuan")
+model Airport {
+  airport_id          Int       @id @default(autoincrement())
+  name                String
+  address             String
+  airport_code        String
+  times_visited       Int       @default(0)
+  continent_id        Int
+  continent           Continent @relation(fields: [continent_id], references: [continent_id])
+  origin_planes       Plane[]   @relation("OriginAirport")
+  destination_planes  Plane[]   @relation("DestinationAirport")
 }
 
-model Benua {
-  id_benua   Int       @id @default(autoincrement())
-  nama_benua String
-  bandara    Bandara[]
+model Continent {
+  continent_id        Int       @id @default(autoincrement())
+  name                String
+  airports            Airport[]
 }

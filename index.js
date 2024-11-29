@@ -8,8 +8,7 @@ const app = express();
 const prisma = new PrismaClient();
 
 //routers
-const ticketListingRouter = require("./routers/ticketListingRouter");
-
+const ticketListingRouter = require("./routers/flightsRouter");
 
 app.use(bodyParser.json());
 app.use(cors());

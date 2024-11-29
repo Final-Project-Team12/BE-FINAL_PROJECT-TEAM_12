@@ -259,7 +259,7 @@ class TicketListingController {
                     currentPage: pageNumber,
                     totalPages,
                     totalItems,
-                    pageSize: limitNumber,
+                    limit: limitNumber,
                     hasNextPage,
                     hasPreviousPage
                 }

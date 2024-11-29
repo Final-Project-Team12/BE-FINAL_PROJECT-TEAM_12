@@ -4,10 +4,16 @@ const prisma = new PrismaClient();
 class TicketListingController {
     static async getFilteredFlights(req, res, next) {
         try {
-            const { filter, search } = req.query;
+            const { filter, search, page = 1, limit = 20 } = req.query;
+            const pageNumber = parseInt(page, 10);
+            const limitNumber = parseInt(limit, 10);
+            const offset = (pageNumber - 1) * limitNumber;
+
+            let flights;
+            let totalItems;
 
             if (filter === "favorite-airlines") {
-                const [favoriteAirline] = await prisma.maskapai.findMany({
+                const [favoriteAirline] = await prisma.Airline.findMany({
                     orderBy: {
                         times_used: 'desc'
                     },
@@ -16,174 +22,190 @@ class TicketListingController {
 
                 if (!favoriteAirline) {
                     return res.status(404).json({
+                        status: "Not Found",
                         message: "No favorite airline found",
                         data: [],
+                        pagination: {
+                            currentPage: pageNumber,
+                            totalPages: 1,
+                            totalItems: 0,
+                            pageSize: limitNumber,
+                            hasNextPage: false,
+                            hasPreviousPage: false
+                        }
                     });
                 }
 
-                const flights = await prisma.pesawat.findMany({
+                flights = await prisma.Plane.findMany({
                     where: {
-                        maskapai: {
-                            nama_maskapai: favoriteAirline.nama_maskapai
+                        airline: {
+                            airline_name: favoriteAirline.airline_name
                         },
-                        kursi: {
-                            some: {} 
-                        }
+                        seats: { some: {} }
                     },
                     include: {
-                        maskapai: true,
-                        BandaraAsal: true,
-                        BandaraTujuan: true,
-                        kursi: true
+                        airline: true,
+                        origin_airport: true,
+                        destination_airport: true,
+                        seats: true
                     },
-                    orderBy: {
-                        waktu_keberangkatan: "asc"
+                    orderBy: { departure_time: "asc" },
+                    skip: offset,
+                    take: limitNumber
+                });
+
+                totalItems = await prisma.Plane.count({
+                    where: {
+                        airline: {
+                            airline_name: favoriteAirline.airline_name
+                        },
+                        seats: { some: {} }
+                    }
+                });
+            } else if (filter === "favorite-continent") {
+                const continents = await prisma.Continent.findMany({
+                    include: {
+                        airports: {
+                            select: {
+                                times_visited: true,
+                                continent_id: true
+                            }
+                        }
                     }
                 });
 
-                const sanitizedFlights = flights.map(flight => ({
-                    id_pesawat: flight.id_pesawat,
-                    kode_pesawat: flight.kode_pesawat,
-                    waktu_keberangkatan: flight.waktu_keberangkatan,
-                    waktu_kedatangan: flight.waktu_kedatangan,
-                    bandara_asal: flight.BandaraAsal.nama_bandara,
-                    bandara_tujuan: flight.BandaraTujuan.nama_bandara,
-                    nama_maskapai: flight.maskapai.nama_maskapai,
-                    available_seats: flight.kursi.length 
-                }));
+                const continentWithMaxTimeVisited = continents
+                    .map(continent => ({
+                        ...continent,
+                        totalTimeVisited: continent.airports.reduce((acc, airport) => acc + airport.times_visited, 0)
+                    }))
+                    .sort((a, b) => b.totalTimeVisited - a.totalTimeVisited)[0];
 
-                return res.status(200).json({
-                    message: "Available flights with seats fetched successfully",
-                    data: sanitizedFlights,
-                });
-            }
-
-            if (filter === "favorite-continent") {
-                const [favoriteContinent] = await prisma.benua.findMany({
-                    orderBy: {
-                        bandara: {
-                            _count: 'desc'
-                        }
-                    },
-                    take: 1
-                });
-
-                if (!favoriteContinent) {
+                if (!continentWithMaxTimeVisited) {
                     return res.status(404).json({
+                        status: "Not Found",
                         message: "No favorite continent found",
                         data: [],
+                        pagination: {
+                            currentPage: pageNumber,
+                            totalPages: 1,
+                            totalItems: 0,
+                            pageSize: limitNumber,
+                            hasNextPage: false,
+                            hasPreviousPage: false
+                        }
                     });
                 }
 
-                const flights = await prisma.pesawat.findMany({
+                flights = await prisma.Plane.findMany({
                     where: {
-                        BandaraAsal: {
-                            benua: {
-                                nama_benua: favoriteContinent.nama_benua
-                            }
+                        destination_airport: {
+                            continent_id: continentWithMaxTimeVisited.continent_id
                         },
-                        kursi: {
-                            some: {}
-                        }
+                        seats: { some: {} }
                     },
                     include: {
-                        maskapai: true,
-                        BandaraAsal: true,
-                        BandaraTujuan: true,
-                        kursi: true
+                        airline: true,
+                        origin_airport: true,
+                        destination_airport: true,
+                        seats: true
                     },
-                    orderBy: {
-                        waktu_keberangkatan: "asc"
+                    orderBy: { departure_time: "asc" },
+                    skip: offset,
+                    take: limitNumber
+                });
+
+                totalItems = await prisma.Plane.count({
+                    where: {
+                        destination_airport: {
+                            continent_id: continentWithMaxTimeVisited.continent_id
+                        },
+                        seats: { some: {} }
                     }
                 });
-
-                const sanitizedFlights = flights.map(flight => ({
-                    id_pesawat: flight.id_pesawat,
-                    kode_pesawat: flight.kode_pesawat,
-                    waktu_keberangkatan: flight.waktu_keberangkatan,
-                    waktu_kedatangan: flight.waktu_kedatangan,
-                    bandara_asal: flight.BandaraAsal.nama_bandara,
-                    bandara_tujuan: flight.BandaraTujuan.nama_bandara,
-                    nama_maskapai: flight.maskapai.nama_maskapai,
-                    available_seats: flight.kursi.length 
-                }));
-
-                return res.status(200).json({
-                    message: "Available flights with seats fetched successfully",
-                    data: sanitizedFlights,
-                });
-            }
-
-            if (search) {
-                const flights = await prisma.pesawat.findMany({
+            } else if (search) {
+                totalItems = await prisma.Plane.count({
                     where: {
                         OR: [
-                            {
-                                kode_pesawat: {
-                                    contains: search,
-                                    mode: "insensitive"
-                                }
-                            },
-                            {
-                                maskapai: {
-                                    nama_maskapai: {
-                                        contains: search,
-                                        mode: "insensitive"
-                                    }
-                                }
-                            },
-                            {
-                                BandaraAsal: {
-                                    nama_bandara: {
-                                        contains: search,
-                                        mode: "insensitive"
-                                    }
-                                }
-                            },
-                            {
-                                BandaraTujuan: {
-                                    nama_bandara: {
-                                        contains: search,
-                                        mode: "insensitive"
-                                    }
-                                }
-                            }
+                            { plane_code: { contains: search, mode: "insensitive" } },
+                            { airline: { airline_name: { contains: search, mode: "insensitive" } } },
+                            { origin_airport: { name: { contains: search, mode: "insensitive" } } },
+                            { destination_airport: { name: { contains: search, mode: "insensitive" } } }
                         ],
-                        kursi: {
-                            some: {} 
-                        }
-                    },
-                    include: {
-                        maskapai: true,
-                        BandaraAsal: true,
-                        BandaraTujuan: true,
-                        kursi: true
-                    },
-                    orderBy: {
-                        waktu_keberangkatan: "asc"
+                        seats: { some: {} }
                     }
                 });
 
-                const sanitizedFlights = flights.map(flight => ({
-                    id_pesawat: flight.id_pesawat,
-                    kode_pesawat: flight.kode_pesawat,
-                    waktu_keberangkatan: flight.waktu_keberangkatan,
-                    waktu_kedatangan: flight.waktu_kedatangan,
-                    bandara_asal: flight.BandaraAsal.nama_bandara,
-                    bandara_tujuan: flight.BandaraTujuan.nama_bandara,
-                    nama_maskapai: flight.maskapai.nama_maskapai,
-                    available_seats: flight.kursi.length 
-                }));
+                flights = await prisma.Plane.findMany({
+                    where: {
+                        OR: [
+                            { plane_code: { contains: search, mode: "insensitive" } },
+                            { airline: { airline_name: { contains: search, mode: "insensitive" } } },
+                            { origin_airport: { name: { contains: search, mode: "insensitive" } } },
+                            { destination_airport: { name: { contains: search, mode: "insensitive" } } }
+                        ],
+                        seats: { some: {} }
+                    },
+                    include: {
+                        airline: true,
+                        origin_airport: true,
+                        destination_airport: true,
+                        seats: true
+                    },
+                    orderBy: { departure_time: "asc" },
+                    skip: offset,
+                    take: limitNumber
+                });
+            } else {
+                totalItems = await prisma.Plane.count({
+                    where: {
+                        seats: { some: {} }
+                    }
+                });
 
-                return res.status(200).json({
-                    message: "Search results fetched successfully",
-                    data: sanitizedFlights,
+                flights = await prisma.Plane.findMany({
+                    where: {
+                        seats: { some: {} }
+                    },
+                    include: {
+                        airline: true,
+                        origin_airport: true,
+                        destination_airport: true,
+                        seats: true
+                    },
+                    orderBy: { departure_time: "asc" },
+                    skip: offset,
+                    take: limitNumber
                 });
             }
 
-            return res.status(400).json({
-                message: "Invalid filter or search query",
-                data: [],
+            const sanitizedFlights = flights.map(flight => ({
+                plane_id: flight.plane_id,
+                plane_code: flight.plane_code,
+                departure_time: flight.departure_time,
+                arrival_time: flight.arrival_time,
+                airport_origin: flight.origin_airport.name,
+                airport_destination: flight.destination_airport.name,
+                airline_name: flight.airline.airline_name,
+                available_seats: flight.seats.length
+            }));
+
+            const totalPages = Math.ceil(totalItems / limitNumber);
+            const hasNextPage = pageNumber < totalPages;
+            const hasPreviousPage = pageNumber > 1;
+
+            return res.status(200).json({
+                status: "Success",
+                message: "Available flights fetched successfully",
+                data: sanitizedFlights,
+                pagination: {
+                    currentPage: pageNumber,
+                    totalPages,
+                    totalItems,
+                    pageSize: limitNumber,
+                    hasNextPage,
+                    hasPreviousPage
+                }
             });
         } catch (error) {
             next(error);

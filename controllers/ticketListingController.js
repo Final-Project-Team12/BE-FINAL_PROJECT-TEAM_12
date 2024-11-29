@@ -45,8 +45,16 @@ class TicketListingController {
                     },
                     include: {
                         airline: true,
-                        origin_airport: true,
-                        destination_airport: true,
+                        origin_airport: {
+                            include: {
+                                continent: true 
+                            }
+                        },
+                        destination_airport: {
+                            include: {
+                                continent: true 
+                            }
+                        },
                         seats: true
                     },
                     orderBy: { departure_time: "asc" },
@@ -106,8 +114,16 @@ class TicketListingController {
                     },
                     include: {
                         airline: true,
-                        origin_airport: true,
-                        destination_airport: true,
+                        origin_airport: {
+                            include: {
+                                continent: true 
+                            }
+                        },
+                        destination_airport: {
+                            include: {
+                                continent: true 
+                            }
+                        },
                         seats: true
                     },
                     orderBy: { departure_time: "asc" },
@@ -148,8 +164,16 @@ class TicketListingController {
                     },
                     include: {
                         airline: true,
-                        origin_airport: true,
-                        destination_airport: true,
+                        origin_airport: {
+                            include: {
+                                continent: true 
+                            }
+                        },
+                        destination_airport: {
+                            include: {
+                                continent: true 
+                            }
+                        },
                         seats: true
                     },
                     orderBy: { departure_time: "asc" },
@@ -169,8 +193,16 @@ class TicketListingController {
                     },
                     include: {
                         airline: true,
-                        origin_airport: true,
-                        destination_airport: true,
+                        origin_airport: {
+                            include: {
+                                continent: true 
+                            }
+                        },
+                        destination_airport: {
+                            include: {
+                                continent: true 
+                            }
+                        },
                         seats: true
                     },
                     orderBy: { departure_time: "asc" },
@@ -179,16 +211,41 @@ class TicketListingController {
                 });
             }
 
-            const sanitizedFlights = flights.map(flight => ({
-                plane_id: flight.plane_id,
-                plane_code: flight.plane_code,
-                departure_time: flight.departure_time,
-                arrival_time: flight.arrival_time,
-                airport_origin: flight.origin_airport.name,
-                airport_destination: flight.destination_airport.name,
-                airline_name: flight.airline.airline_name,
-                available_seats: flight.seats.length
-            }));
+            const sanitizedFlights = flights.map(flight => {
+                const departureTime = new Date(flight.departure_time);
+                const arrivalTime = new Date(flight.arrival_time);
+                const travelDuration = Math.floor((arrivalTime - departureTime) / (1000 * 60)); 
+
+                const originAirport = flight.origin_airport || {};
+                const destinationAirport = flight.destination_airport || {};
+
+                return {
+                    plane_id: flight.plane_id,
+                    plane_code: flight.plane_code,
+                    departure_time: flight.departure_time,
+                    arrival_time: flight.arrival_time,
+                    travel_duration: travelDuration, 
+                    airline_name: flight.airline.airline_name,
+                    airline_code: flight.airline.airline_code,
+                    available_seats: flight.seats.length,
+                    origin_airport: {
+                        airport_id: originAirport.airport_id || null,
+                        airport_name: originAirport.name || 'N/A',
+                        airport_address: originAirport.address || 'N/A',
+                        airport_code: originAirport.airport_code || 'N/A',
+                        times_visited: originAirport.times_visited || 0,
+                        continent: originAirport.continent ? originAirport.continent.name : 'N/A' 
+                    },
+                    destination_airport: {
+                        airport_id: destinationAirport.airport_id || null,
+                        airport_name: destinationAirport.name || 'N/A',
+                        airport_address: destinationAirport.address || 'N/A',
+                        airport_code: destinationAirport.airport_code || 'N/A',
+                        times_visited: destinationAirport.times_visited || 0,
+                        continent: destinationAirport.continent ? destinationAirport.continent.name : 'N/A' 
+                    }
+                };
+            });
 
             const totalPages = Math.ceil(totalItems / limitNumber);
             const hasNextPage = pageNumber < totalPages;

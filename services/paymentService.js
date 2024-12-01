@@ -36,7 +36,13 @@ async function createPayment(orderId, amount) {
         },
       }
     );
-
+    await db.payment.create({
+      data: {
+        orderId,
+        status: "PENDING",
+        amount,
+      },
+    });
     // console.log('Response dari Midtrans:', response.data);
 
     return response.data;

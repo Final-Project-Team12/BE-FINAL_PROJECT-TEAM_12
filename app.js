@@ -8,18 +8,29 @@ const app = express();
 const prisma = new PrismaClient();
 
 //routers
-const ticketListingRouter = require("./routers/flightsRouter");
 
+const ticketListingRouter = require("./routers/flightsRouter");
+const paginationRouter = require('./routers/paginationRouter')
+const userRouter = require('./routers/userRouter')
+const seatRouter = require('./routers/seatRouter')
+
+
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 app.use(cors());
 
 app.use("/api", ticketListingRouter);
 
+app.use('/pagination' ,paginationRouter);
+app.use('/user' ,userRouter);
+app.use('/seat' ,seatRouter);
 
 //buat nangkep semua error langsung
 app.use((err, req, res, next) => {
   console.log(err);
   res.status(500).json({
+    status: false,
     message : "Lihat error di console"
   })
 })

@@ -8,12 +8,13 @@ const app = express();
 const prisma = new PrismaClient();
 
 //routers
-const paginationRouter = require('./routers/paginationRouter')
+const ticketListingRouter = require("./routers/flightsRouter");
 
 app.use(bodyParser.json());
 app.use(cors());
 
-app.use('/pagination' ,paginationRouter);
+app.use("/api", ticketListingRouter);
+
 
 //buat nangkep semua error langsung
 app.use((err, req, res, next) => {

@@ -13,8 +13,7 @@ const paginationRouter = require('./routers/paginationRouter')
 const userRouter = require('./routers/userRouter')
 const seatRouter = require('./routers/seatRouter')
 const airlineRouter = require("./routers/airlineRouter");
-
-
+const passwordRouter = require("./routers/passwordRouter");
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -27,6 +26,7 @@ const routers = [
   userRouter,
   seatRouter,
   airlineRouter,
+  passwordRouter,
 ];
 
 routers.forEach(router => app.use('/api/v1', router));

@@ -102,6 +102,7 @@ model Airline {
   airline_name        String
   image_url           String
   times_used          Int
+  file_id             String @unique 
   planes              Plane[]
 }
 

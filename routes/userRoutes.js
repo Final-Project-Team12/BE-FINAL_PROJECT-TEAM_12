@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const UserController = require('../controllers/userController');
-const restrictJwt = require('./middlewares/restrictJwt')
+const restrictJwt = require('../middlewares/restrictJwt')
 
 router.post('/user', async (req, res, next) => {UserController.registerUser(req, res, next)})
 router.post('/user/login', async (req, res, next) => {UserController.login(req, res, next)})

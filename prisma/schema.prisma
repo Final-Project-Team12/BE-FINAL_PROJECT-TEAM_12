@@ -86,18 +86,25 @@ model Seat {
 }
 
 model Plane {
-  plane_id              Int         @id @default(autoincrement())
-  airline_id            Int
-  airport_id_origin     Int
+  plane_id               Int         @id @default(autoincrement())
+  airline_id             Int
+  airport_id_origin      Int
   airport_id_destination Int
-  departure_time        DateTime
-  arrival_time          DateTime
-  plane_code            String
-  airline               Airline    @relation(fields: [airline_id], references: [airline_id])
-  seats                 Seat[]
-  origin_airport        Airport    @relation("OriginAirport", fields: [airport_id_origin], references: [airport_id])
-  destination_airport   Airport    @relation("DestinationAirport", fields: [airport_id_destination], references: [airport_id])
+  departure_time         DateTime
+  arrival_time           DateTime
+  baggage_capacity       Float
+  plane_code             String
+  cabin_baggage_capacity Float
+  meal_available         Boolean
+  wifi_available         Boolean
+  in_flight_entertainment Boolean
+  power_outlets          Boolean
+  airline                Airline     @relation(fields: [airline_id], references: [airline_id])
+  origin_airport         Airport     @relation("OriginAirport", fields: [airport_id_origin], references: [airport_id])
+  destination_airport    Airport     @relation("DestinationAirport", fields: [airport_id_destination], references: [airport_id])
+  seats                  Seat[]
 }
+
 
 model Airline {
   airline_id          Int       @id @default(autoincrement())
@@ -113,6 +120,8 @@ model Airport {
   name                String
   address             String
   airport_code        String
+  image_url           String
+  file_id             String @unique 
   times_visited       Int       @default(0)
   continent_id        Int
   continent           Continent @relation(fields: [continent_id], references: [continent_id])

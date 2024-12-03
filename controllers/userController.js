@@ -192,6 +192,7 @@ class UserController{
         }
     }
     static async login(req, res, next){
+      console.log('test');
       return res.status(200).json({
         status: true,
         message: "success",

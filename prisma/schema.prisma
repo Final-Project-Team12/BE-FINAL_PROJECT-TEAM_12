@@ -24,7 +24,9 @@ model Users {
   identity_number  String
   age              Int
   role             String
-  otp              String
+  otp              String?
+  otp_expiry       String?
+  reset_token      String?
   notifications    Notification[]
   transactions     Transaction[]
 }
@@ -102,6 +104,7 @@ model Airline {
   airline_name        String
   image_url           String
   times_used          Int
+  file_id             String @unique 
   planes              Plane[]
 }
 
@@ -121,4 +124,19 @@ model Continent {
   continent_id        Int       @id @default(autoincrement())
   name                String
   airports            Airport[]
+}
+
+model Payment {
+  id             Int      @id @default(autoincrement())
+  orderId        String   @unique
+  status         String
+  transactionId  String?
+  amount         Float
+  snapToken      String?
+  customerName   String
+  customerEmail  String
+  customerPhone  String
+  customerAddress String
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
 }

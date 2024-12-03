@@ -1,126 +1,119 @@
--- Insert Continents
-INSERT INTO "Continent" (name) VALUES
-('Asia'),
-('Europe'),
-('North America'),
-('South America'),
-('Africa'),
-('Australia'),
-('Antarctica');
+-- Insert into Continent table
+INSERT INTO "Continent" ("name") 
+VALUES ('Asia'),
+       ('Europe'),
+       ('North America'),
+       ('South America'),
+       ('Africa'),
+       ('Australia'),
+       ('Antarctica');
 
--- Insert Airports
-INSERT INTO "Airport" (name, address, airport_code, times_visited, continent_id) VALUES
-('Soekarno-Hatta International Airport', 'Tangerang, Indonesia', 'CGK', 150, 1),
-('Changi Airport', 'Singapore', 'SIN', 200, 1),
-('Heathrow Airport', 'London, UK', 'LHR', 250, 2),
-('John F. Kennedy International Airport', 'New York, USA', 'JFK', 300, 3),
-('Dubai International Airport', 'Dubai, UAE', 'DXB', 180, 1),
-('Los Angeles International Airport', 'Los Angeles, USA', 'LAX', 400, 3),
-('Tokyo Narita International Airport', 'Narita, Japan', 'NRT', 220, 1),
-('Paris Charles de Gaulle Airport', 'Paris, France', 'CDG', 350, 2),
-('Sydney Kingsford Smith Airport', 'Sydney, Australia', 'SYD', 120, 6),
-('Cairo International Airport', 'Cairo, Egypt', 'CAI', 160, 5);
+-- Insert into Airport table
+INSERT INTO "Airport" ("name", "address", "airport_code", "continent_id") 
+VALUES 
+  ('Tokyo International', 'Tokyo, Japan', 'HND', 1),
+  ('London Heathrow', 'London, UK', 'LHR', 2),
+  ('Los Angeles International', 'Los Angeles, USA', 'LAX', 3),
+  ('São Paulo International', 'São Paulo, Brazil', 'GRU', 4),
+  ('Cairo International', 'Cairo, Egypt', 'CAI', 5),
+  ('Sydney Kingsford Smith', 'Sydney, Australia', 'SYD', 6),
+  ('McMurdo Station', 'Antarctica', 'MSA', 7);
 
--- Insert Airlines
-INSERT INTO "Airline" (airline_name, image_url, times_used) VALUES
-('Garuda Indonesia', 'https://example.com/garuda.jpg', 1000),
-('Singapore Airlines', 'https://example.com/singapore.jpg', 850),
-('Emirates', 'https://example.com/emirates.jpg', 920),
-('British Airways', 'https://example.com/british.jpg', 780),
-('American Airlines', 'https://example.com/american.jpg', 890),
-('Qantas Airways', 'https://example.com/qantas.jpg', 950),
-('Lufthansa', 'https://example.com/lufthansa.jpg', 1100),
-('Air France', 'https://example.com/airfrance.jpg', 870),
-('Delta Airlines', 'https://example.com/delta.jpg', 920),
-('KLM Royal Dutch Airlines', 'https://example.com/klm.jpg', 880);
+-- Insert into Airline table
+INSERT INTO "Airline" ("airline_name", "image_url", "times_used", "file_id") 
+VALUES 
+  ('Airways X', 'https://airwaysx.com/logo.png', 100, 'airwaysx-file-001'),
+  ('EuroFly', 'https://eurofly.com/logo.png', 150, 'eurofly-file-002'),
+  ('Pacific Airlines', 'https://pacificairlines.com/logo.png', 80, 'pacific-file-003'),
+  ('SouthWind Airlines', 'https://southwind.com/logo.png', 50, 'southwind-file-004'),
+  ('FlyAfrica', 'https://flyafrica.com/logo.png', 120, 'flyafrica-file-005'),
+  ('Aussie Air', 'https://aussieair.com/logo.png', 90, 'aussie-file-006'),
+  ('Polar Airlines', 'https://polarairlines.com/logo.png', 10, 'polar-file-007');
 
--- Insert Planes
-INSERT INTO "Plane" (airline_id, airport_id_origin, airport_id_destination, departure_time, arrival_time, plane_code) VALUES
-(1, 1, 2, '2024-11-25 08:00:00', '2024-11-25 10:00:00', 'GA-100'),
-(2, 2, 3, '2024-11-25 09:00:00', '2024-11-25 15:00:00', 'SQ-200'),
-(3, 5, 1, '2024-11-25 10:00:00', '2024-11-25 15:00:00', 'EK-300'),
-(4, 3, 4, '2024-11-25 11:00:00', '2024-11-25 19:00:00', 'BA-400'),
-(5, 4, 5, '2024-11-25 12:00:00', '2024-11-25 22:00:00', 'AA-500'),
-(6, 6, 1, '2024-11-26 09:00:00', '2024-11-26 14:00:00', 'QF-600'),
-(7, 7, 2, '2024-11-26 10:00:00', '2024-11-26 16:00:00', 'LH-700'),
-(8, 8, 3, '2024-11-26 11:00:00', '2024-11-26 18:00:00', 'AF-800'),
-(9, 9, 4, '2024-11-26 12:00:00', '2024-11-26 20:00:00', 'DL-900'),
-(10, 10, 5, '2024-11-26 13:00:00', '2024-11-26 21:00:00', 'KL-1000');
+-- Insert into Plane table
+INSERT INTO "Plane" ("airline_id", "airport_id_origin", "airport_id_destination", "departure_time", "arrival_time", "plane_code") 
+VALUES 
+  (1, 1, 2, NOW(), NOW(), 'PX123'),
+  (2, 2, 3, NOW(), NOW(), 'EF456'),
+  (3, 3, 4, NOW(), NOW(), 'PA789'),
+  (4, 4, 5, NOW(), NOW(), 'SW012'),
+  (5, 5, 6, NOW(), NOW(), 'FA345'),
+  (6, 6, 7, NOW(), NOW(), 'AA678'),
+  (7, 7, 1, NOW(), NOW(), 'PA901');
 
--- Insert Seats
-INSERT INTO "Seat" (class, seat_number, price, plane_id) VALUES
-('Economy', 'A1', 500.00, 1),
-('Business', 'B1', 1500.00, 2),
-('First Class', 'F1', 3000.00, 3),
-('Economy', 'A2', 550.00, 4),
-('Business', 'B2', 1600.00, 5),
-('Economy', 'A3', 600.00, 6),
-('First Class', 'F2', 3500.00, 7),
-('Business', 'B3', 1800.00, 8),
-('Economy', 'A4', 650.00, 9),
-('First Class', 'F3', 4000.00, 10);
+-- Insert into Seat table
+INSERT INTO "Seat" ("class", "seat_number", "price", "plane_id") 
+VALUES 
+  ('Economy', '12A', 500.0, 1),
+  ('Business', '2B', 1500.0, 2),
+  ('First', '1A', 2500.0, 3),
+  ('Economy', '16C', 450.0, 4),
+  ('Economy', '22D', 400.0, 5),
+  ('Business', '3E', 1200.0, 6),
+  ('First', '1F', 3000.0, 7);
 
--- Insert Users
-INSERT INTO "Users" (name, telephone_number, email, password, address, gender, identity_number, age, role, otp) VALUES
-('John Doe', '+1234567890', 'john@example.com', 'hashedpass1', '123 Main St', 'Male', '1234567890', 30, 'user', '123456'),
-('Jane Smith', '+2345678901', 'jane@example.com', 'hashedpass2', '456 Oak St', 'Female', '2345678901', 25, 'user', '234567'),
-('Bob Johnson', '+3456789012', 'bob@example.com', 'hashedpass3', '789 Pine St', 'Male', '3456789012', 35, 'admin', '345678'),
-('Alice Brown', '+4567890123', 'alice@example.com', 'hashedpass4', '321 Elm St', 'Female', '4567890123', 28, 'user', '456789'),
-('Charlie Wilson', '+5678901234', 'charlie@example.com', 'hashedpass5', '654 Maple St', 'Male', '5678901234', 40, 'user', '567890'),
-('Emily Davis', '+6789012345', 'emily@example.com', 'hashedpass6', '987 Cedar St', 'Female', '6789012345', 22, 'user', '678901'),
-('David Lee', '+7890123456', 'david@example.com', 'hashedpass7', '654 Birch St', 'Male', '7890123456', 45, 'user', '789012'),
-('Sophia Martinez', '+8901234567', 'sophia@example.com', 'hashedpass8', '321 Oak St', 'Female', '8901234567', 32, 'user', '890123'),
-('Liam Robinson', '+9012345678', 'liam@example.com', 'hashedpass9', '456 Pine St', 'Male', '9012345678', 29, 'admin', '901234'),
-('Olivia Johnson', '+1122334455', 'olivia@example.com', 'hashedpass10', '789 Maple St', 'Female', '1122334455', 38, 'user', '112233');
+-- Insert into Users table
+INSERT INTO "Users" ("name", "telephone_number", "email", "password", "address", "gender", "identity_number", "age", "role") 
+VALUES 
+  ('John Doe', '123-456-7890', 'johndoe@example.com', 'password123', '123 Main St, City, Country', 'Male', 'ID1234567890', 30, 'User'),
+  ('Jane Smith', '234-567-8901', 'janesmith@example.com', 'password456', '456 Maple St, City, Country', 'Female', 'ID2345678901', 28, 'Admin'),
+  ('Robert Brown', '345-678-9012', 'robertbrown@example.com', 'password789', '789 Oak St, City, Country', 'Male', 'ID3456789012', 35, 'User'),
+  ('Mary Johnson', '456-789-0123', 'maryjohnson@example.com', 'password101', '123 Pine St, City, Country', 'Female', 'ID4567890123', 27, 'User'),
+  ('David White', '567-890-1234', 'davidwhite@example.com', 'password202', '456 Birch St, City, Country', 'Male', 'ID5678901234', 40, 'User'),
+  ('Sarah Lee', '678-901-2345', 'sarahlee@example.com', 'password303', '789 Cedar St, City, Country', 'Female', 'ID6789012345', 32, 'User'),
+  ('James Wilson', '789-012-3456', 'jameswilson@example.com', 'password404', '123 Elm St, City, Country', 'Male', 'ID7890123456', 45, 'Admin');
 
--- Insert Notifications
-INSERT INTO "Notification" (title, description, user_id) VALUES
-('Welcome!', 'Welcome to our platform', 1),
-('Booking Confirmed', 'Your flight has been booked', 2),
-('Payment Received', 'Payment processed successfully', 3),
-('Flight Update', 'Your flight schedule has changed', 4),
-('Special Offer', 'New discounts available', 5),
-('Booking Confirmation', 'Your booking has been confirmed', 6),
-('Flight Delayed', 'Your flight is delayed by 1 hour', 7),
-('Payment Failed', 'Payment was not successful', 8),
-('New Flight Available', 'New flights are now available for booking', 9),
-('Account Verified', 'Your account has been verified successfully', 10);
+-- Insert into Notification table
+INSERT INTO "Notification" ("title", "description", "user_id") 
+VALUES 
+  ('Welcome to Our Service', 'Thank you for signing up, John Doe!', 1),
+  ('Account Update', 'Your account has been updated successfully.', 2),
+  ('Flight Confirmation', 'Your flight from Tokyo to London has been confirmed.', 3),
+  ('Payment Reminder', 'Please complete your payment for your upcoming flight.', 4),
+  ('Special Offer', 'Enjoy 20% off on your next flight with Airways X.', 5),
+  ('Flight Delay', 'Your flight from Sydney to McMurdo Station has been delayed.', 6),
+  ('Account Suspended', 'Your account has been suspended due to unusual activity.', 7);
 
--- Insert Passengers
-INSERT INTO "Passenger" (title, name, last_name, nationality, identity_number, issuing_country, valid_until) VALUES
-('Mr', 'John', 'Doe', 'American', 'US123456', 'USA', '2025-12-31'),
-('Mrs', 'Jane', 'Smith', 'British', 'UK234567', 'UK', '2026-01-31'),
-('Mr', 'Bob', 'Johnson', 'Canadian', 'CA345678', 'Canada', '2025-11-30'),
-('Ms', 'Alice', 'Brown', 'Australian', 'AU456789', 'Australia', '2026-02-28'),
-('Mr', 'Charlie', 'Wilson', 'German', 'DE567890', 'Germany', '2025-10-31'),
-('Ms', 'Emily', 'Davis', 'American', 'US678901', 'USA', '2026-05-15'),
-('Mr', 'David', 'Lee', 'British', 'UK789012', 'UK', '2025-09-21'),
-('Mrs', 'Sophia', 'Martinez', 'Mexican', 'MX890123', 'Mexico', '2025-07-10'),
-('Mr', 'Liam', 'Robinson', 'Australian', 'AU901234', 'Australia', '2026-03-25'),
-('Ms', 'Olivia', 'Johnson', 'Canadian', 'CA112233', 'Canada', '2026-11-12');
+-- Insert into Transaction table
+INSERT INTO "Transaction" ("status", "redirect_url", "transaction_date", "token", "message", "total_payment", "user_id") 
+VALUES 
+  ('Completed', 'https://example.com/redirect', NOW(), 'txn_token_001', 'Payment successful', 500.0, 1),
+  ('Pending', 'https://example.com/redirect', NOW(), 'txn_token_002', 'Awaiting confirmation', 1500.0, 2),
+  ('Failed', 'https://example.com/redirect', NOW(), 'txn_token_003', 'Payment failed', 2500.0, 3),
+  ('Completed', 'https://example.com/redirect', NOW(), 'txn_token_004', 'Payment successful', 450.0, 4),
+  ('Pending', 'https://example.com/redirect', NOW(), 'txn_token_005', 'Awaiting confirmation', 400.0, 5),
+  ('Completed', 'https://example.com/redirect', NOW(), 'txn_token_006', 'Payment successful', 1200.0, 6),
+  ('Failed', 'https://example.com/redirect', NOW(), 'txn_token_007', 'Payment failed', 3000.0, 7);
 
--- Insert Transactions
-INSERT INTO "Transaction" (status, redirect_url, transaction_date, token, message, total_payment, user_id) VALUES
-('SUCCESS', 'https://payment.com/success1', '2024-11-24 08:00:00', 'tok_1', 'Payment successful', 500.00, 1),
-('PENDING', 'https://payment.com/pending2', '2024-11-24 09:00:00', 'tok_2', 'Payment pending', 1500.00, 2),
-('SUCCESS', 'https://payment.com/success3', '2024-11-24 10:00:00', 'tok_3', 'Payment successful', 3000.00, 3),
-('FAILED', 'https://payment.com/failed4', '2024-11-24 11:00:00', 'tok_4', 'Payment failed', 550.00, 4),
-('SUCCESS', 'https://payment.com/success5', '2024-11-24 12:00:00', 'tok_5', 'Payment successful', 1600.00, 5),
-('PENDING', 'https://payment.com/pending6', '2024-11-24 13:00:00', 'tok_6', 'Payment pending', 1200.00, 6),
-('SUCCESS', 'https://payment.com/success7', '2024-11-24 14:00:00', 'tok_7', 'Payment successful', 1900.00, 7),
-('FAILED', 'https://payment.com/failed8', '2024-11-24 15:00:00', 'tok_8', 'Payment failed', 800.00, 8),
-('SUCCESS', 'https://payment.com/success9', '2024-11-24 16:00:00', 'tok_9', 'Payment successful', 1100.00, 9),
-('PENDING', 'https://payment.com/pending10', '2024-11-24 17:00:00', 'tok_10', 'Payment pending', 1450.00, 10);
+-- Insert into Passenger table
+INSERT INTO "Passenger" ("title", "name", "last_name", "nationality", "identity_number", "issuing_country", "valid_until") 
+VALUES 
+  ('Mr.', 'John', 'Doe', 'American', 'ID12345', 'USA', '2025-12-31'),
+  ('Ms.', 'Jane', 'Smith', 'British', 'ID23456', 'UK', '2026-05-15'),
+  ('Mr.', 'Robert', 'Brown', 'Canadian', 'ID34567', 'Canada', '2027-02-28'),
+  ('Ms.', 'Mary', 'Johnson', 'Australian', 'ID45678', 'Australia', '2025-07-21'),
+  ('Mr.', 'David', 'White', 'Egyptian', 'ID56789', 'Egypt', '2024-11-01'),
+  ('Ms.', 'Sarah', 'Lee', 'Chinese', 'ID67890', 'China', '2026-03-05'),
+  ('Mr.', 'James', 'Wilson', 'American', 'ID78901', 'USA', '2027-08-19');
+  
+-- Insert into Ticket table
+INSERT INTO "Ticket" ("transaction_id", "plane_id", "passenger_id", "seat_id") 
+VALUES 
+  (1, 1, 1, 1),
+  (2, 2, 2, 2),
+  (3, 3, 3, 3),
+  (4, 4, 4, 4),
+  (5, 5, 5, 5),
+  (6, 6, 6, 6),
+  (7, 7, 7, 7);
 
--- Insert Tickets
-INSERT INTO "Ticket" (transaction_id, plane_id, passenger_id, seat_id) VALUES
-(1, 1, 1, 1),
-(2, 2, 2, 2),
-(3, 3, 3, 3),
-(4, 4, 4, 4),
-(5, 5, 5, 5),
-(6, 6, 6, 6),
-(7, 7, 7, 7),
-(8, 8, 8, 8),
-(9, 9, 9, 9),
-(10, 10, 10, 10);
+-- Insert into Payment table
+INSERT INTO "Payment" ("orderId", "status", "transactionId", "amount", "snapToken", "customerName", "customerEmail", "customerPhone", "customerAddress") 
+VALUES 
+  ('order123', 'Completed', 'txn_token_001', 500.0, 'snapToken123', 'John Doe', 'johndoe@example.com', '123-456-7890', '123 Main St, City, Country'),
+  ('order124', 'Pending', 'txn_token_002', 1500.0, 'snapToken124', 'Jane Smith', 'janesmith@example.com', '234-567-8901', '456 Maple St, City, Country'),
+  ('order125', 'Failed', 'txn_token_003', 2500.0, 'snapToken125', 'Robert Brown', 'robertbrown@example.com', '345-678-9012', '789 Oak St, City, Country'),
+  ('order126', 'Completed', 'txn_token_004', 450.0, 'snapToken126', 'Mary Johnson', 'maryjohnson@example.com', '456 Birch St, City, Country', '123 Pine St, City, Country'),
+  ('order127', 'Pending', 'txn_token_005', 400.0, 'snapToken127', 'David White', 'davidwhite@example.com', '567-890-1234', '789 Cedar St, City, Country'),
+  ('order128', 'Completed', 'txn_token_006', 1200.0, 'snapToken128', 'Sarah Lee', 'sarahlee@example.com', '678-901-2345', '123 Elm St, City, Country'),
+  ('order129', 'Failed', 'txn_token_007', 3000.0, 'snapToken129', 'James Wilson', 'jameswilson@example.com', '789-012-3456', '123 Oak St, City, Country');

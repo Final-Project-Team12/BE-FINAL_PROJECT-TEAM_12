@@ -1,6 +1,6 @@
 const { PrismaClient } = require("@prisma/client");
 const prisma = new PrismaClient();
-
+//ini komen
 class TicketListingController {
     static async getFilteredFlights(req, res, next) {
         try {

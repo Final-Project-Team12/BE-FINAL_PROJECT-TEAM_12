@@ -1,4 +1,5 @@
-const { createPayment, handleNotification } = require("../services/paymentService");
+const { createPayment, handleNotification, cancelPayment } = require("../services/paymentService");
+
 async function createPaymentController(req, res, next) {
   try {
     const { orderId, amount, customerDetails, productDetails } = req.body;
@@ -89,7 +90,37 @@ async function handleNotificationController(req, res, next) {
   }
 }
 
+async function cancelPaymentController(req, res) {
+  try {
+    const { orderId } = req.params;
+
+    if (!orderId) {
+      return res.status(400).json({
+        message: "Order ID is required",
+        status: 400,
+      });
+    }
+
+    const response = await cancelPayment(orderId);
+
+    return res.status(200).json({
+      message: "Payment canceled successfully",
+      status: 200,
+      midtransResponse: response,
+    });
+  } catch (error) {
+    console.error("[cancelPaymentController] Error:", error.message);
+    return res.status(500).json({
+      message: "Failed to cancel payment",
+      status: 500,
+      error: error.message,
+    });
+  }
+}
+
+
 module.exports = {
   createPaymentController,
   handleNotificationController,
+  cancelPaymentController,
 };

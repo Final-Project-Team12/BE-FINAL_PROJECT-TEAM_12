@@ -1,5 +1,6 @@
 const midtransClient = require("midtrans-client");
 const prisma = require("@prisma/client");
+const moment = require("moment");
 const { PrismaClient } = prisma;
 const db = new PrismaClient();
 
@@ -11,13 +12,7 @@ const snap = new midtransClient.Snap({
 
 async function createPayment(orderId, amount, customerDetails, productDetails) {
   try {
-    if (!orderId || !amount || amount <= 0) {
-      throw new Error("Invalid orderId or amount");
-    }
-
-    if (!customerDetails || !productDetails) {
-      throw new Error("Customer details and product details are required");
-    }
+    const startTime = moment().format("YYYY-MM-DD HH:mm:ss Z");
     const payload = {
       transaction_details: {
         order_id: orderId,
@@ -35,12 +30,15 @@ async function createPayment(orderId, amount, customerDetails, productDetails) {
         quantity: item.quantity,
         name: item.productName,
       })),
+      expiry: {
+        start_time: startTime,
+        unit: "minutes",
+        duration: 10, // Transaksi akan kedaluwarsa setelah 10 menit
+      },
     };
 
-    console.log("[createPayment] Payload sent to Midtrans:", payload);
     const transaction = await snap.createTransaction(payload);
 
-    console.log("[createPayment] Transaction created:", transaction);
     await db.payment.create({
       data: {
         orderId,
@@ -64,6 +62,53 @@ async function createPayment(orderId, amount, customerDetails, productDetails) {
   }
 }
 
+async function handleNotification(notification) {
+  const { order_id: orderId, transaction_status: status } = notification;
+
+  const payment = await db.payment.findUnique({ where: { orderId } });
+  if (!payment) {
+    throw new Error("Payment not found");
+  }
+
+  let updatedStatus;
+  if (status === "settlement") {
+    updatedStatus = "SETTLEMENT";
+  } else if (status === "cancel" || status === "expire") {
+    updatedStatus = "CANCELLED";
+  } else if (status === "pending") {
+    updatedStatus = "PENDING";
+  }
+
+  await db.payment.update({
+    where: { orderId },
+    data: { status: updatedStatus },
+  });
+}
+
+async function cancelPayment(orderId) {
+  try {
+    const payment = await db.payment.findUnique({ where: { orderId } });
+    if (!payment || payment.status !== "PENDING") {
+      throw new Error("Payment cannot be canceled");
+    }
+
+    const response = await snap.transaction.cancel(orderId);
+    console.log("[cancelPayment] Transaction canceled on Midtrans:", response);
+
+    await db.payment.update({
+      where: { orderId },
+      data: { status: "CANCELLED" },
+    });
+
+    return response;
+  } catch (error) {
+    console.error("[cancelPayment] Error:", error.response?.data || error.message);
+    throw new Error("Failed to cancel payment");
+  }
+}
+
 module.exports = {
   createPayment,
+  handleNotification,
+  cancelPayment,
 };

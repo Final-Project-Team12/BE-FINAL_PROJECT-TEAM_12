@@ -1,15 +1,16 @@
+require('dotenv').config();
 const { PrismaClient } = require('@prisma/client');
-const prisma = new PrismaClient();
 const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
 const Mailer = require('../libs/mailer');
 const crypto = require('crypto');
 
-function generateOTP() {
-  return crypto.randomInt(100000, 999999).toString();
-}
+const prisma = new PrismaClient();
+const JWT_SECRET = process.env.JWT_SECRET;
+const JWT_EXPIRATION_TIME = process.env.JWT_EXPIRATION_TIME;
 
 class PasswordController {
-  static async forgotPassword(req, res) {
+  static async forgotPassword(req, res, next) {
     const { email } = req.body;
 
     if (!email) {
@@ -23,26 +24,24 @@ class PasswordController {
         return res.status(404).json({ message: 'User not found' });
       }
 
-      const otp = generateOTP();
-      const otpExpiry = new Date(Date.now() + 5 * 60 * 1000);
+      const otp = crypto.randomInt(100000, 999999).toString();
+      const otpExpiry = new Date(Date.now() + 5 * 60 * 1000).toISOString();
 
       await prisma.users.update({
         where: { email },
-        data: { 
-            otp, 
-            otp_expiry: otpExpiry },
+        data: { otp, otp_expiry: otpExpiry },
       });
-      console.log(otp)
+
+      console.log(otp);
       await Mailer.sendPasswordResetEmail(email, otp);
 
       return res.status(200).json({ message: 'OTP sent to your email' });
     } catch (error) {
-      console.error('Error sending OTP:', error);
-      return res.status(500).json({ message: 'Error sending OTP' });
+      next(error);
     }
   }
 
-  static async confirmEmail(req, res) {
+  static async confirmOtp(req, res, next) {
     const { email, otp } = req.body;
 
     if (!email || !otp) {
@@ -50,39 +49,46 @@ class PasswordController {
     }
 
     try {
-      const user = await prisma.user.findUnique({ where: { email } });
+      const user = await prisma.users.findUnique({ where: { email } });
 
       if (!user) {
         return res.status(404).json({ message: 'User not found' });
       }
 
-      const isOtpValid = user.otp === otp && user.otp_expiry > new Date();
+      const currentUtcTime = new Date().toISOString(); 
+
+      const isOtpValid = user.otp === otp && user.otp_expiry > currentUtcTime;
 
       if (!isOtpValid) {
         return res.status(400).json({ message: 'Invalid or expired OTP' });
       }
 
-      await prisma.user.update({
+      const resetToken = jwt.sign(
+        { email: user.email },
+        JWT_SECRET,
+        { expiresIn: JWT_EXPIRATION_TIME }
+      );
+
+      await prisma.users.update({
         where: { email },
         data: { otp: null, otp_expiry: null },
       });
 
       return res.status(200).json({
-        status: 'success',
-        message: 'OTP verified. Proceed to reset-password',
+        message: 'OTP verified. Use reset-token to reset your password.',
+        resetToken,
       });
     } catch (error) {
-      console.error('Error confirming OTP:', error);
-      return res.status(500).json({ message: 'Error confirming OTP' });
+      next(error);
     }
   }
 
-  static async resetPassword(req, res) {
-    const { email, newPassword, confirmPassword } = req.body;
+  static async resetPassword(req, res, next) {
+    const { email, newPassword, confirmPassword, resetToken } = req.body;
 
-    if (!email || !newPassword || !confirmPassword) {
+    if (!email || !newPassword || !confirmPassword || !resetToken) {
       return res.status(400).json({
-        message: 'Email, new password, and confirmation password are required',
+        message: 'Email, new password, confirmation password, and reset-token are required',
       });
     }
 
@@ -91,7 +97,13 @@ class PasswordController {
     }
 
     try {
-      const user = await prisma.user.findUnique({ where: { email } });
+      const decoded = jwt.verify(resetToken, JWT_SECRET);
+
+      if (decoded.email !== email) {
+        return res.status(400).json({ message: 'Invalid reset token' });
+      }
+
+      const user = await prisma.users.findUnique({ where: { email } });
 
       if (!user) {
         return res.status(404).json({ message: 'User not found' });
@@ -99,15 +111,14 @@ class PasswordController {
 
       const hashedPassword = await bcrypt.hash(newPassword, 10);
 
-      await prisma.user.update({
+      await prisma.users.update({
         where: { email },
         data: { password: hashedPassword },
       });
 
       return res.status(200).json({ message: 'Password updated successfully' });
     } catch (error) {
-      console.error('Error resetting password:', error);
-      return res.status(500).json({ message: 'Error resetting password' });
+      next(error);
     }
   }
 }

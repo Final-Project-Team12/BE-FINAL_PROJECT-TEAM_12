@@ -24,7 +24,9 @@ model Users {
   identity_number  String
   age              Int
   role             String
-  otp              String
+  otp              String?
+  otp_expiry       String?
+  reset_token      String?
   notifications    Notification[]
   transactions     Transaction[]
 }

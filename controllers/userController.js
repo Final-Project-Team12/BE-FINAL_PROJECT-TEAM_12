@@ -3,9 +3,16 @@ const { PrismaClient } = require("@prisma/client");
 const host = process.env.HOST;
 const joi = require('joi');
 const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
 
 const HASH = process.env.HASH;
+const JWT_SECRET = process.env.JWT_SECRET;
 const prisma = new PrismaClient();
+
+const login_schema = joi.object({
+  email: joi.string().email().required(),
+  password: joi.string().required()
+});
 
 const user_schema = joi.object({
     name: joi.string().min(3).max(50).required(),
@@ -192,11 +199,57 @@ class UserController{
         }
     }
     static async login(req, res, next){
-      console.log('test');
-      return res.status(200).json({
-        status: true,
-        message: "success",
-      })
+      const { error, value } = login_schema.validate(req.body);
+      if (error) {
+          return res.status(400).json({
+            status: false,
+            message: 'input error',
+            error: error.details[0].message
+          });
+      }
+      try{
+        let {email, password} = value;
+        // console.log('masuk g ni')
+        let userData = await prisma.users.findUnique({
+            where: {
+                email
+            }
+        })
+    
+        if(!userData){
+          return res.status(400).json({
+            status: false,
+            message: 'invalid login',
+          })
+        }
+        else{
+            let isPassword = bcrypt.compareSync(password, userData.password)
+            if(!isPassword){
+              return res.status(400).json({
+                status: false,
+                message: 'invalid login',
+              })
+            }
+            else{
+                const options = {
+                  expiresIn: '5d'
+                };
+                const accessToken = jwt.sign({
+                    user_id: userData.user_id,
+                    user_email: userData.email
+                }, JWT_SECRET, options)
+    
+                return res.status(200).json({
+                    status: true,
+                    message: "Login success",
+                    accessToken
+                })
+            }
+        }
+      }
+      catch(error){
+        next(error)
+      }
     }
 }
 

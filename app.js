@@ -7,6 +7,8 @@ const cors = require("cors");
 const app = express();
 const prisma = new PrismaClient();
 
+//middlewares
+const restrictJwt = require('./middlewares/restrictJwt')
 const errorHandler = require('./middlewares/errorHandler');
 
 //routers
@@ -37,6 +39,14 @@ routers.forEach(router => app.use('/api/v1', router));
 
 app.use(errorHandler);
 //buat nangkep semua error langsung
+
+app.use(restrictJwt);
+app.get("/api/v1/test", (req, res, next) => {
+  return res.status(200).json({
+    status: true
+  })
+})
+
 app.use((err, req, res, next) => {
   console.log(err);
   res.status(500).json({

@@ -1,8 +1,16 @@
+feature/midtrans
+require('dotenv').config();
+const cors = require('cors')
+const express = require('express');
+const errorHandler = require('./middlewares/errorHandler');
+const paymentRoutes = require('./router/paymentRoutes');
+
 require("dotenv").config();
 const express = require("express");
 const { PrismaClient } = require("@prisma/client");
 const bodyParser = require("body-parser");
 const cors = require("cors");
+ development
 
 const app = express();
 const prisma = new PrismaClient();

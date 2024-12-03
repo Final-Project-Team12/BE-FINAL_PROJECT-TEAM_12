@@ -8,16 +8,16 @@ const app = express();
 const prisma = new PrismaClient();
 
 //middlewares
-const restrictJwt = require('./middlewares/restrictJwt')
+const restrictJwt = require('./middlewares/restrictJwt');
 const errorHandler = require('./middlewares/errorHandler');
 
 //routers
-const ticketListingRouter = require("./routes/flightsRoutes");
-const paginationRouter = require('./routes/paginationRoutes')
-const userRouter = require('./routes/userRoutes')
-const seatRouter = require('./routes/seatRoutes')
-const airlineRouter = require("./routes/airlineRoutes");
-const passwordRouter = require("./routes/passwordRoutes");
+const ticketListingRoutes = require("./routes/flightsRoutes");
+const paginationRoutes = require('./routes/paginationRoutes')
+const userRoutes = require('./routes/userRoutes')
+const seatRoutes = require('./routes/seatRoutes')
+const airlineRoutes = require("./routes/airlineRoutes");
+const passwordRoutes = require("./routes/passwordRoutes");
 const paymentRoutes = require('./routes/paymentRoutes');
 
 app.use(express.json());
@@ -26,26 +26,21 @@ app.use(bodyParser.json());
 app.use(cors());
 
 const routers = [
-  ticketListingRouter,
-  paginationRouter,
-  userRouter,
-  seatRouter,
-  airlineRouter,
-  passwordRouter,
+  ticketListingRoutes,
+  paginationRoutes,
+  userRoutes,
+  seatRoutes,
+  airlineRoutes,
+  passwordRoutes,
   paymentRoutes,
 ];
 
 routers.forEach(router => app.use('/api/v1', router));
 
+app.use(restrictJwt);
+
 app.use(errorHandler);
 //buat nangkep semua error langsung
-
-app.use(restrictJwt);
-app.get("/api/v1/test", (req, res, next) => {
-  return res.status(200).json({
-    status: true
-  })
-})
 
 app.use((err, req, res, next) => {
   console.log(err);
@@ -65,5 +60,5 @@ app.use((err, req, res, next) => {
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
-  console.log(`Server running on http://localhost:${PORT}.`);
+  console.log(`Server running on http://localhost:${PORT}`);
 });

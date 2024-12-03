@@ -5,6 +5,7 @@ const joi = require('joi');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 
+
 const HASH = process.env.HASH;
 const JWT_SECRET = process.env.JWT_SECRET;
 const prisma = new PrismaClient();

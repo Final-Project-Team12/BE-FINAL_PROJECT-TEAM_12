@@ -27,6 +27,7 @@ const seatRoutes = require('./routes/seatRoutes')
 const airlineRoutes = require("./routes/airlineRoutes");
 const passwordRoutes = require("./routes/passwordRoutes");
 const paymentRoutes = require('./routes/paymentRoutes');
+const notificationRoutes = require("./routes/notificationRoutes");
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -41,6 +42,7 @@ const routers = [
   airlineRoutes,
   passwordRoutes,
   paymentRoutes,
+  notificationRoutes
 ];
 
 routers.forEach(router => app.use('/api/v1', router));

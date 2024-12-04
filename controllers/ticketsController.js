@@ -1,4 +1,4 @@
-const ticketService = require('../service/ticketsService');
+const ticketService = require('../services/ticketsService');
 
 exports.createTicket = async (req, res) => {
   try {

@@ -33,6 +33,34 @@ class NotificationController {
     }
   }
 
+  static async getNotificationById(req, res, next) {
+    const { notification_id } = req.params;
+    try {
+      const notification = await prisma.notification.findUnique({
+        where: { notification_id: parseInt(notification_id) },
+      });
+      if (!notification) {
+        return res.status(404).json({ message: "Notification not found" });
+      }
+      res.status(200).json(notification);
+    } catch (error) {
+      next(error);
+    }
+  }
+
+
+    static async deleteNotification(req, res, next) {
+      const { notification_id } = req.params;
+      try {
+        await prisma.notification.delete({
+          where: { notification_id: parseInt(notification_id) },
+        });
+        res.status(200).json({ message: "Notification deleted successfully" });
+      } catch (error) {
+        next(error);
+      }
+    }
+
 
 }
 

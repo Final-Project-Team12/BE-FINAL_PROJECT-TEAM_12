@@ -92,6 +92,7 @@ model Plane {
   airport_id_destination Int
   departure_time         DateTime
   arrival_time           DateTime
+  departure_terminal     String
   baggage_capacity       Float
   plane_code             String
   cabin_baggage_capacity Float
@@ -99,6 +100,8 @@ model Plane {
   wifi_available         Boolean
   in_flight_entertainment Boolean
   power_outlets          Boolean
+  offers                 String
+  duration               Int
   airline                Airline     @relation(fields: [airline_id], references: [airline_id])
   origin_airport         Airport     @relation("OriginAirport", fields: [airport_id_origin], references: [airport_id])
   destination_airport    Airport     @relation("DestinationAirport", fields: [airport_id_destination], references: [airport_id])

@@ -1,8 +1,8 @@
 const express = require("express");
-const TicketListingController = require("../controllers/flightsController");
+const FlightsController = require("../controllers/flightsController");
 
 const router = express.Router();
 
-router.get("/flights", TicketListingController.getFilteredFlights);
+router.get("/flights", FlightsController.getFilteredFlights);
 
 module.exports = router;

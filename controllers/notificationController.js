@@ -19,6 +19,20 @@ class NotificationController {
     }
   }
 
+  static async getAllNotifications(req, res, next) {
+    try {
+      const notifications = await prisma.notification.findMany({
+        include: { user: true },
+      });
+      res.status(200).json({
+        status: "success",
+        data: notifications,
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+
 
 }
 

@@ -5,11 +5,11 @@ const DEFAULT_PAGE = 1;
 const DEFAULT_LIMIT = 20;
 
 function parseQueryParams(query) {
-    const { from, to, departureDate, returnDate, seatClass, continent, facilities, passengerAdult = 0, passengerChild = 0, passengerInfant = 0, page = DEFAULT_PAGE, limit = DEFAULT_LIMIT } = query;
+    const { from, to, departureDate, returnDate, seatClass, continent, facilities, passengerAdult = 0, passengerChild = 0, passengerInfant = 0, page = DEFAULT_PAGE, limit = DEFAULT_LIMIT, price } = query;
     const pageNumber = parseInt(page, 10);
     const limitNumber = parseInt(limit, 10);
     const offset = (pageNumber - 1) * limitNumber;
-    return { from, to, departureDate, returnDate, seatClass, continent, facilities, totalPassengers: parseInt(passengerAdult, 10) + parseInt(passengerChild, 10), pageNumber, limitNumber, offset };
+    return { from, to, departureDate, returnDate, seatClass, continent, facilities, totalPassengers: parseInt(passengerAdult, 10) + parseInt(passengerChild, 10), pageNumber, limitNumber, offset, price };
 }
 
 function buildFilterConditions({ from, to, departureDate, seatClass, continent, returnDate, isReturn = false, facilities }) {
@@ -59,42 +59,62 @@ async function formatFlights(flights, seatClass, totalPassengers) {
     }));
 }
 
-async function fetchFlights({ from, to, departureDate, returnDate, seatClass, continent, facilities, offset, limitNumber, isReturn }) {
+async function fetchFlights({ from, to, departureDate, returnDate, seatClass, continent, facilities, offset, limitNumber, isReturn, price }) {
     const whereConditions = buildFilterConditions({ from, to, departureDate, seatClass, continent, returnDate, facilities, isReturn });
-    const planes = await prisma.Plane.findMany({
+
+    const planesWithSeats = await prisma.Plane.findMany({
         where: whereConditions,
         include: {
             airline: true,
             origin_airport: { include: { continent: true } },
             destination_airport: { include: { continent: true } },
-            seats: seatClass ? { where: { class: seatClass }, select: { class: true, price: true } } : { select: { class: true, price: true } }
+            seats: {
+                where: seatClass ? { class: seatClass } : undefined,
+                select: { class: true, price: true }
+            }
         },
         skip: offset,
         take: limitNumber
     });
 
-    if (continent) {
-        return planes.filter(plane => plane.destination_airport.continent?.name === continent || plane.origin_airport.continent?.name === continent);
+    if (price === "Cheapest") {
+        const filteredPlanes = planesWithSeats
+            .map(plane => {
+                const relevantSeats = seatClass
+                    ? plane.seats.filter(seat => seat.class === seatClass)
+                    : plane.seats;
+                const minPrice = relevantSeats.length > 0
+                    ? Math.min(...relevantSeats.map(seat => seat.price))
+                    : null;
+
+                return minPrice !== null ? { ...plane, minPrice } : null;
+            })
+            .filter(plane => plane !== null);
+
+        filteredPlanes.sort((a, b) => a.minPrice - b.minPrice);
+
+        return filteredPlanes;
     }
-    return planes;
+
+    return planesWithSeats;
 }
 
 class TicketListingController {
     static async getFilteredFlights(req, res, next) {
         try {
-            const { from, to, departureDate, returnDate, seatClass, continent, facilities, pageNumber, limitNumber, offset, totalPassengers } = parseQueryParams(req.query);
+            const { from, to, departureDate, returnDate, seatClass, continent, facilities, pageNumber, limitNumber, offset, totalPassengers, price } = parseQueryParams(req.query);
 
-            const [outboundFlights, returnFlights] = await Promise.all([
-                fetchFlights({ from, to, departureDate, returnDate, seatClass, continent, facilities, offset, limitNumber, isReturn: false }),
-                returnDate ? fetchFlights({ from: to, to: from, departureDate: returnDate, seatClass, continent, facilities, offset, limitNumber, isReturn: true }) : []
+            const [outbound_flights, return_flights] = await Promise.all([
+                fetchFlights({ from, to, departureDate, returnDate, seatClass, continent, facilities, offset, limitNumber, isReturn: false, price }),
+                returnDate ? fetchFlights({ from: to, to: from, departureDate: returnDate, seatClass, continent, facilities, offset, limitNumber, isReturn: true, price }) : []
             ]);
 
             const [formattedOutboundFlights, formattedReturnFlights] = await Promise.all([
-                formatFlights(outboundFlights, seatClass, totalPassengers),
-                formatFlights(returnFlights, seatClass, totalPassengers)
+                formatFlights(outbound_flights, seatClass, totalPassengers),
+                formatFlights(return_flights, seatClass, totalPassengers)
             ]);
 
-            const totalItems = outboundFlights.length + returnFlights.length;
+            const totalItems = outbound_flights.length + return_flights.length;
             const totalPages = Math.ceil(totalItems / limitNumber);
             const hasNextPage = pageNumber < totalPages;
             const hasPreviousPage = pageNumber > 1;
@@ -103,7 +123,7 @@ class TicketListingController {
                 status: "Success",
                 statusCode: 200,
                 message: "Available flights fetched successfully",
-                data: { outboundFlights: formattedOutboundFlights, returnFlights: formattedReturnFlights },
+                data: { outbound_flights: formattedOutboundFlights, return_flights: formattedReturnFlights },
                 pagination: { currentPage: pageNumber, totalPages, totalItems, limit: limitNumber, hasNextPage, hasPreviousPage }
             });
         } catch (error) {

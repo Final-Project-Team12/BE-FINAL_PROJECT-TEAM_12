@@ -85,6 +85,7 @@ CREATE TABLE "Plane" (
     "airport_id_destination" INTEGER NOT NULL,
     "departure_time" TIMESTAMP(3) NOT NULL,
     "arrival_time" TIMESTAMP(3) NOT NULL,
+    "departure_terminal" TEXT NOT NULL,
     "baggage_capacity" DOUBLE PRECISION NOT NULL,
     "plane_code" TEXT NOT NULL,
     "cabin_baggage_capacity" DOUBLE PRECISION NOT NULL,
@@ -92,6 +93,8 @@ CREATE TABLE "Plane" (
     "wifi_available" BOOLEAN NOT NULL,
     "in_flight_entertainment" BOOLEAN NOT NULL,
     "power_outlets" BOOLEAN NOT NULL,
+    "offers" TEXT NOT NULL,
+    "duration" INTEGER NOT NULL,
 
     CONSTRAINT "Plane_pkey" PRIMARY KEY ("plane_id")
 );

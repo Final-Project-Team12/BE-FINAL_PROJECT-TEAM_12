@@ -102,4 +102,35 @@ function sortByDestinationAirport(planesWithSeats) {
     });
 }
 
-module.exports = { fetchFlights };
+async function countFlights({
+    from,
+    to,
+    departureDate,
+    returnDate,
+    seatClass,
+    continent,
+    facilities,
+    isReturn,
+    min_price,
+}) {
+    const whereConditions = buildFilterConditions({ from, to, departureDate, seatClass, continent, returnDate, facilities, isReturn });
+
+    if (continent) {
+        const continentData = await getContinentData(continent);
+        if (!continentData) {
+            throw new Error(`Continent '${continent}' not found.`);
+        }
+        whereConditions.destination_airport = await getTopAirportsByContinent(continentData.continent_id);
+    }
+
+    try {
+        return await prisma.Plane.count({
+            where: whereConditions
+        });
+    } catch (error) {
+        console.error('Error counting flights:', error);
+        throw new Error('Failed to count flights');
+    }
+}
+
+module.exports = { fetchFlights, countFlights };

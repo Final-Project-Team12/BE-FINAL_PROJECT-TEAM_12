@@ -53,6 +53,7 @@ class UserController{
                     error: error.details[0].message
                 });
             }
+
             let password = bcrypt.hashSync(value.password, parseInt(HASH));
             const cekEmailUnik = await prisma.users.findUnique({
               where: {

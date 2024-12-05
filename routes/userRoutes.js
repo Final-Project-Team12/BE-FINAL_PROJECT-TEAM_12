@@ -4,6 +4,8 @@ const UserController = require('../controllers/userController');
 const restrictJwt = require('../middlewares/restrictJwt')
 
 router.post('/user', async (req, res, next) => {UserController.registerUser(req, res, next)})
+router.post('/user/verify', async (req, res, next) => {UserController.verifyUser(req, res, next)})
+router.post('/user/resend', async (req, res, next) => {UserController.resendOtp(req, res, next)})
 router.post('/user/login', async (req, res, next) => {UserController.login(req, res, next)})
 
 router.use(restrictJwt)

@@ -1,5 +1,11 @@
+require("dotenv").config();
+
 const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient();
+
+const bcrypt = require('bcrypt');
+
+const HASH = process.env.HASH;
 
 async function main() {
   const continents = [
@@ -24,7 +30,7 @@ async function main() {
         name: `User ${i}`,
         telephone_number: `0812345678${i}`,
         email: `user${i}@example.com`,
-        password: `password${i}`,
+        password: bcrypt.hashSync(`password${i}`, parseInt(HASH)),
         address: `Alamat ${i}`,
         gender: i % 2 === 0 ? 'Male' : 'Female',
         identity_number: `1234567890${i}`,

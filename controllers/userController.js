@@ -4,7 +4,8 @@ const host = process.env.HOST;
 const joi = require('joi');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
-
+const Mailer = require('../libs/mailer');
+const crypto = require('crypto');
 
 const HASH = process.env.HASH;
 const JWT_SECRET = process.env.JWT_SECRET;
@@ -38,9 +39,76 @@ const user_schema = joi.object({
   });
 
 class UserController{
-    static genOtp(){
-        //generate otp and send using nodemailer
-        return '123456'
+    static async genOtp(email, next){
+      try{
+        const otp = crypto.randomInt(100000, 999999).toString();
+        const otpExpiry = new Date(Date.now() + 5 * 60 * 1000).toISOString();
+
+        await Mailer.sendVerificationEmail(email, otp);
+
+        return { otp, otpExpiry };
+      }
+      catch(error){
+        return next(error);
+      }
+    }
+
+    static async resendOtp(req, res, next){
+      const { error, value } = login_schema.validate(req.body);
+      if (error) {
+          return res.status(400).json({
+            status: false,
+            message: 'input error',
+            error: error.details[0].message
+          });
+      }
+      try{
+        let userData = await prisma.users.findUnique({
+          where: {
+              email: value.email
+          }
+        })
+    
+        if(!userData){
+          return res.status(401).json({
+            status: false,
+            message: 'invalid login',
+          })
+        }
+        else{
+          let isPassword = bcrypt.compareSync(value.password, userData.password)
+          if(!isPassword){
+            return res.status(401).json({
+              status: false,
+              message: 'invalid login',
+            })
+          }
+          else{
+            const otp = crypto.randomInt(100000, 999999).toString();
+            const otpExpiry = new Date(Date.now() + 5 * 60 * 1000).toISOString();
+
+            await Mailer.sendVerificationEmail(value.email, otp);
+
+            const userData = await prisma.users.update({
+              where: {email:value.email},
+              data: {
+                otp,
+                otp_expiry: otpExpiry
+              }
+            })
+
+
+            return res.status(200).json({
+              status: true,
+              message: "OTP successfully resent",
+              userData
+            })
+          }
+        }
+      }
+      catch(error){
+        return next(error);
+      }
     }
 
     static async registerUser(req, res, next){
@@ -53,6 +121,7 @@ class UserController{
                     error: error.details[0].message
                 });
             }
+
             let password = bcrypt.hashSync(value.password, parseInt(HASH));
             const cekEmailUnik = await prisma.users.findUnique({
               where: {
@@ -67,8 +136,8 @@ class UserController{
               })
             }
             
-            let otp = this.genOtp();
-            const new_user = await prisma.users.create({
+            let { otpGen, otpExpiry } = await this.genOtp(value.email, next);
+            const newUser = await prisma.users.create({
                 data: {
                   name: value.name,
                   telephone_number: value.telephone_number,
@@ -79,20 +148,80 @@ class UserController{
                   identity_number: value.identity_number,
                   age: value.age,
                   role: 'user',
-                  otp
+                  otp : otpGen,
+                  otp_expiry: otpExpiry
                 },
             });
+
+            const { otp, ...userWithoutOtp } = newUser;
             
             return res.status(200).json({
                 status: true,
                 message: "success",
-                data: new_user
+                data: userWithoutOtp
             });
           }
           catch (error) {
-            next(error)
+            next(error);
+            return;
           }
     }
+
+    static async verifyUser(req, res, next){
+      const { email, otp } = req.body;
+      if (!email || !otp) {
+        return res.status(400).json({
+          status: false, 
+          message: 'Email and OTP are required'
+        });
+      }
+
+      try {
+        const user = await prisma.users.findUnique({ where: { email } });
+  
+        if (!user) {
+          return res.status(404).json({ 
+            status: false,
+            message: 'User not found'
+          });
+        }
+  
+        const currentUtcTime = new Date().toISOString(); 
+        console.log(otp);
+        console.log(user.otp);
+        console.log(user.otp_expiry);
+        console.log(currentUtcTime);
+        
+        
+        const isOtpValid = user.otp === otp && user.otp_expiry > currentUtcTime;
+  
+        if (!isOtpValid) {
+          return res.status(400).json({ 
+            status: false,
+            message: 'Invalid or expired OTP'
+          });
+        }
+  
+        let userData = await prisma.users.update({
+          where: { email },
+          data: {
+            verified: true, 
+            otp: null, 
+            otp_expiry: null
+          },
+        });
+  
+        return res.status(200).json({
+          status: true,
+          message: 'Account verified',
+          userData
+        });
+      } catch (error) {
+        next(error);
+        return;
+      }      
+    }
+
     static async getUser(req, res, next, user_id){
         try{
             let user = await prisma.users.findUnique({
@@ -115,7 +244,8 @@ class UserController{
             }
         }
         catch(error){
-            next(error)
+            next(error);
+            return;
         }
     }
     static async updateUser(req, res, next, user_id){
@@ -165,7 +295,8 @@ class UserController{
             });
           }
           catch (error) {
-            next(error)
+            next(error);
+            return;
           }
     }
     static async deleteUser(req, res, next, user_id){
@@ -196,9 +327,11 @@ class UserController{
             
         }
         catch(error){
-            next(error)
+            next(error);
+            return;
         }
     }
+
     static async login(req, res, next){
       const { error, value } = login_schema.validate(req.body);
       if (error) {
@@ -218,38 +351,46 @@ class UserController{
         })
     
         if(!userData){
-          return res.status(400).json({
+          return res.status(401).json({
             status: false,
             message: 'invalid login',
           })
         }
+
         else{
             let isPassword = bcrypt.compareSync(password, userData.password)
             if(!isPassword){
-              return res.status(400).json({
+              return res.status(401).json({
                 status: false,
                 message: 'invalid login',
               })
             }
             else{
-                const options = {
-                  expiresIn: '5d'
-                };
-                const accessToken = jwt.sign({
-                    user_id: userData.user_id,
-                    user_email: userData.email
-                }, JWT_SECRET, options)
-    
-                return res.status(200).json({
-                    status: true,
-                    message: "Login success",
-                    accessToken
+              if(userData.verified == false){
+                return res.status(401).json({
+                  status: false,
+                  message: 'The email address has not been verified yet',
                 })
+              }
+              const options = {
+                expiresIn: '5d'
+              };
+              const accessToken = jwt.sign({
+                  user_id: userData.user_id,
+                  user_email: userData.email
+              }, JWT_SECRET, options)
+  
+              return res.status(200).json({
+                  status: true,
+                  message: "Login success",
+                  accessToken
+              })
             }
         }
       }
       catch(error){
-        next(error)
+        next(error);
+        return;
       }
     }
 }

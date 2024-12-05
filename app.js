@@ -12,9 +12,6 @@ const prisma = new PrismaClient();
 const restrictJwt = require('./middlewares/restrictJwt');
 const errorHandler = require('./middlewares/errorHandler');
 
-//routes fixed for development
-const flightsPageRoute = require('./routes/flightsPageRoute');
-
 const ticketListingRoutes = require("./routes/flightsRoutes");
 const paginationRoutes = require('./routes/paginationRoutes')
 const userRoutes = require('./routes/userRoutes')

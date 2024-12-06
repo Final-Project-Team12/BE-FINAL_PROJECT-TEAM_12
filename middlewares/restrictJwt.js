@@ -6,8 +6,7 @@ let JWT_SECRET = process.env.JWT_SECRET;
 
 module.exports = async (req, res, next) => {
     const { authorization } = req.headers;
-
-    if (!authorization) {
+    if (!authorization || !authorization.startsWith('Bearer ')) {
         return res.status(401).json({
             status: "Unauthorized",
             statusCode: 401,
@@ -15,9 +14,11 @@ module.exports = async (req, res, next) => {
         });
     }
 
+    const token = authorization.split(' ')[1];
+
     try {
         const decoded = await new Promise((resolve, reject) => {
-            jwt.verify(authorization, JWT_SECRET, (err, decoded) => {
+            jwt.verify(token, JWT_SECRET, (err, decoded) => {
                 if (err) {
                     reject(err);
                 } else {

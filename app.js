@@ -17,14 +17,16 @@ const errorHandler = require('./middlewares/errorHandler');
 
 const ticketListingRoutes = require("./routes/flightsRoutes");
 const paginationRoutes = require('./routes/paginationRoutes')
-const userRoutes = require('./routes/userRoutes')
-const seatRoutes = require('./routes/seatRoutes')
+const userRoutes = require('./routes/userRoutes');
+const seatRoutes = require('./routes/seatRoutes');
+const airportRoutes = require('./routes/airportRoutes');
 const airlineRoutes = require("./routes/airlineRoutes");
 const passwordRoutes = require("./routes/passwordRoutes");
 const paymentRoutes = require('./routes/paymentRoutes');
 const notificationRoutes = require("./routes/notificationRoutes");
 const transactionRoutes = require('./routes/transactionsRoutes');
 const ticketRoutes = require('./routes/ticketsRoutes');
+
 
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(express.json());
@@ -38,6 +40,7 @@ const routers = [
   userRoutes,
   seatRoutes,
   airlineRoutes,
+  airportRoutes,
   passwordRoutes,
   paymentRoutes,
   notificationRoutes,

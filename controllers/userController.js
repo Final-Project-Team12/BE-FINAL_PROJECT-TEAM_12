@@ -41,12 +41,12 @@ const user_schema = joi.object({
 class UserController{
     static async genOtp(email, next){
       try{
-        const otp = crypto.randomInt(100000, 999999).toString();
+        const otpGen = crypto.randomInt(100000, 999999).toString();
         const otpExpiry = new Date(Date.now() + 5 * 60 * 1000).toISOString();
 
-        await Mailer.sendVerificationEmail(email, otp);
+        await Mailer.sendVerificationEmail(email, otpGen);
 
-        return { otp, otpExpiry };
+        return { otpGen, otpExpiry };
       }
       catch(error){
         return next(error);
@@ -128,7 +128,6 @@ class UserController{
                   email : value.email
               }
             })
-            console.log(cekEmailUnik);
             if(cekEmailUnik){
               return res.status(400).json({
                   status : false,
@@ -137,6 +136,8 @@ class UserController{
             }
             
             let { otpGen, otpExpiry } = await this.genOtp(value.email, next);
+            console.log(otpGen);
+            
             const newUser = await prisma.users.create({
                 data: {
                   name: value.name,
@@ -187,11 +188,6 @@ class UserController{
         }
   
         const currentUtcTime = new Date().toISOString(); 
-        console.log(otp);
-        console.log(user.otp);
-        console.log(user.otp_expiry);
-        console.log(currentUtcTime);
-        
         
         const isOtpValid = user.otp === otp && user.otp_expiry > currentUtcTime;
   

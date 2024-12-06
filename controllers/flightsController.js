@@ -10,32 +10,31 @@ class FlightsController {
             if (queryParams.status === "Error") {
                 return res.status(queryParams.statusCode).json(queryParams);
             }
-            const { from, to, departureDate, returnDate, seatClass, continent, facilities, pageNumber, limitNumber, offset, totalPassengers, priceSort, departureSort, arrivalSort, durationSort } = parseQueryParams(req.query);
-            
+
+            const { from, to, departureDate, returnDate, seatClass, continent, facilities, pageNumber, limitNumber, offset, totalPassengers, priceSort, departureSort, arrivalSort, durationSort, minPrice, maxPrice } = queryParams;
+
             const [outbound_flights, return_flights, totalOutboundFlights, totalReturnFlights] = await Promise.all([
-                fetchFlights({ from, to, departureDate, returnDate, seatClass, continent, facilities, offset, limitNumber, isReturn: false, priceSort, departureSort, arrivalSort, durationSort }),
-                returnDate ? fetchFlights({ from: to, to: from, departureDate: returnDate, seatClass, continent, facilities, offset, limitNumber, isReturn: true, priceSort, departureSort, arrivalSort, durationSort }) : [],
-                countFlights({ from, to, departureDate, seatClass, continent, facilities, isReturn: false, priceSort, departureSort, arrivalSort, durationSort }),
-                returnDate ? countFlights({ from: to, to: from, departureDate: returnDate, seatClass, continent, facilities, isReturn: true, priceSort, departureSort, arrivalSort, durationSort }) : 0
+                fetchFlights({ from, to, departureDate, returnDate, seatClass, continent, facilities, offset, limitNumber, isReturn: false, priceSort, departureSort, arrivalSort, durationSort, minPrice, maxPrice }),
+                returnDate ? fetchFlights({ from: to, to: from, departureDate: returnDate, seatClass, continent, facilities, offset, limitNumber, isReturn: true, priceSort, departureSort, arrivalSort, durationSort, minPrice, maxPrice }) : [],
+                countFlights({ from, to, departureDate, seatClass, continent, facilities, isReturn: false, priceSort, departureSort, arrivalSort, durationSort, minPrice, maxPrice }),
+                returnDate ? countFlights({ from: to, to: from, departureDate: returnDate, seatClass, continent, facilities, isReturn: true, priceSort, departureSort, arrivalSort, durationSort, minPrice, maxPrice }) : 0
             ]);
-            
-            
+
             const [formattedOutboundFlights, formattedReturnFlights] = await Promise.all([
                 formatFlights(outbound_flights, seatClass, totalPassengers),
                 formatFlights(return_flights, seatClass, totalPassengers)
             ]);
-    
+
             const totalItems = totalOutboundFlights + totalReturnFlights;
-            const totalPages = Math.ceil(totalItems / limitNumber); 
+            const totalPages = Math.ceil(totalItems / limitNumber);
             const hasNextPage = pageNumber < totalPages;
             const hasPreviousPage = pageNumber > 1;
 
-        
             const validatedReturnFlights = return_flights.filter(flight => {
                 const flightDate = new Date(flight.departure_time).toISOString().split('T')[0];
-                return flightDate === returnDate; 
+                return flightDate === returnDate;
             });
-    
+
             if (!formattedOutboundFlights.length && !validatedReturnFlights.length) {
                 return res.status(200).json({
                     status: "Success",
@@ -55,7 +54,7 @@ class FlightsController {
                     }
                 });
             }
-            
+
             return res.status(200).json({
                 status: "Success",
                 statusCode: 200,
@@ -72,11 +71,11 @@ class FlightsController {
                     hasNextPage,
                     hasPreviousPage
                 }
-            });            
+            });
         } catch (error) {
             next(error);
         }
-    }    
+    }
 }
 
 module.exports = FlightsController;

@@ -1,4 +1,17 @@
-function buildFilterConditions({ from, to, departureDate, seatClass, continent, returnDate, isReturn = false, facilities, departureSort, arrivalSort }) {
+function buildFilterConditions({
+    from,
+    to,
+    departureDate,
+    seatClass,
+    continent,
+    returnDate,
+    isReturn = false,
+    facilities,
+    minPrice,
+    maxPrice,
+    departureSort,
+    arrivalSort
+}) {
     const parseDate = (date) => isNaN(new Date(date).getTime()) ? undefined : new Date(date + 'T00:00:00.000Z');
     const endOfDay = (date) => date ? new Date(new Date(date).setDate(new Date(date).getDate() + 1)) : undefined;
 
@@ -13,19 +26,29 @@ function buildFilterConditions({ from, to, departureDate, seatClass, continent, 
     const departureDateParsed = parseDate(departureDate);
     const returnDateParsed = parseDate(returnDate);
 
-    console.log('Departure Date Parsed:', departureDateParsed);
-    console.log('Return Date Parsed:', returnDateParsed);
-    console.log('End of Day Return Date:', endOfDay(returnDateParsed));
-
-    return {
+    const conditions = {
         ...(from && { origin_airport: { airport_code: from } }),
         ...(to && { destination_airport: { airport_code: to } }),
         ...(departureDate && !isReturn && { departure_time: { gte: departureDateParsed, lt: endOfDay(departureDate) } }),
-        ...(returnDate && isReturn && { departure_time: { gte: returnDateParsed, lt: endOfDay(returnDateParsed) } }),  // Pastikan tanggal return di sini
+        ...(returnDate && isReturn && { departure_time: { gte: returnDateParsed, lt: endOfDay(returnDateParsed) } }),
         ...(seatClass && { seats: { some: { class: seatClass } } }),
         ...(continent && { destination_airport: { continent: { name: continent } } }),
         ...facilitiesFilters
     };
+
+    if (minPrice || maxPrice) {
+        conditions.seats = conditions.seats || {};
+        conditions.seats.some = conditions.seats.some || {};
+        if (minPrice) {
+            conditions.seats.some.price = { gte: parseFloat(minPrice) };
+        }
+        if (maxPrice) {
+            conditions.seats.some.price = conditions.seats.some.price || {};
+            conditions.seats.some.price.lte = parseFloat(maxPrice);
+        }
+    }
+
+    return conditions;
 }
 
 module.exports = { buildFilterConditions };

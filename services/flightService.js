@@ -31,8 +31,8 @@ async function fetchFlights({
         isReturn, 
         departureSort, 
         arrivalSort,
-        minPrice,  // Menambahkan filter harga minimum
-        maxPrice   // Menambahkan filter harga maksimum
+        minPrice,  
+        maxPrice   
     });
 
     console.log("Fetching Return Flights with Parameters:", { 
@@ -94,21 +94,18 @@ async function getPlanesWithSeats(whereConditions, offset, limitNumber, departur
     try {
         let orderBy = [];
         
-        // Sorting by Departure Time
         if (departureSort === 'First') {
             orderBy.push({ departure_time: 'asc' });
         } else if (departureSort === 'Last') {
             orderBy.push({ departure_time: 'desc' });
         }
         
-        // Sorting by Arrival Time
         if (arrivalSort === 'First') {
             orderBy.push({ arrival_time: 'asc' });
         } else if (arrivalSort === 'Last') {
             orderBy.push({ arrival_time: 'desc' });
         }
 
-        // Sorting by Duration
         if (durationSort === 'Shortest') {
             orderBy.push({ duration: 'asc' });
         } else if (durationSort === 'Longest') {

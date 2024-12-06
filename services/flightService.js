@@ -1,5 +1,5 @@
 const { PrismaClient } = require("@prisma/client");
-const { buildFilterConditions } = require("../helpers/filterBuilder");
+const { buildFilterConditions } = require("../utils/filterBuilder");
 const prisma = new PrismaClient();
 
 async function fetchFlights({

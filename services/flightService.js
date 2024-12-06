@@ -16,13 +16,30 @@ async function fetchFlights({
     priceSort,
     departureSort,
     arrivalSort,
-    durationSort
+    durationSort,
+    minPrice,
+    maxPrice
 }) {
-    const whereConditions = buildFilterConditions({ from, to, departureDate, seatClass, continent, returnDate, facilities, isReturn, departureSort, arrivalSort });
+    const whereConditions = buildFilterConditions({ 
+        from, 
+        to, 
+        departureDate, 
+        seatClass, 
+        continent, 
+        returnDate, 
+        facilities, 
+        isReturn, 
+        departureSort, 
+        arrivalSort,
+        minPrice,  // Menambahkan filter harga minimum
+        maxPrice   // Menambahkan filter harga maksimum
+    });
+
     console.log("Fetching Return Flights with Parameters:", { 
         from: to, 
-        to: from, 
-        departureDate: returnDate, 
+        to: from,
+        departureDate,
+        departureDateR: returnDate, 
         isReturn 
     });
 
@@ -46,7 +63,6 @@ async function fetchFlights({
 
     return planesWithSeats;
 }
-
 
 async function getContinentData(continent) {
     try {

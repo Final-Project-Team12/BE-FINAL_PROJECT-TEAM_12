@@ -1,5 +1,30 @@
 function parseQueryParams(query) {
-    const { from, to, departureDate, returnDate, seatClass, continent, facilities, isReturn, passengerAdult = 0, passengerChild = 0, passengerInfant = 0, page = 1, limit = 10, priceSort, departureSort, arrivalSort, durationSort } = query;
+    const { from, to, departureDate, returnDate, seatClass, continent, facilities, isReturn, 
+            passengerAdult = 0, passengerChild = 0, passengerInfant = 0, 
+            page = 1, limit = 10, priceSort, departureSort, arrivalSort, durationSort, 
+            minPrice, maxPrice } = query;
+
+    if (minPrice && isNaN(Number(minPrice))) {
+        return {
+            status: "Error",
+            statusCode: 400,
+            message: "Parameter minPrice harus berupa angka."
+        };
+    }
+    if (maxPrice && isNaN(Number(maxPrice))) {
+        return {
+            status: "Error",
+            statusCode: 400,
+            message: "Parameter maxPrice harus berupa angka."
+        };
+    }
+    if (minPrice && maxPrice && Number(minPrice) > Number(maxPrice)) {
+        return {
+            status: "Error",
+            statusCode: 400,
+            message: "Parameter minPrice tidak boleh lebih besar dari maxPrice."
+        };
+    }
 
     if (parseInt(passengerInfant) > parseInt(passengerAdult)) {
         return {
@@ -8,6 +33,7 @@ function parseQueryParams(query) {
             message: "Setiap infant harus didampingi oleh setidaknya satu adult."
         };
     }
+
     if (returnDate && new Date(returnDate) < new Date(departureDate)) {
         return {
             status: "Error",
@@ -40,7 +66,9 @@ function parseQueryParams(query) {
         priceSort,
         departureSort,
         arrivalSort,
-        durationSort
+        durationSort,
+        minPrice: minPrice ? Number(minPrice) : undefined,
+        maxPrice: maxPrice ? Number(maxPrice) : undefined
     };
 }
 

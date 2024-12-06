@@ -47,6 +47,8 @@ const routers = [
 
 routers.forEach(router => app.use('/api/v1', router));
 
+
+
 app.use(restrictJwt);
 
 app.use(errorHandler);

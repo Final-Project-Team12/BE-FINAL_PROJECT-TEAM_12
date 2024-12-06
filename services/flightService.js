@@ -13,21 +13,30 @@ async function fetchFlights({
     offset,
     limitNumber,
     isReturn,
-    min_price,
+    priceSort,
+    departureSort,
+    arrivalSort,
+    durationSort
 }) {
-    const whereConditions = buildFilterConditions({ from, to, departureDate, seatClass, continent, returnDate, facilities, isReturn });
+    const whereConditions = buildFilterConditions({ from, to, departureDate, seatClass, continent, returnDate, facilities, isReturn, departureSort, arrivalSort });
+    console.log("Fetching Return Flights with Parameters:", { 
+        from: to, 
+        to: from, 
+        departureDate: returnDate, 
+        isReturn 
+    });
 
     if (continent) {
         const continentData = await getContinentData(continent);
         if (!continentData) {
-            throw new Error(`Continent '${continent}' not found.`);
+            throw new Error(`Continent ${continent} not found.`);
         }
         whereConditions.destination_airport = await getTopAirportsByContinent(continentData.continent_id);
     }
 
-    const planesWithSeats = await getPlanesWithSeats(whereConditions, offset, limitNumber);
+    const planesWithSeats = await getPlanesWithSeats(whereConditions, offset, limitNumber, departureSort, arrivalSort, durationSort);
 
-    if (min_price === 'Cheapest') {
+    if (priceSort === 'Cheapest') {
         sortByCheapestPrice(planesWithSeats);
     }
 
@@ -37,6 +46,7 @@ async function fetchFlights({
 
     return planesWithSeats;
 }
+
 
 async function getContinentData(continent) {
     try {
@@ -64,8 +74,31 @@ async function getTopAirportsByContinent(continentId) {
     }
 }
 
-async function getPlanesWithSeats(whereConditions, offset, limitNumber) {
+async function getPlanesWithSeats(whereConditions, offset, limitNumber, departureSort, arrivalSort, durationSort) {
     try {
+        let orderBy = [];
+        
+        // Sorting by Departure Time
+        if (departureSort === 'First') {
+            orderBy.push({ departure_time: 'asc' });
+        } else if (departureSort === 'Last') {
+            orderBy.push({ departure_time: 'desc' });
+        }
+        
+        // Sorting by Arrival Time
+        if (arrivalSort === 'First') {
+            orderBy.push({ arrival_time: 'asc' });
+        } else if (arrivalSort === 'Last') {
+            orderBy.push({ arrival_time: 'desc' });
+        }
+
+        // Sorting by Duration
+        if (durationSort === 'Shortest') {
+            orderBy.push({ duration: 'asc' });
+        } else if (durationSort === 'Longest') {
+            orderBy.push({ duration: 'desc' });
+        }
+
         return await prisma.Plane.findMany({
             where: whereConditions,
             include: {
@@ -78,13 +111,15 @@ async function getPlanesWithSeats(whereConditions, offset, limitNumber) {
                 }
             },
             skip: offset,
-            take: limitNumber
+            take: limitNumber,
+            orderBy: orderBy.length > 0 ? orderBy : undefined,
         });
     } catch (error) {
         console.error('Error fetching planes with seats:', error);
         throw new Error('Failed to fetch planes');
     }
 }
+
 
 function sortByCheapestPrice(planesWithSeats) {
     planesWithSeats.sort((a, b) => {
@@ -110,27 +145,27 @@ async function countFlights({
     seatClass,
     continent,
     facilities,
-    isReturn,
-    min_price,
+    isReturn
 }) {
     const whereConditions = buildFilterConditions({ from, to, departureDate, seatClass, continent, returnDate, facilities, isReturn });
 
     if (continent) {
         const continentData = await getContinentData(continent);
         if (!continentData) {
-            throw new Error(`Continent '${continent}' not found.`);
+            throw new Error(`Continent ${continent} not found.`);
         }
         whereConditions.destination_airport = await getTopAirportsByContinent(continentData.continent_id);
     }
 
     try {
         return await prisma.Plane.count({
-            where: whereConditions
+            where: whereConditions,
         });
     } catch (error) {
         console.error('Error counting flights:', error);
         throw new Error('Failed to count flights');
     }
 }
+
 
 module.exports = { fetchFlights, countFlights };

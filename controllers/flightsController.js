@@ -1,12 +1,17 @@
-const { parseQueryParams } = require("../middlewares/queryParser");
+const { parseQueryParams } = require("../helpers/queryParser");
 const { fetchFlights, countFlights } = require("../services/flightService");
 const { formatFlights } = require("../helpers/flightFormatter");
 
 class FlightsController {
     static async getFilteredFlights(req, res, next) {
         try {
-            const { from, to, departureDate, returnDate, seatClass, continent, facilities, pageNumber, limitNumber, offset, totalPassengers, priceSort, departureSort, arrivalSort, durationSort } = parseQueryParams(req.query);
+            const queryParams = parseQueryParams(req.query);
 
+            if (queryParams.status === "Error") {
+                return res.status(queryParams.statusCode).json(queryParams);
+            }
+            const { from, to, departureDate, returnDate, seatClass, continent, facilities, pageNumber, limitNumber, offset, totalPassengers, priceSort, departureSort, arrivalSort, durationSort } = parseQueryParams(req.query);
+            
             const [outbound_flights, return_flights, totalOutboundFlights, totalReturnFlights] = await Promise.all([
                 fetchFlights({ from, to, departureDate, returnDate, seatClass, continent, facilities, offset, limitNumber, isReturn: false, priceSort, departureSort, arrivalSort, durationSort }),
                 returnDate ? fetchFlights({ from: to, to: from, departureDate: returnDate, seatClass, continent, facilities, offset, limitNumber, isReturn: true, priceSort, departureSort, arrivalSort, durationSort }) : [],
@@ -31,13 +36,33 @@ class FlightsController {
                 return flightDate === returnDate; 
             });
     
+            if (!formattedOutboundFlights.length && !validatedReturnFlights.length) {
+                return res.status(200).json({
+                    status: "Success",
+                    statusCode: 200,
+                    message: "No flights are available for this route.",
+                    data: {
+                        outbound_flights: [],
+                        return_flights: []
+                    },
+                    pagination: {
+                        currentPage: pageNumber,
+                        totalPages: 0,
+                        totalItems: 0,
+                        limit: limitNumber,
+                        hasNextPage: false,
+                        hasPreviousPage: false
+                    }
+                });
+            }
+            
             return res.status(200).json({
                 status: "Success",
                 statusCode: 200,
-                message: "Penerbangan yang tersedia berhasil diambil",
+                message: "Available flights have been successfully retrieved.",
                 data: {
                     outbound_flights: formattedOutboundFlights,
-                    return_flights: validatedReturnFlights 
+                    return_flights: validatedReturnFlights
                 },
                 pagination: {
                     currentPage: pageNumber,
@@ -47,7 +72,7 @@ class FlightsController {
                     hasNextPage,
                     hasPreviousPage
                 }
-        });
+            });            
         } catch (error) {
             next(error);
         }

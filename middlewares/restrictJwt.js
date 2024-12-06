@@ -9,6 +9,8 @@ module.exports = async (req, res, next) => {
 
     if (!authorization) {
         return res.status(401).json({
+            status: "Unauthorized",
+            statusCode: 401,
             message: "You are not authorized",
         });
     }
@@ -32,6 +34,8 @@ module.exports = async (req, res, next) => {
 
         if (!userData) {
             return res.status(401).json({
+                status: "Unauthorized",
+                statusCode: 401,
                 message: "User not found",
             });
         }
@@ -40,6 +44,8 @@ module.exports = async (req, res, next) => {
         next();
     } catch (err) {
         res.status(401).json({
+            status: "Unauthorized",
+            statusCode: 401,
             message: "You are not authorized",
         });
     }

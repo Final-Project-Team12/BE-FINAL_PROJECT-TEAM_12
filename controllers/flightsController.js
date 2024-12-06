@@ -1,6 +1,6 @@
-const { parseQueryParams } = require("../helpers/queryParser");
+const { parseQueryParams } = require("../utils/queryParser");
 const { fetchFlights, countFlights } = require("../services/flightService");
-const { formatFlights } = require("../helpers/flightFormatter");
+const { formatFlights } = require("../utils/flightFormatter");
 
 class FlightsController {
     static async getFilteredFlights(req, res, next) {

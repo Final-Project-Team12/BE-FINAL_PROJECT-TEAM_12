@@ -4,24 +4,43 @@ function buildSearchConditions({
     departureDate, 
     seatClass, 
     returnDate, 
-    isReturn = false 
+    isReturn = false
 }) {
+    console.log(`isReturn: ${isReturn}`);
+    console.log(`departureDate: ${departureDate}`);
+    console.log(`returnDate: ${returnDate}`);
+
     const parseDate = (date) => {
-        const parsedDate = new Date(date);
+        if (!date) return null; // Jika tidak ada nilai, return null
+        const parsedDate = new Date(date + 'T00:00:00.000Z'); // Pastikan menggunakan waktu UTC 00:00:00
         if (isNaN(parsedDate.getTime())) {
-            return undefined;
+            return null;
         }
-        // Hanya ambil bagian tanggal, abaikan waktu
-        return new Date(parsedDate.setHours(0, 0, 0, 0)); // Set waktu ke 00:00:00
+        return parsedDate;
     };
 
-    const departureDateParsed = parseDate(departureDate);
-    const returnDateParsed = parseDate(returnDate);
+    // Parsing tanggal
+    let departureDateParsed = parseDate(departureDate);
+    let returnDateParsed = parseDate(returnDate);
 
-    const { origin, destination, departureTime } = isReturn ? 
-        { origin: to, destination: from, departureTime: returnDateParsed } : 
-        { origin: from, destination: to, departureTime: departureDateParsed };
+    console.log(`Parsed departureDate: ${departureDateParsed ? departureDateParsed.toISOString() : "Invalid date"}`);
+    console.log(`Parsed returnDate: ${returnDateParsed ? returnDateParsed.toISOString() : "null"}`);
 
+    let departureTime;
+    let origin, destination;
+
+    if (isReturn) {
+        departureTime = returnDateParsed;
+        origin = to; // Penerbangan pulang (dari tujuan kembali ke asal)
+        destination = from;
+    } else {
+        // Jika isReturn = false, gunakan departureDate sebagai departureTime
+        departureTime = departureDateParsed;
+        origin = from;
+        destination = to;
+    }
+
+    // Menyusun kondisi pencarian berdasarkan parameter yang diterima
     const conditions = {
         ...(origin && destination && {
             origin_airport: { airport_code: origin },
@@ -32,11 +51,12 @@ function buildSearchConditions({
             } : undefined,
         }),
 
-        ...(seatClass && { seats: { some: { class: seatClass } } }),
+        ...(seatClass && { seats: { some: { class: seatClass } } } ),
     };
 
+    // Log kondisi yang dihasilkan
     console.log("Generated Search Conditions:", JSON.stringify(conditions, null, 2));
-    
+
     return conditions;
 }
 

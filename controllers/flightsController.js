@@ -15,7 +15,7 @@ class FlightsController {
 
             const [outbound_flights, return_flights, totalOutboundFlights, totalReturnFlights] = await Promise.all([
                 fetchFlights({ from, to, departureDate, returnDate, seatClass, continent, facilities, offset, limitNumber, isReturn: false, priceSort, departureSort, arrivalSort, durationSort, minPrice, maxPrice }),
-                returnDate ? fetchFlights({ from, to, departureDate, seatClass, continent, facilities, offset, limitNumber, isReturn: true, priceSort, departureSort, arrivalSort, durationSort, minPrice, maxPrice }) : [],
+                returnDate ? fetchFlights({ from, to, departureDate : returnDate, returnDate : null, seatClass, continent, facilities, offset, limitNumber, isReturn: true, priceSort, departureSort, arrivalSort, durationSort, minPrice, maxPrice }) : [],
                 countFlights({ from, to, departureDate, seatClass, continent, facilities, isReturn: false, priceSort, departureSort, arrivalSort, durationSort, minPrice, maxPrice }),
                 returnDate ? countFlights({ from, to, departureDate, seatClass, continent, facilities, isReturn: true, priceSort, departureSort, arrivalSort, durationSort, minPrice, maxPrice }) : 0
             ]);

@@ -6,16 +6,19 @@ let JWT_SECRET = process.env.JWT_SECRET;
 
 module.exports = async (req, res, next) => {
     const { authorization } = req.headers;
-
-    if (!authorization) {
+    if (!authorization || !authorization.startsWith('Bearer ')) {
         return res.status(401).json({
+            status: "Unauthorized",
+            statusCode: 401,
             message: "You are not authorized",
         });
     }
 
+    const token = authorization.split(' ')[1];
+
     try {
         const decoded = await new Promise((resolve, reject) => {
-            jwt.verify(authorization, JWT_SECRET, (err, decoded) => {
+            jwt.verify(token, JWT_SECRET, (err, decoded) => {
                 if (err) {
                     reject(err);
                 } else {
@@ -32,6 +35,8 @@ module.exports = async (req, res, next) => {
 
         if (!userData) {
             return res.status(401).json({
+                status: "Unauthorized",
+                statusCode: 401,
                 message: "User not found",
             });
         }
@@ -40,6 +45,8 @@ module.exports = async (req, res, next) => {
         next();
     } catch (err) {
         res.status(401).json({
+            status: "Unauthorized",
+            statusCode: 401,
             message: "You are not authorized",
         });
     }

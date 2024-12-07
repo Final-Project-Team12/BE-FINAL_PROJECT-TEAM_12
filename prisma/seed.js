@@ -1,179 +1,366 @@
-require("dotenv").config();
-
 const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient();
 
-const bcrypt = require('bcrypt');
-
-const HASH = process.env.HASH;
-
 async function main() {
-  const continents = [
-    'Africa', 'Asia', 'Europe', 'North America', 'South America', 
-    'Australia', 'Antarctica'
-  ];
+  await prisma.$queryRaw`
+  INSERT INTO "Continent" (name) VALUES ('Asia');
+`;
 
-  const continentIds = [];
-  for (let i = 0; i < continents.length; i++) {
-    const continent = await prisma.continent.create({
-      data: {
-        name: continents[i],
-      },
-    });
-    continentIds.push(continent.continent_id);
-  }
+await prisma.$queryRaw`
+  INSERT INTO "Continent" (name) VALUES ('Europe');
+`;
 
-  const userIds = [];
-  for (let i = 1; i <= 10; i++) {
-    const user = await prisma.users.create({
-      data: {
-        name: `User ${i}`,
-        telephone_number: `0812345678${i}`,
-        email: `user${i}@example.com`,
-        password: bcrypt.hashSync(`password${i}`, parseInt(HASH)),
-        address: `Alamat ${i}`,
-        gender: i % 2 === 0 ? 'Male' : 'Female',
-        identity_number: `1234567890${i}`,
-        age: 20 + i,
-        role: i % 2 === 0 ? 'Admin' : 'User',
-      },
-    });
-    userIds.push(user.user_id);
-  }
+await prisma.$queryRaw`
+  INSERT INTO "Continent" (name) VALUES ('North America');
+`;
 
-  const airlineIds = [];
-  for (let i = 1; i <= 10; i++) {
-    const airline = await prisma.airline.create({
-      data: {
-        airline_name: `Airline ${i}`,
-        image_url: `https://example.com/airline-${i}.jpg`,
-        times_used: i * 10,
-        file_id: `file-id-${i}`,
-      },
-    });
-    airlineIds.push(airline.airline_id);
-  }
+await prisma.$queryRaw`
+  INSERT INTO "Continent" (name) VALUES ('South America');
+`;
 
-  const airportIds = [];
-  for (let i = 1; i <= 10; i++) {
-    const airport = await prisma.airport.create({
-      data: {
-        name: `Airport ${i}`,
-        address: `Alamat Airport ${i}`,
-        airport_code: `AA${i}`,
-        image_url: `https://example.com/airport-${i}.jpg`,
-        file_id: `airport-file-id-${i}`,
-        continent_id: continentIds[i % continentIds.length], 
-      },
-    });
-    airportIds.push(airport.airport_id);
-  }
+await prisma.$queryRaw`
+  INSERT INTO "Continent" (name) VALUES ('Africa');
+`;
 
-  const planeIds = [];
-  for (let i = 1; i <= 10; i++) {
-    const plane = await prisma.plane.create({
-      data: {
-        airline_id: airlineIds[i % airlineIds.length], 
-        airport_id_origin: airportIds[i % airportIds.length], 
-        airport_id_destination: airportIds[(i + 1) % airportIds.length], 
-        departure_time: new Date(),
-        arrival_time: new Date(),
-        departure_terminal: `Terminal ${i}`,
-        baggage_capacity: 200 + i * 10,
-        plane_code: `PLANE-${i}`,
-        cabin_baggage_capacity: 10 + i,
-        meal_available: i % 2 === 0,
-        wifi_available: i % 2 !== 0,
-        in_flight_entertainment: i % 2 === 0,
-        power_outlets: i % 2 !== 0,
-        offers: `Offer ${i}`,
-        duration: 120 + i * 5,
-      },
-    });
-    planeIds.push(plane.plane_id);
-  }
+await prisma.$queryRaw`
+INSERT INTO "Airline" (airline_name, image_url, times_used, file_id) 
+VALUES ('Garuda Indonesia', 'https://example.com/garuda.jpg', 0, 'garuda123');
+`;
 
-  for (let i = 1; i <= 10; i++) {
-    await prisma.seat.create({
-      data: {
-        class: i % 2 === 0 ? 'Economy' : 'Business',
-        seat_number: `S${i}`,
-        price: 100 + i * 10,
-        plane_id: planeIds[i % planeIds.length], 
-      },
-    });
-  }
+await prisma.$queryRaw`
+INSERT INTO "Airline" (airline_name, image_url, times_used, file_id) 
+VALUES ('Singapore Airlines', 'https://example.com/singapore.jpg', 0, 'singapore123');
+`;
 
-  const passengerIds = [];
-  for (let i = 1; i <= 10; i++) {
-    const passenger = await prisma.passenger.create({
-      data: {
-        title: i % 2 === 0 ? 'Mr.' : 'Ms.',
-        name: `Passenger ${i}`,
-        last_name: `LastName ${i}`,
-        nationality: 'Indonesian',
-        identity_number: `123456789012345${i}`,
-        issuing_country: 'Indonesia',
-        valid_until: new Date(),
-      },
-    });
-    passengerIds.push(passenger.passenger_id);
-  }
+await prisma.$queryRaw`
+INSERT INTO "Airline" (airline_name, image_url, times_used, file_id) 
+VALUES ('Citilink', 'https://example.com/citilink.jpg', 0, 'citilink123');
+`;
 
-  const transactionIds = [];
-  for (let i = 1; i <= 10; i++) {
-    const transaction = await prisma.transaction.create({
-      data: {
-        status: i % 2 === 0 ? 'Completed' : 'Pending',
-        redirect_url: `https://example.com/transaction/${i}`,
-        transaction_date: new Date(),
-        token: `token-${i}`,
-        message: `Transaction ${i}`,
-        total_payment: 500 + i * 10,
-        user_id: userIds[i % userIds.length], 
-      },
-    });
-    transactionIds.push(transaction.transaction_id);
-  }
+await prisma.$queryRaw`
+INSERT INTO "Airline" (airline_name, image_url, times_used, file_id) 
+VALUES ('Qatar Airways', 'https://example.com/qatar.jpg', 0, 'qatar123');
+`;
 
-  for (let i = 1; i <= 10; i++) {
-    await prisma.ticket.create({
-      data: {
-        transaction_id: transactionIds[i % transactionIds.length], 
-        plane_id: planeIds[i % planeIds.length], 
-        passenger_id: passengerIds[i % passengerIds.length], 
-        seat_id: i, 
-      },
-    });
-  }
 
-  for (let i = 1; i <= 10; i++) {
-    await prisma.notification.create({
-      data: {
-        title: `Notification ${i}`,
-        description: `Description for notification ${i}`,
-        user_id: userIds[i % userIds.length], 
-      },
-    });
-  }
+  // Menambahkan Bandara untuk Asia
+await prisma.$queryRaw`
+INSERT INTO "Airport" (name, address, airport_code, image_url, file_id, continent_id)
+VALUES 
+  ('Soekarno-Hatta International Airport', 'Tangerang, Banten, Indonesia', 'CGK', 'https://example.com/images/cgk.jpg', 'file_id_1', (SELECT continent_id FROM "Continent" WHERE name = 'Asia'));
+`;
 
-  for (let i = 1; i <= 10; i++) {
-    await prisma.payment.create({
-      data: {
-        orderId: `order-${i}`,
-        status: i % 2 === 0 ? 'Completed' : 'Pending',
-        transactionId: `transaction-${i}`,
-        amount: 1000 + i * 50,
-        snapToken: `snap-token-${i}`,
-        customerName: `Customer ${i}`,
-        customerEmail: `customer${i}@example.com`,
-        customerPhone: `0812345678${i}`,
-        customerAddress: `Alamat Customer ${i}`,
-      },
-    });
-  }
+await prisma.$queryRaw`
+INSERT INTO "Airport" (name, address, airport_code, image_url, file_id, continent_id)
+VALUES
+  ('Changi Airport', 'Singapore 819666', 'SIN', 'https://example.com/images/sin.jpg', 'file_id_2', (SELECT continent_id FROM "Continent" WHERE name = 'Asia'));
+`;
 
-  console.log('Seeding complete');
+// Menambahkan Bandara untuk Eropa
+await prisma.$queryRaw`
+INSERT INTO "Airport" (name, address, airport_code, image_url, file_id, continent_id)
+VALUES
+  ('Heathrow Airport', 'Longford, Hounslow, London, United Kingdom', 'LHR', 'https://example.com/images/lhr.jpg', 'file_id_3', (SELECT continent_id FROM "Continent" WHERE name = 'Europe'));
+`;
+
+await prisma.$queryRaw`
+INSERT INTO "Airport" (name, address, airport_code, image_url, file_id, continent_id)
+VALUES
+  ('Charles de Gaulle Airport', 'Roissy-en-France, France', 'CDG', 'https://example.com/images/cdg.jpg', 'file_id_4', (SELECT continent_id FROM "Continent" WHERE name = 'Europe'));
+`;
+
+// Menambahkan Bandara untuk Amerika Utara
+await prisma.$queryRaw`
+INSERT INTO "Airport" (name, address, airport_code, image_url, file_id, continent_id)
+VALUES
+  ('John F. Kennedy International Airport', 'Queens, NY, USA', 'JFK', 'https://example.com/images/jfk.jpg', 'file_id_5', (SELECT continent_id FROM "Continent" WHERE name = 'North America'));
+`;
+
+await prisma.$queryRaw`
+INSERT INTO "Airport" (name, address, airport_code, image_url, file_id, continent_id)
+VALUES
+  ('Los Angeles International Airport', 'Westchester, Los Angeles, CA, USA', 'LAX', 'https://example.com/images/lax.jpg', 'file_id_6', (SELECT continent_id FROM "Continent" WHERE name = 'North America'));
+`;
+
+// Menambahkan Bandara untuk Amerika Selatan
+await prisma.$queryRaw`
+INSERT INTO "Airport" (name, address, airport_code, image_url, file_id, continent_id)
+VALUES
+  ('Sao Paulo–Guarulhos International Airport', 'Guarulhos, São Paulo, Brazil', 'GRU', 'https://example.com/images/gru.jpg', 'file_id_7', (SELECT continent_id FROM "Continent" WHERE name = 'South America'));
+`;
+
+await prisma.$queryRaw`
+INSERT INTO "Airport" (name, address, airport_code, image_url, file_id, continent_id)
+VALUES
+  ('El Dorado International Airport', 'Bogotá, Colombia', 'BOG', 'https://example.com/images/bog.jpg', 'file_id_8', (SELECT continent_id FROM "Continent" WHERE name = 'South America'));
+`;
+
+// Menambahkan Bandara untuk Afrika
+await prisma.$queryRaw`
+INSERT INTO "Airport" (name, address, airport_code, image_url, file_id, continent_id)
+VALUES
+  ('O. R. Tambo International Airport', 'Kempton Park, Johannesburg, South Africa', 'JNB', 'https://example.com/images/jnb.jpg', 'file_id_9', (SELECT continent_id FROM "Continent" WHERE name = 'Africa'));
+`;
+
+await prisma.$queryRaw`
+INSERT INTO "Airport" (name, address, airport_code, image_url, file_id, continent_id)
+VALUES
+  ('Cape Town International Airport', 'Cape Town, South Africa', 'CPT', 'https://example.com/images/cpt.jpg', 'file_id_10', (SELECT continent_id FROM "Continent" WHERE name = 'Africa'));
+`;
+
+
+
+  // Menambahkan Pesawat untuk Garuda Indonesia
+await prisma.$queryRaw`
+INSERT INTO "Plane" (airline_id, airport_id_origin, airport_id_destination, departure_time, arrival_time, departure_terminal, baggage_capacity, plane_code, cabin_baggage_capacity, meal_available, wifi_available, in_flight_entertainment, power_outlets, offers, duration)
+VALUES
+  ((SELECT airline_id FROM "Airline" WHERE airline_name = 'Garuda Indonesia'), 1, 2, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, 'Terminal 1', 20, 'PGA1', 10, true, true, true, true, 'Special offers available', 120);
+`;
+
+await prisma.$queryRaw`
+INSERT INTO "Plane" (airline_id, airport_id_origin, airport_id_destination, departure_time, arrival_time, departure_terminal, baggage_capacity, plane_code, cabin_baggage_capacity, meal_available, wifi_available, in_flight_entertainment, power_outlets, offers, duration)
+VALUES
+  ((SELECT airline_id FROM "Airline" WHERE airline_name = 'Garuda Indonesia'), 1, 2, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, 'Terminal 2', 30, 'PGA2', 10, true, true, true, true, 'Special offers available', 120);
+`;
+
+await prisma.$queryRaw`
+INSERT INTO "Plane" (airline_id, airport_id_origin, airport_id_destination, departure_time, arrival_time, departure_terminal, baggage_capacity, plane_code, cabin_baggage_capacity, meal_available, wifi_available, in_flight_entertainment, power_outlets, offers, duration)
+VALUES
+  ((SELECT airline_id FROM "Airline" WHERE airline_name = 'Garuda Indonesia'), 2, 1, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, 'Terminal 3', 20, 'PGA3', 10, true, true, true, true, 'Special offers available', 120);
+`;
+
+// Menambahkan Pesawat untuk Singapore Airlines
+await prisma.$queryRaw`
+INSERT INTO "Plane" (airline_id, airport_id_origin, airport_id_destination, departure_time, arrival_time, departure_terminal, baggage_capacity, plane_code, cabin_baggage_capacity, meal_available, wifi_available, in_flight_entertainment, power_outlets, offers, duration)
+VALUES
+  ((SELECT airline_id FROM "Airline" WHERE airline_name = 'Singapore Airlines'), 3, 4, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, 'Terminal 1', 20, 'PSA1', 10, true, true, true, true, 'Special offers available', 120);
+`;
+
+await prisma.$queryRaw`
+INSERT INTO "Plane" (airline_id, airport_id_origin, airport_id_destination, departure_time, arrival_time, departure_terminal, baggage_capacity, plane_code, cabin_baggage_capacity, meal_available, wifi_available, in_flight_entertainment, power_outlets, offers, duration)
+VALUES
+  ((SELECT airline_id FROM "Airline" WHERE airline_name = 'Singapore Airlines'), 4, 3, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, 'Terminal 2', 20, 'PSA2', 10, true, true, true, true, 'Special offers available', 120);
+`;
+
+await prisma.$queryRaw`
+INSERT INTO "Plane" (airline_id, airport_id_origin, airport_id_destination, departure_time, arrival_time, departure_terminal, baggage_capacity, plane_code, cabin_baggage_capacity, meal_available, wifi_available, in_flight_entertainment, power_outlets, offers, duration)
+VALUES
+  ((SELECT airline_id FROM "Airline" WHERE airline_name = 'Singapore Airlines'), 4, 3, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, 'Terminal 3', 30, 'PSA3', 10, true, true, true, true, 'Special offers available', 120);
+`;
+
+// Menambahkan Pesawat untuk Citilink
+await prisma.$queryRaw`
+INSERT INTO "Plane" (airline_id, airport_id_origin, airport_id_destination, departure_time, arrival_time, departure_terminal, baggage_capacity, plane_code, cabin_baggage_capacity, meal_available, wifi_available, in_flight_entertainment, power_outlets, offers, duration)
+VALUES
+  ((SELECT airline_id FROM "Airline" WHERE airline_name = 'Citilink'), 5, 6, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, 'Terminal 1', 20, 'CTA1', 10, true, true, true, true, 'Special offers available', 120);
+`;
+
+await prisma.$queryRaw`
+INSERT INTO "Plane" (airline_id, airport_id_origin, airport_id_destination, departure_time, arrival_time, departure_terminal, baggage_capacity, plane_code, cabin_baggage_capacity, meal_available, wifi_available, in_flight_entertainment, power_outlets, offers, duration)
+VALUES
+  ((SELECT airline_id FROM "Airline" WHERE airline_name = 'Citilink'), 5, 6, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, 'Terminal 2', 30, 'CTA2', 10, true, true, true, true, 'Special offers available', 120);
+`;
+
+await prisma.$queryRaw`
+INSERT INTO "Plane" (airline_id, airport_id_origin, airport_id_destination, departure_time, arrival_time, departure_terminal, baggage_capacity, plane_code, cabin_baggage_capacity, meal_available, wifi_available, in_flight_entertainment, power_outlets, offers, duration)
+VALUES
+  ((SELECT airline_id FROM "Airline" WHERE airline_name = 'Citilink'), 5, 6, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, 'Terminal 3', 30, 'CTA3', 10, true, true, true, true, 'Special offers available', 120);
+`;
+
+// Menambahkan Pesawat untuk Qatar Airways
+await prisma.$queryRaw`
+INSERT INTO "Plane" (airline_id, airport_id_origin, airport_id_destination, departure_time, arrival_time, departure_terminal, baggage_capacity, plane_code, cabin_baggage_capacity, meal_available, wifi_available, in_flight_entertainment, power_outlets, offers, duration)
+VALUES
+  ((SELECT airline_id FROM "Airline" WHERE airline_name = 'Qatar Airways'), 8, 7, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, 'Terminal 1', 30, 'QTA1', 10, true, true, true, true, 'Special offers available', 120);
+`;
+
+await prisma.$queryRaw`
+INSERT INTO "Plane" (airline_id, airport_id_origin, airport_id_destination, departure_time, arrival_time, departure_terminal, baggage_capacity, plane_code, cabin_baggage_capacity, meal_available, wifi_available, in_flight_entertainment, power_outlets, offers, duration)
+VALUES
+  ((SELECT airline_id FROM "Airline" WHERE airline_name = 'Qatar Airways'), 8, 7, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, 'Terminal 2', 30, 'QTA2', 10, true, true, true, true, 'Special offers available', 120);
+`;
+
+await prisma.$queryRaw`
+INSERT INTO "Plane" (airline_id, airport_id_origin, airport_id_destination, departure_time, arrival_time, departure_terminal, baggage_capacity, plane_code, cabin_baggage_capacity, meal_available, wifi_available, in_flight_entertainment, power_outlets, offers, duration)
+VALUES
+  ((SELECT airline_id FROM "Airline" WHERE airline_name = 'Qatar Airways'), 8, 7, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, 'Terminal 3', 20, 'QTA3', 10, true, true, true, true, 'Special offers available', 120);
+`;
+
+
+
+ // Kursi First Class untuk Garuda Indonesia
+await prisma.$queryRaw`
+INSERT INTO "Seat" (class, seat_number, price, plane_id)
+SELECT 'First Class', CONCAT('F', ROW_NUMBER() OVER (ORDER BY plane_id)), 600, plane_id
+FROM "Plane"
+WHERE airline_id = (SELECT airline_id FROM "Airline" WHERE airline_name = 'Garuda Indonesia')
+LIMIT 6;
+`;
+
+// Kursi Business Class untuk Garuda Indonesia
+await prisma.$queryRaw`
+INSERT INTO "Seat" (class, seat_number, price, plane_id)
+SELECT 'Business', CONCAT('B', ROW_NUMBER() OVER (ORDER BY plane_id)), 350, plane_id
+FROM "Plane"
+WHERE airline_id = (SELECT airline_id FROM "Airline" WHERE airline_name = 'Garuda Indonesia')
+LIMIT 12;
+`;
+
+// Kursi Economy Premium untuk Garuda Indonesia
+await prisma.$queryRaw`
+INSERT INTO "Seat" (class, seat_number, price, plane_id)
+SELECT 'Economy Premium', CONCAT('E', ROW_NUMBER() OVER (ORDER BY plane_id)), 200, plane_id
+FROM "Plane"
+WHERE airline_id = (SELECT airline_id FROM "Airline" WHERE airline_name = 'Garuda Indonesia')
+LIMIT 18;
+`;
+
+// Kursi Economy Class untuk Garuda Indonesia
+await prisma.$queryRaw`
+INSERT INTO "Seat" (class, seat_number, price, plane_id)
+SELECT 'Economy', CONCAT('Y', ROW_NUMBER() OVER (ORDER BY plane_id)), 120, plane_id
+FROM "Plane"
+WHERE airline_id = (SELECT airline_id FROM "Airline" WHERE airline_name = 'Garuda Indonesia')
+LIMIT 32;
+`;
+
+
+ // Kursi First Class untuk Singapore Airlines
+await prisma.$queryRaw`
+INSERT INTO "Seat" (class, seat_number, price, plane_id)
+SELECT 'First Class', CONCAT('F', ROW_NUMBER() OVER (ORDER BY plane_id)), 650, plane_id
+FROM "Plane"
+WHERE airline_id = (SELECT airline_id FROM "Airline" WHERE airline_name = 'Singapore Airlines')
+LIMIT 6;
+`;
+
+// Kursi Business Class untuk Singapore Airlines
+await prisma.$queryRaw`
+INSERT INTO "Seat" (class, seat_number, price, plane_id)
+SELECT 'Business', CONCAT('B', ROW_NUMBER() OVER (ORDER BY plane_id)), 400, plane_id
+FROM "Plane"
+WHERE airline_id = (SELECT airline_id FROM "Airline" WHERE airline_name = 'Singapore Airlines')
+LIMIT 12;
+`;
+
+// Kursi Economy Premium untuk Singapore Airlines
+await prisma.$queryRaw`
+INSERT INTO "Seat" (class, seat_number, price, plane_id)
+SELECT 'Economy Premium', CONCAT('E', ROW_NUMBER() OVER (ORDER BY plane_id)), 220, plane_id
+FROM "Plane"
+WHERE airline_id = (SELECT airline_id FROM "Airline" WHERE airline_name = 'Singapore Airlines')
+LIMIT 18;
+`;
+
+// Kursi Economy Class untuk Singapore Airlines
+await prisma.$queryRaw`
+INSERT INTO "Seat" (class, seat_number, price, plane_id)
+SELECT 'Economy', CONCAT('Y', ROW_NUMBER() OVER (ORDER BY plane_id)), 130, plane_id
+FROM "Plane"
+WHERE airline_id = (SELECT airline_id FROM "Airline" WHERE airline_name = 'Singapore Airlines')
+LIMIT 32;
+`;
+
+ // Kursi First Class untuk Citilink
+await prisma.$queryRaw`
+INSERT INTO "Seat" (class, seat_number, price, plane_id)
+SELECT 'First Class', CONCAT('F', ROW_NUMBER() OVER (ORDER BY plane_id)), 550, plane_id
+FROM "Plane"
+WHERE airline_id = (SELECT airline_id FROM "Airline" WHERE airline_name = 'Citilink')
+LIMIT 6;
+`;
+
+// Kursi Business Class untuk Citilink
+await prisma.$queryRaw`
+INSERT INTO "Seat" (class, seat_number, price, plane_id)
+SELECT 'Business', CONCAT('B', ROW_NUMBER() OVER (ORDER BY plane_id)), 300, plane_id
+FROM "Plane"
+WHERE airline_id = (SELECT airline_id FROM "Airline" WHERE airline_name = 'Citilink')
+LIMIT 12;
+`;
+
+// Kursi Economy Premium untuk Citilink
+await prisma.$queryRaw`
+INSERT INTO "Seat" (class, seat_number, price, plane_id)
+SELECT 'Economy Premium', CONCAT('E', ROW_NUMBER() OVER (ORDER BY plane_id)), 180, plane_id
+FROM "Plane"
+WHERE airline_id = (SELECT airline_id FROM "Airline" WHERE airline_name = 'Citilink')
+LIMIT 18;
+`;
+
+// Kursi Economy Class untuk Citilink
+await prisma.$queryRaw`
+INSERT INTO "Seat" (class, seat_number, price, plane_id)
+SELECT 'Economy', CONCAT('Y', ROW_NUMBER() OVER (ORDER BY plane_id)), 100, plane_id
+FROM "Plane"
+WHERE airline_id = (SELECT airline_id FROM "Airline" WHERE airline_name = 'Citilink')
+LIMIT 32;
+`;
+
+
+  // Kursi First Class untuk Qatar Airways
+await prisma.$queryRaw`
+INSERT INTO "Seat" (class, seat_number, price, plane_id)
+SELECT 'First Class', CONCAT('F', ROW_NUMBER() OVER (ORDER BY plane_id)), 800, plane_id
+FROM "Plane"
+WHERE airline_id = (SELECT airline_id FROM "Airline" WHERE airline_name = 'Qatar Airways')
+LIMIT 6;
+`;
+
+// Kursi Business Class untuk Qatar Airways
+await prisma.$queryRaw`
+INSERT INTO "Seat" (class, seat_number, price, plane_id)
+SELECT 'Business', CONCAT('B', ROW_NUMBER() OVER (ORDER BY plane_id)), 500, plane_id
+FROM "Plane"
+WHERE airline_id = (SELECT airline_id FROM "Airline" WHERE airline_name = 'Qatar Airways')
+LIMIT 12;
+`;
+
+// Kursi Economy Premium untuk Qatar Airways
+await prisma.$queryRaw`
+INSERT INTO "Seat" (class, seat_number, price, plane_id)
+SELECT 'Economy Premium', CONCAT('E', ROW_NUMBER() OVER (ORDER BY plane_id)), 250, plane_id
+FROM "Plane"
+WHERE airline_id = (SELECT airline_id FROM "Airline" WHERE airline_name = 'Qatar Airways')
+LIMIT 18;
+`;
+
+// Kursi Economy Class untuk Qatar Airways
+await prisma.$queryRaw`
+INSERT INTO "Seat" (class, seat_number, price, plane_id)
+SELECT 'Economy', CONCAT('Y', ROW_NUMBER() OVER (ORDER BY plane_id)), 150, plane_id
+FROM "Plane"
+WHERE airline_id = (SELECT airline_id FROM "Airline" WHERE airline_name = 'Qatar Airways')
+LIMIT 32;
+`;
+// Menambahkan Data User 1
+await prisma.$queryRaw`
+  INSERT INTO "Users" (name, telephone_number, email, password, address, gender, identity_number, age, role, otp, otp_expiry, reset_token, verified)
+  VALUES ('John Doe', '081234567890', 'johndoe@example.com', 'hashed_password', '1234 Elm Street', 'Male', '1234567890123456', 30, 'User', NULL, NULL, NULL, TRUE);
+`;
+
+// Menambahkan Data User 2
+await prisma.$queryRaw`
+  INSERT INTO "Users" (name, telephone_number, email, password, address, gender, identity_number, age, role, otp, otp_expiry, reset_token, verified)
+  VALUES ('Jane Doe', '082345678901', 'janedoe@example.com', 'hashed_password', '5678 Oak Street', 'Female', '2345678901234567', 28, 'User', NULL, NULL, NULL, TRUE);
+`;
+
+// Menambahkan Data Notification untuk John Doe
+await prisma.$queryRaw`
+  INSERT INTO "Notification" (title, description, user_id)
+  VALUES ('Account Verification', 'Please verify your account.', (SELECT user_id FROM "Users" WHERE email = 'johndoe@example.com'));
+`;
+
+// Menambahkan Data Notification untuk Jane Doe
+await prisma.$queryRaw`
+  INSERT INTO "Notification" (title, description, user_id)
+  VALUES ('New Flight Booking', 'Your flight has been successfully booked.', (SELECT user_id FROM "Users" WHERE email = 'janedoe@example.com'));
+`;
+
+
+
+
+  console.log('Data successfully seeded!');
 }
 
 main()

@@ -58,7 +58,7 @@ model Ticket {
   plane_id          Int
   passenger_id      Int
   seat_id           Int
-  transaction       Transaction  @relation(fields: [transaction_id], references: [transaction_id])
+  transaction       Transaction  @relation(fields: [transaction_id], references: [transaction_id], onDelete: Cascade)
   passenger         Passenger    @relation(fields: [passenger_id], references: [passenger_id])
   seat              Seat         @relation(fields: [seat_id], references: [seat_id])
 }

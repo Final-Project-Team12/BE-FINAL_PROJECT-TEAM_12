@@ -1,11 +1,12 @@
 const prisma = require('../prisma/client');
+
 exports.getAllTransactions = async () => {
   try {
-    return await prisma.transactions.findMany({
-      include: { Tickets: true }
+    return await prisma.transaction.findMany({
+      include: { tickets: true }
     });
   } catch (error) {
-    throw new Error(`Failed to retrieve transaction: ${error.message}`);
+    throw new Error(`Failed to retrieve transactions: ${error.message}`);
   }
 };
 
@@ -23,7 +24,7 @@ exports.createTransaction = async (data) => {
       throw new Error('User with that ID was not found.');
     }
 
-    return await prisma.transactions.create({
+    return await prisma.transaction.create({
       data: {
         status: data.status,
         redirect_url: data.redirect_url || null,
@@ -45,14 +46,14 @@ exports.updateTransaction = async (transaction_id, data) => {
   }
 
   try {
-    const transactionExists = await prisma.transactions.findUnique({
+    const transactionExists = await prisma.transaction.findUnique({
       where: { transaction_id: parseInt(transaction_id) }
     });
 
     if (!transactionExists) {
       throw new Error('Transaction with that ID was not found.');
     }
-    return await prisma.transactions.update({
+    return await prisma.transaction.update({
       where: { transaction_id: parseInt(transaction_id) },
       data,
     });
@@ -67,14 +68,14 @@ exports.deleteTransaction = async (transaction_id) => {
   }
 
   try {
-    const transactionExists = await prisma.transactions.findUnique({
+    const transactionExists = await prisma.transaction.findUnique({
       where: { transaction_id: parseInt(transaction_id) }
     });
 
     if (!transactionExists) {
       throw new Error('Transaction with that ID was not found.');
     }
-    return await prisma.transactions.delete({
+    return await prisma.transaction.delete({
       where: { transaction_id: parseInt(transaction_id) }
     });
   } catch (error) {

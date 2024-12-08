@@ -54,7 +54,6 @@ model Transaction {
 }
 
 model Ticket {
- feature/payment
   ticket_id         Int          @id @default(autoincrement())
   transaction_id    Int
   plane_id          Int
@@ -64,15 +63,6 @@ model Ticket {
   passenger         Passenger    @relation(fields: [passenger_id], references: [passenger_id])
   seat              Seat         @relation(fields: [seat_id], references: [seat_id])
 
-  ticket_id      Int         @id @default(autoincrement())
-  transaction_id Int
-  plane_id       Int
-  passenger_id   Int
-  seat_id        Int
-  transaction    Transaction @relation(fields: [transaction_id], references: [transaction_id])
-  passenger      Passenger   @relation(fields: [passenger_id], references: [passenger_id])
-  seat           Seat        @relation(fields: [seat_id], references: [seat_id])
- development
 }
 
 model Passenger {

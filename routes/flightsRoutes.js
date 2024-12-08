@@ -1,8 +1,11 @@
 const express = require("express");
-const FlightsController = require("../controllers/flightsController");
-
+const FlightsController = require("../controllers/FlightsController");
 const router = express.Router();
 
-router.get("/flights", FlightsController.getFilteredFlights);
+// Endpoint untuk /flights
+router.get("/flights", FlightsController.getFlights);
+
+// Endpoint untuk /flights/search
+router.get("/flights/search", FlightsController.searchFilteredFlights);
 
 module.exports = router;

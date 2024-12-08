@@ -15,9 +15,9 @@ class FlightsController {
 
             const [outbound_flights, return_flights, totalOutboundFlights, totalReturnFlights] = await Promise.all([
                 fetchFlights({ from, to, departureDate, returnDate, seatClass, continent, facilities, offset, limitNumber, isReturn: false, priceSort, departureSort, arrivalSort, durationSort, minPrice, maxPrice }),
-                returnDate ? fetchFlights({ from: to, to: from, departureDate: returnDate, seatClass, continent, facilities, offset, limitNumber, isReturn: true, priceSort, departureSort, arrivalSort, durationSort, minPrice, maxPrice }) : [],
+                returnDate ? fetchFlights({ from, to, departureDate : returnDate, returnDate : null, seatClass, continent, facilities, offset, limitNumber, isReturn: true, priceSort, departureSort, arrivalSort, durationSort, minPrice, maxPrice }) : [],
                 countFlights({ from, to, departureDate, seatClass, continent, facilities, isReturn: false, priceSort, departureSort, arrivalSort, durationSort, minPrice, maxPrice }),
-                returnDate ? countFlights({ from: to, to: from, departureDate: returnDate, seatClass, continent, facilities, isReturn: true, priceSort, departureSort, arrivalSort, durationSort, minPrice, maxPrice }) : 0
+                returnDate ? countFlights({ from, to, departureDate, seatClass, continent, facilities, isReturn: true, priceSort, departureSort, arrivalSort, durationSort, minPrice, maxPrice }) : 0
             ]);
 
             const [formattedOutboundFlights, formattedReturnFlights] = await Promise.all([
@@ -30,12 +30,12 @@ class FlightsController {
             const hasNextPage = pageNumber < totalPages;
             const hasPreviousPage = pageNumber > 1;
 
-            const validatedReturnFlights = return_flights.filter(flight => {
-                const flightDate = new Date(flight.departure_time).toISOString().split('T')[0];
-                return flightDate === returnDate;
-            });
+            // const validatedReturnFlights = return_flights.filter(flight => {
+            //     const flightDate = new Date(flight.departure_time).toISOString().split('T')[0];
+            //     return flightDate === returnDate;
+            // });
 
-            if (!formattedOutboundFlights.length && !validatedReturnFlights.length) {
+            if (!formattedOutboundFlights.length && !formattedReturnFlights.length) {
                 return res.status(200).json({
                     status: "Success",
                     statusCode: 200,
@@ -61,7 +61,7 @@ class FlightsController {
                 message: "Available flights have been successfully retrieved.",
                 data: {
                     outbound_flights: formattedOutboundFlights,
-                    return_flights: validatedReturnFlights
+                    return_flights: formattedReturnFlights
                 },
                 pagination: {
                     currentPage: pageNumber,

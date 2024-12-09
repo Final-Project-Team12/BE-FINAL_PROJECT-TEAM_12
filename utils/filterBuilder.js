@@ -22,18 +22,8 @@ function buildFilterConditions({
             destination_airport: { continent: { name: continent } } 
         }),
     };
-
-    if (minPrice || maxPrice) {
-        conditions.seats = conditions.seats || {};
-        conditions.seats.some = conditions.seats.some || {};
-        if (minPrice) {
-            conditions.seats.some.price = { gte: parseFloat(minPrice) };
-        }
-        if (maxPrice) {
-            conditions.seats.some.price = conditions.seats.some.price || {};
-            conditions.seats.some.price.lte = parseFloat(maxPrice);
-        }
-    }
+    minPrice = parseFloat(minPrice || 0);  
+    maxPrice = parseFloat(maxPrice || Infinity);
 
     return conditions;
 }

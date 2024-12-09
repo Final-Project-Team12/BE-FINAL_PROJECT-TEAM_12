@@ -48,7 +48,6 @@ class NotificationController {
     }
   }
 
-
     static async deleteNotification(req, res, next) {
       const { notification_id } = req.params;
       try {
@@ -60,7 +59,6 @@ class NotificationController {
         next(error);
       }
     }
-
 
 }
 

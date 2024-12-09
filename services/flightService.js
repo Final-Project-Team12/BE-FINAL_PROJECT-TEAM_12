@@ -29,23 +29,32 @@ async function fetchFlights({
 
     const orderBy = buildSortingConditions(departureSort, arrivalSort, durationSort);
 
-    const planesWithSeats = await getPlanesWithSeats(whereConditions, offset, limitNumber, orderBy);
+    let planesWithSeats = await getPlanesWithSeats(whereConditions, offset, limitNumber, orderBy);
+
+    planesWithSeats.forEach(plane => {
+        if (plane.seats) {
+            if (seatClass) {
+                plane.seats = plane.seats.filter(seat => seat.class === seatClass);
+            }
+        }
+    });
+
+    planesWithSeats = (minPrice || maxPrice)
+    ? planesWithSeats
+        .map(plane => ({
+            ...plane,
+            seats: plane.seats?.filter(seat =>
+                (minPrice ? seat.price >= parseFloat(minPrice) : true) &&
+                (maxPrice ? seat.price <= parseFloat(maxPrice) : true)
+            ) || []
+        }))
+        .filter(plane => plane.seats.length > 0)
+    : planesWithSeats;
+
 
     if (priceSort === "Cheapest" || priceSort === "Expensive") {
         sortPlanesByPrice(planesWithSeats, priceSort);
     }
-
-    planesWithSeats.forEach(plane => {
-        if (plane.seats) {
-            // Filter seats berdasarkan seatClass jika ada
-            if (seatClass) {
-                // Memfilter kursi berdasarkan seatClass
-                plane.seats = plane.seats.filter(seat => seat.class === seatClass);
-            }
-            // Jika tidak ada seatClass, maka kita biarkan 'seats' seperti semula
-        }
-    });
-    
 
     return planesWithSeats;
 }
@@ -59,6 +68,8 @@ async function countFlights({
     continent,
     facilities,
     isReturn,
+    minPrice,
+    maxPrice,
 }) {
     const searchConditions = buildSearchConditions({ from, to, departureDate, seatClass, returnDate, isReturn });
     const filterConditions = buildFilterConditions({ continent, facilities });
@@ -72,10 +83,23 @@ async function countFlights({
         whereConditions.destination_airport = await getTopAirportsByContinent(continentData.continent_id);
     }
 
+    if (minPrice || maxPrice) {
+        whereConditions.seats = {
+            some: {
+                price: {
+                    ...(minPrice ? { gte: parseFloat(minPrice) } : {}),
+                    ...(maxPrice ? { lte: parseFloat(maxPrice) } : {}),
+                },
+            },
+        };
+    }
+
     try {
-        return await prisma.Plane.count({
+        const totalFlights = await prisma.Plane.count({
             where: whereConditions,
         });
+
+        return totalFlights;
     } catch (error) {
         console.error("Error counting flights:", error);
         throw new Error("Failed to count flights");
@@ -84,13 +108,12 @@ async function countFlights({
 
 async function getPlanesWithSeats(whereConditions, offset, limitNumber, orderBy) {
     try {
-        // Pastikan kita hanya menyertakan filter untuk seats jika diperlukan
         const seatConditions = whereConditions.seats ? { some: { class: whereConditions.seats.class } } : undefined;
 
         return await prisma.Plane.findMany({
             where: {
                 ...whereConditions,
-                seats: seatConditions, // Hanya menambahkan filter untuk seats jika ada
+                seats: seatConditions,
             },
             include: {
                 airline: true,

@@ -66,12 +66,12 @@ async function deleteUserById(user_id){
     return deletedUser;
 }
 
-async function checkOtherEmail(email){
+async function checkOtherEmail(checkEmail){
     const check = await prisma.users.count({
-        where: {email}
+        where: {email : checkEmail}
     })
-
-    if(check >= 2){
+    console.log(checkEmail);
+    if(check >= 1){
         return true
     }
     else{

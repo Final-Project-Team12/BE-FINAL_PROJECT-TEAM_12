@@ -14,6 +14,7 @@ const prisma = new PrismaClient();
 //middlewares
 const restrictJwt = require('./middlewares/restrictJwt');
 const errorHandler = require('./middlewares/errorHandler');
+const googleRoutes = require('./routes/googleRoutes'); // Rute autentikasi Google
 
 const ticketListingRoutes = require("./routes/flightsRoutes");
 const paginationRoutes = require('./routes/paginationRoutes')
@@ -33,7 +34,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
-
+app.use('/auth', googleRoutes);
 const routers = [
   ticketListingRoutes,
   paginationRoutes,

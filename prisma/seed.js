@@ -7,6 +7,43 @@ const bcrypt = require("bcrypt");
 const HASH = process.env.HASH;
 
 async function main() {
+  // Airport images array
+  const airportImages = [
+    "https://ik.imagekit.io/72mu50jam/Dubai-United-Arab-Emirates-Burj-Khalifa-top.jpg?updatedAt=1733324845922",
+    "https://ik.imagekit.io/72mu50jam/1474116741_destination_for_malaysian_24343.jpg?updatedAt=1733919246551",
+    "https://ik.imagekit.io/72mu50jam/71BBFEDE-473D-4F4E-82522A2197279310.jpeg?updatedAt=1733919247478",
+    "https://ik.imagekit.io/72mu50jam/RA_Pianemoisland_indtravel.jpg-2-1024x683%20(1).jpg?updatedAt=1733919247935",
+  ];
+
+  // Airlines with their specific images
+  const airlines = [
+    {
+      name: "Garuda Indonesia",
+      image:
+        "https://ik.imagekit.io/72mu50jam/garuda-indonesia-logo-8A90F09D68-seeklogo.com.png?updatedAt=1733325174717",
+    },
+    {
+      name: "Nvidia",
+      image:
+        "https://ik.imagekit.io/72mu50jam/Nvidia_logo.svg.png?updatedAt=1733919579693",
+    },
+    {
+      name: "Air Asia",
+      image:
+        "https://ik.imagekit.io/72mu50jam/AirAsia_New_Logo.svg.png?updatedAt=1733919715163",
+    },
+    {
+      name: "Asus",
+      image:
+        "https://ik.imagekit.io/72mu50jam/asus.png?updatedAt=1733919659827",
+    },
+    {
+      name: "Lion Air",
+      image:
+        "https://ik.imagekit.io/72mu50jam/Lion_Air-Logo.wine.svg?updatedAt=1733919579303",
+    },
+  ];
+
   const continents = [
     "Africa",
     "Asia",
@@ -17,16 +54,16 @@ async function main() {
     "Antarctica",
   ];
 
+  // Create continents
   const continentIds = [];
   for (let i = 0; i < continents.length; i++) {
     const continent = await prisma.continent.create({
-      data: {
-        name: continents[i],
-      },
+      data: { name: continents[i] },
     });
     continentIds.push(continent.continent_id);
   }
 
+  // Create users
   const userIds = [];
   for (let i = 1; i <= 10; i++) {
     const user = await prisma.users.create({
@@ -45,21 +82,21 @@ async function main() {
     userIds.push(user.user_id);
   }
 
+  // Create airlines
   const airlineIds = [];
-  for (let i = 1; i <= 10; i++) {
+  for (let i = 0; i < airlines.length; i++) {
     const airline = await prisma.airline.create({
       data: {
-        airline_name: "Garuda Indonesia",
-        image_url:
-          "https://ik.imagekit.io/72mu50jam/garuda-indonesia-logo-8A90F09D68-seeklogo.com.png?updatedAt=1733325174717",
-        times_used: i * 10,
-        file_id: `file-id-${i}`,
+        airline_name: airlines[i].name,
+        image_url: airlines[i].image,
+        times_used: (i + 1) * 10,
+        file_id: `file-id-${i + 1}`,
       },
     });
     airlineIds.push(airline.airline_id);
   }
 
-  const airportIds = [];
+  // Define countries and their continents
   const countries = [
     { name: "Indonesia", continent: "Asia" },
     { name: "Malaysia", continent: "Asia" },
@@ -74,99 +111,95 @@ async function main() {
     { name: "Argentina", continent: "South America" },
   ];
 
-  for (let i = 1; i <= 22; i++) {
-    const country = countries[i % countries.length];
+  // Create airports
+  const airportIds = [];
+  for (let i = 0; i < countries.length; i++) {
+    const country = countries[i];
     const airport = await prisma.airport.create({
       data: {
-        name: `${country.name}`,
-        address: `Alamat ${country.name}`,
-        airport_code: `${country.name.slice(0, 3)}${i}`,
-        image_url:
-          "https://ik.imagekit.io/72mu50jam/Dubai-United-Arab-Emirates-Burj-Khalifa-top.jpg?updatedAt=1733324845922",
-        file_id: `airport-file-id-${i}`,
+        name: country.name,
+        address: `${country.name} International Airport`,
+        airport_code: `${country.name.slice(0, 3)}${i + 1}`,
+        image_url: airportImages[i % airportImages.length],
+        file_id: `airport-${country.name}`,
         continent_id: continentIds[continents.indexOf(country.continent)],
       },
     });
     airportIds.push(airport.airport_id);
   }
 
+  // Create planes with round-trip routes
   const planeIds = [];
-  for (let i = 1; i <= 22; i++) {
-    const originIndex = i % airportIds.length;
-    const destinationIndex = (i + 1) % airportIds.length;
+  for (let i = 0; i < airportIds.length - 1; i++) {
+    for (let j = 0; j < 3; j++) {
+      // Create 3 flights per route
+      const originIndex = i;
+      const destinationIndex = (i + 1) % airportIds.length;
 
-    const plane = await prisma.plane.create({
-      data: {
-        airline_id: airlineIds[i % airlineIds.length],
-        airport_id_origin: airportIds[originIndex],
-        airport_id_destination: airportIds[destinationIndex],
-        departure_time: new Date(2024, 11, 8), // 8 Desember 2024
-        arrival_time: new Date(2024, 11, 8),
-        departure_terminal: `Terminal ${i}`,
-        baggage_capacity: 200 + i * 10,
-        plane_code: `PLANE-${i}`,
-        cabin_baggage_capacity: 10 + i,
-        meal_available: i % 2 === 0,
-        wifi_available: i % 2 !== 0,
-        in_flight_entertainment: i % 2 === 0,
-        power_outlets: i % 2 !== 0,
-        offers: `Offer ${i}`,
-        duration: 120 + i * 5,
-      },
-    });
-    planeIds.push(plane.plane_id);
+      // Outbound flights (Dec 8, 9, 10)
+      const outboundPlane = await prisma.plane.create({
+        data: {
+          airline_id: airlineIds[i % airlineIds.length],
+          airport_id_origin: airportIds[originIndex],
+          airport_id_destination: airportIds[destinationIndex],
+          departure_time: new Date(2024, 11, 8 + j, 8 + (i % 12)), // Spread throughout Dec 8-10
+          arrival_time: new Date(2024, 11, 8 + j, 16 + (i % 8)),
+          departure_terminal: `Terminal ${i + 1}`,
+          baggage_capacity: 200 + i * 10,
+          plane_code: `PLANE-${i + 1}-${j + 1}`,
+          cabin_baggage_capacity: 10 + i,
+          meal_available: (i + j) % 2 === 0,
+          wifi_available: (i + j) % 2 !== 0,
+          in_flight_entertainment: (i + j) % 2 === 0,
+          power_outlets: (i + j) % 2 !== 0,
+          offers: `${(i + j + 1) * 5}% OFF`,
+          duration: 480,
+        },
+      });
+      planeIds.push(outboundPlane.plane_id);
 
-    // Create the reverse route
-    const reversePlane = await prisma.plane.create({
-      data: {
-        airline_id: airlineIds[i % airlineIds.length],
-        airport_id_origin: airportIds[destinationIndex],
-        airport_id_destination: airportIds[originIndex],
-        departure_time: new Date(2024, 11, 12), // 12 Desember 2024
-        arrival_time: new Date(2024, 11, 12),
-        departure_terminal: `Terminal ${i}`,
-        baggage_capacity: 200 + i * 10,
-        plane_code: `PLANE-${i}-REVERSE`,
-        cabin_baggage_capacity: 10 + i,
-        meal_available: i % 2 === 0,
-        wifi_available: i % 2 !== 0,
-        in_flight_entertainment: i % 2 === 0,
-        power_outlets: i % 2 !== 0,
-        offers: `Offer ${i}`,
-        duration: 120 + i * 5,
-      },
-    });
-    planeIds.push(reversePlane.plane_id);
+      // Return flights (Dec 12, 13, 14)
+      const returnPlane = await prisma.plane.create({
+        data: {
+          airline_id: airlineIds[i % airlineIds.length],
+          airport_id_origin: airportIds[destinationIndex],
+          airport_id_destination: airportIds[originIndex],
+          departure_time: new Date(2024, 11, 12 + j, 8 + (i % 12)), // Spread throughout Dec 12-14
+          arrival_time: new Date(2024, 11, 12 + j, 16 + (i % 8)),
+          departure_terminal: `Terminal ${i + 1}`,
+          baggage_capacity: 200 + i * 10,
+          plane_code: `PLANE-${i + 1}-${j + 1}-RETURN`,
+          cabin_baggage_capacity: 10 + i,
+          meal_available: (i + j) % 2 === 0,
+          wifi_available: (i + j) % 2 !== 0,
+          in_flight_entertainment: (i + j) % 2 === 0,
+          power_outlets: (i + j) % 2 !== 0,
+          offers: `${(i + j + 1) * 5}% OFF`,
+          duration: 480,
+        },
+      });
+      planeIds.push(returnPlane.plane_id);
+    }
   }
 
-  // Insert seats with multiple classes and seat numbers
+  // Create seats for each plane
   for (let planeIndex = 0; planeIndex < planeIds.length; planeIndex++) {
-    const seatClasses = [
-      "Economy",
-      "Premium Economy",
-      "Business",
-      "First Class",
-    ];
-    const seatNumbersPerClass = [30, 20, 10, 5]; // Number of seats per class
+    const baseIncrease = planeIndex * 50000; // Progressive pricing
 
-    for (let classIndex = 0; classIndex < seatClasses.length; classIndex++) {
-      for (
-        let seatNumber = 1;
-        seatNumber <= seatNumbersPerClass[classIndex];
-        seatNumber++
-      ) {
+    const seatClasses = [
+      { name: "Economy", price: 7000000 + baseIncrease, seats: 30 },
+      { name: "Premium Economy", price: 9000000 + baseIncrease, seats: 20 },
+      { name: "Business", price: 11000000 + baseIncrease, seats: 10 },
+      { name: "First Class", price: 20000000 + baseIncrease, seats: 5 },
+    ];
+
+    for (const classData of seatClasses) {
+      for (let seatNumber = 1; seatNumber <= classData.seats; seatNumber++) {
         await prisma.seat.create({
           data: {
-            class: seatClasses[classIndex],
-            seat_number: `${seatClasses[classIndex].slice(0, 1)}${seatNumber}`,
-            price:
-              classIndex === 0
-                ? 9000000 + Math.floor(Math.random() * 2000000)
-                : classIndex === 1
-                ? 10500000 + Math.floor(Math.random() * 2000000)
-                : classIndex === 2
-                ? 12000000 + Math.floor(Math.random() * 2000000)
-                : 14000000 + Math.floor(Math.random() * 2000000),
+            class: classData.name,
+            seat_number: `${classData.name.slice(0, 1)}${seatNumber}`,
+            price: classData.price,
             plane_id: planeIds[planeIndex],
           },
         });
@@ -174,6 +207,7 @@ async function main() {
     }
   }
 
+  // Create passengers
   const passengerIds = [];
   for (let i = 1; i <= 10; i++) {
     const passenger = await prisma.passenger.create({
@@ -190,6 +224,7 @@ async function main() {
     passengerIds.push(passenger.passenger_id);
   }
 
+  // Create transactions
   const transactionIds = [];
   for (let i = 1; i <= 10; i++) {
     const transaction = await prisma.transaction.create({
@@ -206,6 +241,7 @@ async function main() {
     transactionIds.push(transaction.transaction_id);
   }
 
+  // Create tickets
   for (let i = 1; i <= 20; i++) {
     await prisma.ticket.create({
       data: {
@@ -217,6 +253,7 @@ async function main() {
     });
   }
 
+  // Create notifications
   for (let i = 1; i <= 10; i++) {
     await prisma.notification.create({
       data: {
@@ -227,6 +264,7 @@ async function main() {
     });
   }
 
+  // Create payments
   for (let i = 1; i <= 10; i++) {
     await prisma.payment.create({
       data: {
@@ -249,6 +287,7 @@ async function main() {
 main()
   .catch((e) => {
     console.error(e);
+    process.exit(1);
   })
   .finally(async () => {
     await prisma.$disconnect();

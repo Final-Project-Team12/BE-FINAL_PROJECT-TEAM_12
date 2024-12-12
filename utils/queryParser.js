@@ -6,30 +6,30 @@ function parseQueryParams(query) {
 
     if (minPrice && isNaN(Number(minPrice))) {
         return {
-            status: "Error",
-            statusCode: 400,
+            status: "Bad request",
+            status_code: 400,
             message: "The parameter minPrice must be a number."
         };
     }
     if (maxPrice && isNaN(Number(maxPrice))) {
         return {
-            status: "Error",
-            statusCode: 400,
+            status: "Bad request",
+            status_code: 400,
             message: "The parameter maxPrice must be a number."
         };
     }
     if (minPrice && maxPrice && Number(minPrice) > Number(maxPrice)) {
         return {
-            status: "Error",
-            statusCode: 400,
+            status: "Bad request",
+            status_code: 400,
             message: "The parameter minPrice cannot be greater than maxPrice."
         };
     }
 
     if (parseInt(passengerInfant) > parseInt(passengerAdult)) {
         return {
-            status: "Error",
-            statusCode: 400,
+            status: "Bad request",
+            status_code: 400,
             message: "Each infant must be accompanied by at least one adult."
         };
     }

@@ -9,7 +9,7 @@ const oauth2Client = new google.auth.OAuth2(
 );
 
 class GoogleController {
-  static googleLogin(req, res) {
+  static googleLogin(req, res, next) {
     const url = oauth2Client.generateAuthUrl({
       access_type: 'offline',
       scope: ['openid', 'profile', 'email'],

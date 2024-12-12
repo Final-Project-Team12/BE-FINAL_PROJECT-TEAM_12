@@ -11,6 +11,7 @@ class NotificationController {
       });
       res.status(201).json({
         status: "success",
+        status_code: 201,
         message: "Notification created successfully",
         data: notification,
       });
@@ -26,6 +27,7 @@ class NotificationController {
       });
       res.status(200).json({
         status: "success",
+        status_code: 200,
         data: notifications,
       });
     } catch (error) {
@@ -40,7 +42,10 @@ class NotificationController {
         where: { notification_id: parseInt(notification_id) },
       });
       if (!notification) {
-        return res.status(404).json({ message: "Notification not found" });
+        return res.status(404).json({ 
+          status: 'not found',
+          status_code: 404,
+          message: "Notification not found" });
       }
       res.status(200).json(notification);
     } catch (error) {

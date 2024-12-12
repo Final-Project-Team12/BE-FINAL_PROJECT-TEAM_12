@@ -4,7 +4,7 @@ const prisma = new PrismaClient();
 
 class AirlineController {
 
-    static async uploadImageAirlines(req, res) {
+    static async uploadImageAirlines(req, res, next){
         try {
             if (!req.body.airline_name || !req.body.times_used) {
                 return res.status(400).json({ message: "Airline name, times used, and image must all be provided." });
@@ -31,12 +31,11 @@ class AirlineController {
                 data: airlineRecord
             });
         } catch (error) {
-            console.error('Error during image upload:', error);
-            res.status(500).json({ error: 'Failed to save airline data' });
+            next(error);
         }
     }
 
-    static async getAirlines(req, res) {
+    static async getAirlines(req, res, next) {
         try {
             const airlines = await prisma.airline.findMany({
                 select: {
@@ -53,15 +52,11 @@ class AirlineController {
                 data: airlines
             });
         } catch (error) {
-            res.status(500).json({
-                status: 'error',
-                message: 'Failed to retrieve airlines',
-                error: error.message
-            });
+            next(error);
         }
     }
 
-    static async getAirlineById(req, res) {
+    static async getAirlineById(req, res, next) {
         const { airline_id } = req.params;
         try {
             const airline = await prisma.airline.findUnique({
@@ -71,12 +66,11 @@ class AirlineController {
 
             res.status(200).json(airline);
         } catch (error) {
-            console.error(error);
-            res.status(500).json({ message: 'Failed to retrieve airline details', error });
+            next(error);
         }
     }
 
-    static async deleteAirline(req, res) {
+    static async deleteAirline(req, res, next) {
         const { airline_id } = req.params; 
 
         try {
@@ -96,12 +90,11 @@ class AirlineController {
 
             res.status(200).json({ message: 'Airline successfully deleted' });
         } catch (error) {
-            console.error(error);
-            res.status(500).json({ message: 'Failed to delete airline', error });
+            next(error);
         }
     }
 
-    static async updateAirline(req, res) {
+    static async updateAirline(req, res, next) {
         const { airline_id } = req.params;
         const { airline_name, times_used } = req.body;
         const file = req.file;
@@ -136,11 +129,7 @@ class AirlineController {
                 data: airline,
             });
         } catch (error) {
-            console.error(error);
-            if (error.code === 'P2025') {
-                return res.status(404).json({ message: 'Airline not found' });
-            }
-            res.status(500).json({ message: 'Failed to update airline', error });
+            next(error);
         }
     }    
     

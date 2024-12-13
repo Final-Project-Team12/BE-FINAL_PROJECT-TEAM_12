@@ -7,7 +7,7 @@ class AirportController {
             if (!req.body.name || !req.body.airport_code || !req.body.continent_id) {
                 return res.status(400).json({ 
                     status: 'Bad request',
-                    status_code: 400,
+                    statusCode: 400,
                     message: "Airport name, code, continent ID, and image must be provided." 
                 });
             }
@@ -15,7 +15,7 @@ class AirportController {
             if (!req.file) {
                 return res.status(400).json({ 
                     status: 'Bad request',
-                    status_code: 400,
+                    statusCode: 400,
                     message: "Image file is required" 
                 });
             }
@@ -52,7 +52,7 @@ class AirportController {
 
             res.status(200).json({
                 status: 'success',
-                status_code: 200,
+                statusCode: 200,
                 message: 'Airports retrieved successfully',
                 data: airports
             });
@@ -67,7 +67,7 @@ class AirportController {
             const airport = await AirportService.getAirportById(airport_id);
             if (!airport) return res.status(404).json({ 
                 status: 'not found',
-                status_code: 404,
+                statusCode: 404,
                 message: 'Airport not found' 
             });
 
@@ -86,7 +86,7 @@ class AirportController {
             if (!airportToDelete) {
                 return res.status(404).json({
                     status: 'not found',
-                    status_code: 404,
+                    statusCode: 404,
                     message: 'Airport not found' 
                 });
             }
@@ -125,7 +125,7 @@ class AirportController {
             if (Object.keys(updateData).length === 0) {
                 return res.status(400).json({ 
                     status: 'Bad request',
-                    status_code: 400,
+                    statusCode: 400,
                     message: 'No data provided for update' 
                 });
             }
@@ -134,7 +134,7 @@ class AirportController {
 
             res.status(200).json({
                 status: 'success',
-                status_code: 200,
+                statusCode: 200,
                 message: 'Airport successfully updated',
                 data: airport,
             });

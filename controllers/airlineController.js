@@ -9,7 +9,7 @@ class AirlineController {
             if (!req.body.airline_name || !req.body.times_used) {
                 return res.status(400).json({
                     status: "bad request",
-                    status_code: 400,
+                    statusCode: 400,
                     message: "Airline name, times used, and image must all be provided." });
             }
 
@@ -30,7 +30,7 @@ class AirlineController {
             });
             res.status(201).json({
                 status: 'success',
-                status_code: 201,
+                statusCode: 201,
                 message: 'Image successfully uploaded to airline',
                 data: airlineRecord
             });
@@ -68,7 +68,7 @@ class AirlineController {
             });
             if (!airline) return res.status(404).json({ 
                 status: 'not found',
-                status_code: 404,
+                statusCode: 404,
                 message: 'Airline not found' 
             });
 
@@ -89,7 +89,7 @@ class AirlineController {
             if (!airlineToDelete) {
                 return res.status(404).json({ 
                     status: 'not found',
-                    status_code: 404,
+                    statusCode: 404,
                     message: 'Airline not found' 
                 });
             }

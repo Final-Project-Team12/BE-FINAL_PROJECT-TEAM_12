@@ -22,7 +22,7 @@ const userRoutes = require('./routes/userRoutes');
 const seatRoutes = require('./routes/seatRoutes');
 const airportRoutes = require('./routes/airportRoutes');
 const airlineRoutes = require("./routes/airlineRoutes");
-const passwordRoutes = require("./routes/passwordRoutes");
+const forgotPasswordRoutes = require("./routes/forgotPasswordRoutes");
 const paymentRoutes = require('./routes/paymentRoutes');
 const notificationRoutes = require("./routes/notificationRoutes");
 const transactionRoutes = require('./routes/transactionsRoutes');
@@ -40,7 +40,7 @@ const routers = [
   paginationRoutes,
   userRoutes,
   seatRoutes,
-  passwordRoutes,
+  forgotPasswordRoutes,
   paymentRoutes,
   notificationRoutes,
   transactionRoutes,

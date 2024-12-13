@@ -5,7 +5,6 @@ function generateToken(userProfile) {
   const payload = {
     user_id: userProfile.id,
     email: userProfile.email,
-    name: userProfile.name
   };
 
   const options = {

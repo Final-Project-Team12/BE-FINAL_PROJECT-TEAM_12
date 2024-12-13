@@ -4,8 +4,8 @@ const generateToken = require('../utils/jwtGenerator');
 
 const oauth2Client = new google.auth.OAuth2(
   process.env.GOOGLE_CLIENT_ID,
-  process.env.GOOGLE_CLIENT_SECRET,
-  'http://localhost:3000/auth/google/callback'
+  process.env.GOOGLE_CLIENT_SECRET, 
+  'http://localhost:3000/api/v1/auth/google/callback'
 );
 
 async function getGoogleUserProfile(code) {
@@ -43,6 +43,7 @@ async function handleGoogleUser(userProfile, tokens) {
     gender: userProfile.gender || '-',
     identity_number: userProfile.identity_number || '-',
     age: userProfile.age || 0,
+    auth_method: 'oauth'
   };
 
   if (!user) {

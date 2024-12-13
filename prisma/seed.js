@@ -77,6 +77,7 @@ async function main() {
         identity_number: `1234567890${i}`,
         age: 20 + i,
         role: i % 2 === 0 ? "Admin" : "User",
+        auth_method: i % 2 === 0 ? "manual" : "oauth",
       },
     });
     userIds.push(user.user_id);

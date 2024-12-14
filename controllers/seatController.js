@@ -5,7 +5,7 @@ const host = process.env.HOST;
 const prisma = new PrismaClient();
 
 class TicketController{
-    static async getSeat(req, res, next, seat_id){
+    static async getSeat(req, res, next){
         try{
             let seat = await prisma.seat.findMany()
             if(seat){
@@ -26,7 +26,8 @@ class TicketController{
             next(error)
         }
     }
-    static async getSeatById(req, res, next, seat_id){
+    static async getSeatById(req, res, next){
+        const seat_id = req.params.seat_id;
         try{
             let seat = await prisma.seat.findUnique({
                 where: {

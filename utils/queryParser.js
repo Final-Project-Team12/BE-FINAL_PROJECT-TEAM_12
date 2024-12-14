@@ -8,21 +8,21 @@ function parseQueryParams(query) {
         return {
             status: "Error",
             statusCode: 400,
-            message: "Parameter minPrice harus berupa angka."
+            message: "The parameter minPrice must be a number."
         };
     }
     if (maxPrice && isNaN(Number(maxPrice))) {
         return {
             status: "Error",
             statusCode: 400,
-            message: "Parameter maxPrice harus berupa angka."
+            message: "The parameter maxPrice must be a number."
         };
     }
     if (minPrice && maxPrice && Number(minPrice) > Number(maxPrice)) {
         return {
             status: "Error",
             statusCode: 400,
-            message: "Parameter minPrice tidak boleh lebih besar dari maxPrice."
+            message: "The parameter minPrice cannot be greater than maxPrice."
         };
     }
 
@@ -30,15 +30,15 @@ function parseQueryParams(query) {
         return {
             status: "Error",
             statusCode: 400,
-            message: "Setiap infant harus didampingi oleh setidaknya satu adult."
+            message: "Each infant must be accompanied by at least one adult."
         };
     }
 
     if (returnDate && new Date(returnDate) < new Date(departureDate)) {
         return {
-            status: "Error",
+            status: "Bad Request",
             statusCode: 400,
-            message: "Tanggal return harus lebih besar atau sama dengan tanggal keberangkatan."
+            message: "The return date must be greater than departure date."
         };
     }
 

@@ -65,6 +65,14 @@ model Ticket {
   created_at       DateTime    @default(now())
   updated_at       DateTime    @updatedAt
   plane          Plane       @relation(fields: [plane_id], references: [plane_id])
+  ticket_id         Int          @id @default(autoincrement())
+  transaction_id    Int
+  plane_id          Int
+  passenger_id      Int
+  seat_id           Int
+  transaction       Transaction  @relation(fields: [transaction_id], references: [transaction_id], onDelete: Cascade)
+  passenger         Passenger    @relation(fields: [passenger_id], references: [passenger_id])
+  seat              Seat         @relation(fields: [seat_id], references: [seat_id])
 }
 
 model Passenger {

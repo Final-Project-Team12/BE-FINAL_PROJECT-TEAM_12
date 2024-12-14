@@ -93,15 +93,34 @@ async function main() {
     planeIds.push(plane.plane_id);
   }
 
-  for (let i = 1; i <= 10; i++) {
-    await prisma.seat.create({
-      data: {
-        class: i % 2 === 0 ? 'Economy' : 'Business',
-        seat_number: `S${i}`,
-        price: 100 + i * 10,
-        plane_id: planeIds[i % planeIds.length], 
-      },
-    });
+  // Improved seat creation
+  console.log('Creating seats for planes...');
+  const createSeats = async (planeId) => {
+    const seatRows = ['A', 'B', 'C', 'D', 'E', 'F'];
+    const numRows = 12; // 12 rows per plane
+
+    for (let row = 1; row <= numRows; row++) {
+      for (let col of seatRows) {
+        const seatNumber = `${col}${row}`;
+        const seatClass = row <= 3 ? 'Business' : 'Economy';
+        
+        await prisma.seat.create({
+          data: {
+            seat_number: seatNumber,
+            seat_class: seatClass,
+            plane_id: planeId,
+            is_available: true,
+            version: 0
+          }
+        });
+      }
+    }
+    console.log(`Created seats for plane ${planeId}`);
+  };
+
+  // Create seats for each plane
+  for (const planeId of planeIds) {
+    await createSeats(planeId);
   }
 
   const passengerIds = [];
@@ -109,12 +128,12 @@ async function main() {
     const passenger = await prisma.passenger.create({
       data: {
         title: i % 2 === 0 ? 'Mr.' : 'Ms.',
-        name: `Passenger ${i}`,
-        last_name: `LastName ${i}`,
+        full_name: `Passenger ${i}`, // Menambahkan full_name yang required
+        family_name: `LastName ${i}`, // Mengubah last_name menjadi family_name
         nationality: 'Indonesian',
-        identity_number: `123456789012345${i}`,
-        issuing_country: 'Indonesia',
-        valid_until: new Date(),
+        id_number: `123456789012345${i}`, // Mengubah identity_number menjadi id_number
+        id_issuer: 'Indonesia', // Mengubah issuing_country menjadi id_issuer
+        id_expiry: new Date(), // Mengubah valid_until menjadi id_expiry
       },
     });
     passengerIds.push(passenger.passenger_id);
@@ -136,17 +155,39 @@ async function main() {
     transactionIds.push(transaction.transaction_id);
   }
 
+  // Create tickets with proper seat assignment
+  console.log('Creating tickets...');
   for (let i = 1; i <= 10; i++) {
-    await prisma.ticket.create({
-      data: {
-        transaction_id: transactionIds[i % transactionIds.length], 
-        plane_id: planeIds[i % planeIds.length], 
-        passenger_id: passengerIds[i % passengerIds.length], 
-        seat_id: i, 
-      },
+    const availableSeat = await prisma.seat.findFirst({
+      where: {
+        plane_id: planeIds[i % planeIds.length],
+        is_available: true
+      }
     });
+
+    if (availableSeat) {
+      await prisma.$transaction([
+        prisma.ticket.create({
+          data: {
+            transaction_id: transactionIds[i % transactionIds.length],
+            plane_id: planeIds[i % planeIds.length],
+            passenger_id: passengerIds[i % passengerIds.length],
+            seat_id: availableSeat.seat_id,
+          }
+        }),
+        prisma.seat.update({
+          where: { seat_id: availableSeat.seat_id },
+          data: {
+            is_available: true,
+            version: { increment: 1 }
+          }
+        })
+      ]);
+    }
   }
 
+  // Create notifications
+  console.log('Creating notifications...');
   for (let i = 1; i <= 10; i++) {
     await prisma.notification.create({
       data: {
@@ -157,6 +198,8 @@ async function main() {
     });
   }
 
+  // Create payments
+  console.log('Creating payments...');
   for (let i = 1; i <= 10; i++) {
     await prisma.payment.create({
       data: {
@@ -173,12 +216,21 @@ async function main() {
     });
   }
 
+  // Verify seeding results
+  const seatCount = await prisma.seat.count();
+  const availableSeats = await prisma.seat.count({
+    where: { is_available: true }
+  });
+  
   console.log('Seeding complete');
+  console.log(`Total seats created: ${seatCount}`);
+  console.log(`Available seats: ${availableSeats}`);
 }
 
 main()
   .catch((e) => {
     console.error(e);
+    process.exit(1);
   })
   .finally(async () => {
     await prisma.$disconnect();

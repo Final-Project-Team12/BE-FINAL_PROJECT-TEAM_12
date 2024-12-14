@@ -1,95 +1,113 @@
-const transactionService = require('../services/transactionsService');
+const transactionsService = require('../services/transactionsService');
 
-exports.getAllTransactions = async (req, res) => {
-  try {
-    const transactions = await transactionService.getAllTransactions();
-    if (transactions.length === 0) {
-      return res.status(404).json({ message: 'No transactions found.' });
+const transactionsController = {
+  getTransactionsByUserId: async (req, res) => {
+    try {
+        const { user_id } = req.params;
+        
+        const transactions = await transactionsService.getTransactionsByUserId(parseInt(user_id));
+        
+        return res.status(200).json({
+            status: 'success',
+            message: 'Transactions retrieved successfully',
+            data: transactions
+        });
+    } catch (error) {
+        console.error('Get transactions by user ID error:', error);
+        
+        if (error.message === 'USER_NOT_FOUND') {
+            return res.status(404).json({
+                status: 'error',
+                message: 'User not found'
+            });
+        }
+
+        return res.status(500).json({
+            status: 'error',
+            message: 'Internal server error'
+        });
     }
-    res.status(200).json({
-      message: 'Succes to fetch transactions.',
-      status:'200',
-      data: transactions
-    });
-  } catch (error) {
-    res.status(500).json({
-      message: 'Failed to fetch transactions.',
-      status:'500',
-      error: error.message
-    });
-  }
+  },
+
+    createTransaction: async (req, res) => {
+        try {
+            const { userData, passengerData, seatSelections, planeId } = req.body;
+            
+            const result = await transactionsService.createTransaction(
+                userData,
+                passengerData,
+                seatSelections,
+                planeId
+            );
+
+            return res.status(201).json({
+                status: 'success',
+                message: 'Transaction created successfully',
+                data: result
+            });
+        } catch (error) {
+            if (error.message === 'SEATS_UNAVAILABLE') {
+                return res.status(409).json({
+                    status: 'error',
+                    message: 'One or more selected seats are no longer available'
+                });
+            }
+            if (error.message === 'INVALID_SEATS_SELECTED') {
+                return res.status(400).json({
+                    status: 'error',
+                    message: 'Invalid seat selection'
+                });
+            }
+            console.error('Create transaction error:', error);
+            return res.status(500).json({
+                status: 'error',
+                message: 'Internal server error'
+            });
+        }
+    },
+
+    updateTransaction: async (req, res) => {
+        try {
+            const { transaction_id } = req.params;
+            const updateData = req.body;
+            
+            const updatedTransaction = await transactionsService.updateTransaction(
+                transaction_id,
+                updateData
+            );
+            
+            return res.status(200).json({
+                status: 'success',
+                message: 'Transaction updated successfully',
+                data: updatedTransaction
+            });
+        } catch (error) {
+            console.error('Update transaction error:', error);
+            return res.status(500).json({
+                status: 'error',
+                message: 'Internal server error'
+            });
+        }
+    },
+
+    deleteTransaction: async (req, res) => {
+        try {
+            const { transaction_id } = req.params;
+            
+            await transactionsService.deleteTransaction(transaction_id);
+            
+            return res.status(200).json({
+                status: 'success',
+                message: 'Transaction deleted successfully'
+            });
+        } catch (error) {
+            console.error('Delete transaction error:', error);
+            return res.status(500).json({
+                status: 'error',
+                message: 'Internal server error'
+            });
+        }
+    }
 };
 
-exports.createTransaction = async (req, res) => {
-  try {
-    const transactionData = req.body;
-    const newTransaction = await transactionService.createTransaction(transactionData);
-    res.status(201).json({
-      message: 'Transaksi berhasil dibuat.',
-      status:'201',
-      data: newTransaction
-    });
-  } catch (error) {
-    if (error.message.includes('Transaction data not found') || error.message.includes('User with that ID not found')) {
-      return res.status(400).json({
-        message: 'Failed to create transaction.',
-        status:'400',
-        error: error.message
-      });
-    }
-    res.status(500).json({
-      message: 'Failed to create transaction server error.',
-      status:'500',
-      error: error.message
-    });
-  }
-};
-
-exports.updateTransaction = async (req, res) => {
-  try {
-    const { transaction_id } = req.params;
-    const updatedTransaction = await transactionService.updateTransaction(transaction_id, req.body);
-    res.status(200).json({
-      message: 'Transaction updated successfully.',
-      status:'200',
-      data: updatedTransaction
-    });
-  } catch (error) {
-    if (error.message.includes('Invalid transaction ID or data') || error.message.includes('Transaction with that ID not found')) {
-      return res.status(400).json({
-        message: 'Failed to update transaction.',
-        status:'400',
-        error: error.message
-      });
-    }
-    res.status(500).json({
-      message: 'Failed to update transaction server error.',
-      status:'500',
-      error: error.message
-    });
-  }
-};
-
-exports.deleteTransaction = async (req, res) => {
-  try {
-    const { transaction_id } = req.params;
-    await transactionService.deleteTransaction(transaction_id);
-    res.status(200).json({
-      message: 'Transaction successfully deleted.',
-      status:'200'
-    });
-  } catch (error) {
-    if (error.message.includes('Invalid transaction ID') || error.message.includes('Transaction with that ID not found')) {
-      return res.status(400).json({
-        message: 'Failed to delete transaction.',
-        status:'400',
-        error: error.message
-      });
-    }
-    res.status(500).json({
-      message: 'Failed to delete transaction server error.',
-      status:'500',
-      error: error.message
-    });
-  }
-};
+module.exports = transactionsController;

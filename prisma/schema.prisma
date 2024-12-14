@@ -54,6 +54,17 @@ model Transaction {
 }
 
 model Ticket {
+  ticket_id        Int         @id @default(autoincrement())
+  transaction_id   Int
+  plane_id         Int
+  passenger_id     Int
+  seat_id          Int
+  transaction      Transaction @relation(fields: [transaction_id], references: [transaction_id], onDelete: Cascade)
+  passenger        Passenger   @relation(fields: [passenger_id], references: [passenger_id])
+  seat             Seat        @relation(fields: [seat_id], references: [seat_id])
+  created_at       DateTime    @default(now())
+  updated_at       DateTime    @updatedAt
+  plane          Plane       @relation(fields: [plane_id], references: [plane_id])
   ticket_id         Int          @id @default(autoincrement())
   transaction_id    Int
   plane_id          Int
@@ -62,29 +73,34 @@ model Ticket {
   transaction       Transaction  @relation(fields: [transaction_id], references: [transaction_id], onDelete: Cascade)
   passenger         Passenger    @relation(fields: [passenger_id], references: [passenger_id])
   seat              Seat         @relation(fields: [seat_id], references: [seat_id])
-
 }
 
 model Passenger {
-  passenger_id    Int      @id @default(autoincrement())
+  passenger_id     Int         @id @default(autoincrement())
   title           String
-  name            String
-  last_name       String
+  full_name       String
+  family_name     String?
+  birth_date      DateTime?
   nationality     String
-  identity_number String
-  issuing_country String
-  valid_until     DateTime
+  id_number       String?
+  id_issuer       String?
+  id_expiry       DateTime?
   tickets         Ticket[]
+  created_at      DateTime    @default(now())
+  updated_at      DateTime    @updatedAt
 }
 
 model Seat {
-  seat_id     Int      @id @default(autoincrement())
-  class       String
-  seat_number String
-  price       Float
-  plane_id    Int
-  plane       Plane    @relation(fields: [plane_id], references: [plane_id])
-  tickets     Ticket[]
+  seat_id      Int       @id @default(autoincrement())
+  seat_number  String
+  seat_class   String
+  plane_id     Int
+  is_available Boolean   @default(true)
+  version      Int       @default(0)
+  plane        Plane     @relation(fields: [plane_id], references: [plane_id])
+  tickets      Ticket[]
+  created_at   DateTime  @default(now())
+  updated_at   DateTime  @updatedAt
 }
 
 model Plane {
@@ -108,6 +124,7 @@ model Plane {
   origin_airport          Airport  @relation("OriginAirport", fields: [airport_id_origin], references: [airport_id])
   destination_airport     Airport  @relation("DestinationAirport", fields: [airport_id_destination], references: [airport_id])
   seats                   Seat[]
+  tickets    Ticket[]
 }
 
 model Airline {

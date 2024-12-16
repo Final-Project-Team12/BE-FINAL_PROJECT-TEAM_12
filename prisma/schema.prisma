@@ -85,7 +85,8 @@ model Passenger {
 model Seat {
   seat_id      Int       @id @default(autoincrement())
   seat_number  String
-  seat_class   String
+  class        String
+  price        Int
   plane_id     Int
   is_available Boolean   @default(true)
   version      Int       @default(0)

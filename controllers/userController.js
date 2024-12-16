@@ -76,7 +76,6 @@ class UserController{
       if (error) {
           return res.status(400).json({
             status: 'bad request',
-            statusCode: 400,
             message: 'input error',
             error: error.details[0].message
           });
@@ -130,7 +129,6 @@ class UserController{
             if (error) {
                 return res.status(400).json({
                     status: 'bad request',
-                    statusCode: 400,
                     message: 'input error',
                     error: error.details[0].message
                 });
@@ -142,7 +140,6 @@ class UserController{
             if(cekEmailUnik){
               return res.status(400).json({
                   status: 'bad request',
-                  statusCode: 400,
                   message: "Email already exists"
               })
             }
@@ -185,7 +182,6 @@ class UserController{
       if (!email || !otp) {
         return res.status(400).json({
           status: 'bad request',
-          statusCode: 400, 
           message: 'Email and OTP are required'
         });
       }
@@ -196,7 +192,6 @@ class UserController{
         if (!user) {
           return res.status(404).json({ 
             status: 'bad request',
-            statusCode: 400,
             message: 'User not found'
           });
         }
@@ -208,7 +203,6 @@ class UserController{
         if (!isOtpValid) {
           return res.status(400).json({ 
             status: 'bad request',
-            statusCode: 400,
             message: 'Invalid or expired OTP'
           });
         }
@@ -263,7 +257,6 @@ class UserController{
         if (error) {
             return res.status(400).json({
                 status: 'bad request',
-                statusCode: 400,
                 message: 'input error',
                 error: error.details[0].message
             });
@@ -282,7 +275,6 @@ class UserController{
         if(cekEmailUnik){
           return res.status(400).json({
               status: 'bad request',
-              statusCode: 400,
               message: "Email already used for another account"
           })
         }
@@ -344,7 +336,6 @@ class UserController{
       if (error) {
           return res.status(400).json({
             status: 'bad request',
-            statusCode: 400,
             message: 'input error',
             error: error.details[0].message
           });
@@ -381,7 +372,8 @@ class UserController{
               };
               const accessToken = jwt.sign({
                   user_id: userData.user_id,
-                  user_email: userData.email
+                  user_email: userData.email,
+                  user_role: userData.role
               }, JWT_SECRET, options)
   
               return res.status(200).json({

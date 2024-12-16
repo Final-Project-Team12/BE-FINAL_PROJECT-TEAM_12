@@ -16,7 +16,6 @@ class ForgotPasswordController {
     if (!email) {
       return res.status(400).json({ 
         status: 'bad request',
-        statusCode: 400,
         message: 'Email is required' 
       });
     }
@@ -27,7 +26,6 @@ class ForgotPasswordController {
       if (!user) {
         return res.status(404).json({ 
           status: 'not found',
-          statusCode: 404,
           message: 'User not found' 
         });
       }
@@ -55,7 +53,6 @@ class ForgotPasswordController {
     if (!email || !otp) {
       return res.status(400).json({ 
         status: 'bad request',
-        statusCode: 400,
         message: 'Email and OTP are required' 
       });
     }
@@ -66,7 +63,6 @@ class ForgotPasswordController {
       if (!user) {
         return res.status(404).json({ 
           status: 'not found',
-          statusCode: 404,
           message: 'User not found' });
       }
 
@@ -77,7 +73,6 @@ class ForgotPasswordController {
       if (!isOtpValid) {
         return res.status(400).json({
           status: 'bad request',
-          statusCode: 400,
           message: 'Invalid or expired OTP' 
         });
       }
@@ -95,7 +90,6 @@ class ForgotPasswordController {
 
       return res.status(200).json({
         status: 'success',
-        statusCode: 200,
         message: 'OTP verified. Use reset-token to reset your password.',
         resetToken,
       });
@@ -110,7 +104,6 @@ class ForgotPasswordController {
     if (!email || !newPassword || !confirmPassword || !resetToken) {
       return res.status(400).json({
         status: 'bad request',
-        statusCode: 400,
         message: 'Email, new password, confirmation password, and reset-token are required',
       });
     }
@@ -118,7 +111,6 @@ class ForgotPasswordController {
     if (newPassword !== confirmPassword) {
       return res.status(400).json({ 
         status: 'bad request',
-        statusCode: 400,
         message: 'Passwords do not match' });
     }
 
@@ -128,7 +120,6 @@ class ForgotPasswordController {
       if (decoded.email !== email) {
         return res.status(400).json({ 
           status: 'bad request',
-          statusCode: 400,
           message: 'Invalid reset token' 
         });
       }
@@ -138,7 +129,6 @@ class ForgotPasswordController {
       if (!user) {
         return res.status(404).json({ 
           status: 'not found',
-          statusCode: 404,
           message: 'User not found' 
         });
       }
@@ -152,7 +142,6 @@ class ForgotPasswordController {
 
       return res.status(200).json({ 
         status: 'success',
-        statusCode: 200,
         message: 'Password updated successfully' 
       });
     } catch (error) {

@@ -1,11 +1,13 @@
+const bcrypt = require('bcrypt');
+const { PrismaClient } = require('@prisma/client');
+const prisma = new PrismaClient();
 const { google } = require('googleapis');
-const { createUser, getUserByEmail } = require('../services/userService');
 const generateToken = require('../utils/jwtGenerator');
 
 const oauth2Client = new google.auth.OAuth2(
   process.env.GOOGLE_CLIENT_ID,
-  process.env.GOOGLE_CLIENT_SECRET, 
-  'http://localhost:3000/api/v1/auth/google/callback'
+  process.env.GOOGLE_CLIENT_SECRET,
+  'http://localhost:3000/auth/google/callback'
 );
 
 async function getGoogleUserProfile(code) {
@@ -30,7 +32,9 @@ async function getGoogleUserProfile(code) {
 }
 
 async function handleGoogleUser(userProfile, tokens) {
-  let user = await getUserByEmail(userProfile.email);
+  let user = await prisma.users.findUnique({
+    where: { email: userProfile.email },
+  });
 
   const userData = {
     name: userProfile.name,
@@ -43,17 +47,46 @@ async function handleGoogleUser(userProfile, tokens) {
     gender: userProfile.gender || '-',
     identity_number: userProfile.identity_number || '-',
     age: userProfile.age || 0,
-    auth_method: 'oauth'
   };
 
   if (!user) {
-    user = await createUser(userData);
+    user = await prisma.users.create({
+      data: userData,
+    });
   }
 
-  const accessToken = generateToken(userProfile);
+  const accessToken = generateToken(user);
   const refreshToken = tokens.refresh_token;
 
-  return { accessToken, refreshToken };
+  return { accessToken, refreshToken, user };
+}
+
+async function setPassword(userId, password) {
+  const userIdInt = parseInt(userId);
+
+  if (isNaN(userIdInt)) {
+    throw new Error('Invalid user_id');
+  }
+
+  let user = await prisma.users.findUnique({
+    where: { user_id: userIdInt },
+  });
+
+  if (!user) {
+    throw new Error('User not found');
+  }
+
+  const saltRounds = parseInt(process.env.HASH, 10) || 10;
+  const hashedPassword = await bcrypt.hash(password, saltRounds);
+
+  user = await prisma.users.update({
+    where: { user_id: userIdInt },
+    data: { password: hashedPassword },
+  });
+
+  const accessToken = generateToken(user);
+
+  return { accessToken, user };
 }
 
 function generateAuthUrl() {
@@ -67,4 +100,5 @@ module.exports = {
   getGoogleUserProfile,
   handleGoogleUser,
   generateAuthUrl,
+  setPassword,
 };

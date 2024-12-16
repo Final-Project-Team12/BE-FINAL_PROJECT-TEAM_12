@@ -1,84 +1,156 @@
-const prisma = require('../prisma/client');
+const { PrismaClient } = require("@prisma/client");
+const prisma = new PrismaClient();
 
-exports.getAllTransactions = async () => {
+async function getTransactionsByUserId(userId) {
   try {
-    return await prisma.transaction.findMany({
-      include: { tickets: true }
+    const transactions = await prisma.transaction.findMany({
+      where: { user_id: userId },
+      include: {
+        tickets: {
+          include: {
+            passenger: true,
+            seat: true,
+            plane: true,
+          },
+        },
+        user: true,
+      },
+      orderBy: {
+        transaction_date: "desc",
+      },
     });
-  } catch (error) {
-    throw new Error(`Failed to retrieve transactions: ${error.message}`);
-  }
-};
 
-exports.createTransaction = async (data) => {
-  if (!data.user_id || !data.total_payment || !data.status) {
-    throw new Error('Transaction data is incomplete.');
-  }
-
-  try {
-    const userExists = await prisma.users.findUnique({
-      where: { user_id: data.user_id }
-    });
-
-    if (!userExists) {
-      throw new Error('User with that ID was not found.');
+    if (!transactions) {
+      throw new Error("TRANSACTIONS_NOT_FOUND");
     }
 
-    return await prisma.transaction.create({
-      data: {
-        status: data.status,
-        redirect_url: data.redirect_url || null,
-        transaction_date: new Date(),
-        token: data.token || null,
-        message: data.message || null,
-        total_payment: data.total_payment,
-        user_id: data.user_id
-      }
-    });
+    return transactions;
   } catch (error) {
-    throw new Error(`Failed to create transaction: ${error.message}`);
+    console.error("[Error in getTransactionsByUserId]:", error.message);
+    throw new Error("Failed to get transactions history");
   }
-};
+}
 
-exports.updateTransaction = async (transaction_id, data) => {
-  if (!transaction_id || !data) {
-    throw new Error('Invalid transaction ID or data.');
-  }
-
+async function createTransaction(
+  userData,
+  passengerData,
+  seatSelections,
+  planeId
+) {
   try {
-    const transactionExists = await prisma.transaction.findUnique({
-      where: { transaction_id: parseInt(transaction_id) }
+    // Validate input data
+    if (!userData?.user_id) throw new Error("INVALID_USER_DATA");
+    if (!Array.isArray(passengerData) || passengerData.length === 0)
+      throw new Error("INVALID_PASSENGER_DATA");
+    if (!Array.isArray(seatSelections) || seatSelections.length === 0)
+      throw new Error("INVALID_SEAT_SELECTIONS");
+    if (!planeId) throw new Error("INVALID_PLANE_ID");
+
+    // Verify plane exists
+    const plane = await prisma.plane.findUnique({
+      where: { plane_id: parseInt(planeId) },
     });
 
-    if (!transactionExists) {
-      throw new Error('Transaction with that ID was not found.');
+    if (!plane) {
+      console.error("[createTransaction] Plane not found:", planeId);
+      throw new Error("PLANE_NOT_FOUND");
     }
-    return await prisma.transaction.update({
-      where: { transaction_id: parseInt(transaction_id) },
-      data,
+
+    // Verify seat availability
+    const seatChecks = await Promise.all(
+      seatSelections.map(async (selection) => {
+        const seat = await prisma.seat.findUnique({
+          where: { seat_id: parseInt(selection.seat_id) },
+        });
+        return seat && seat.is_available;
+      })
+    );
+
+    if (seatChecks.includes(true)) {
+      console.error("[createTransaction] Invalid seats found:", seatChecks);
+      throw new Error("INVALID_SEATS_SELECTED");
+    }
+
+    // Create transaction in a single database transaction
+    return await prisma.$transaction(async (tx) => {
+      // Create initial transaction record
+      const transaction = await tx.transaction.create({
+        data: {
+          status: "PENDING",
+          redirect_url: "",
+          transaction_date: new Date(),
+          token: Math.random().toString(36).substring(7),
+          message: "Transaction initiated",
+          total_payment: 0,
+          user_id: parseInt(userData.user_id),
+        },
+      });
+
+      // Create passenger records
+      const passengers = await Promise.all(
+        passengerData.map((passenger) =>
+          tx.passenger.create({
+            data: {
+              title: passenger.title,
+              full_name: passenger.full_name,
+              family_name: passenger.family_name || null,
+              nationality: passenger.nationality,
+              id_number: passenger.id_number,
+              id_issuer: passenger.id_issuer,
+              id_expiry: passenger.id_expiry
+                ? new Date(passenger.id_expiry)
+                : null,
+            },
+          })
+        )
+      );
+
+      // Create tickets and update seats
+      const tickets = await Promise.all(
+        seatSelections.map(async (selection, index) => {
+          await tx.seat.update({
+            where: { seat_id: parseInt(selection.seat_id) },
+            data: {
+              is_available: false,
+              version: { increment: 1 },
+            },
+          });
+
+          return await tx.ticket.create({
+            data: {
+              transaction_id: transaction.transaction_id,
+              plane_id: parseInt(planeId),
+              passenger_id: passengers[index].passenger_id,
+              seat_id: parseInt(selection.seat_id),
+            },
+          });
+        })
+      );
+
+      // Update transaction with final details
+      return await tx.transaction.update({
+        where: { transaction_id: transaction.transaction_id },
+        data: {
+          total_payment: tickets.length * 500000,
+          message: "Transaction completed successfully",
+        },
+        include: {
+          tickets: {
+            include: {
+              passenger: true,
+              seat: true,
+            },
+          },
+        },
+      });
     });
   } catch (error) {
-    throw new Error(`Failed to update transaction: ${error.message}`);
+    console.error("[Error in createTransaction]:", error.message);
+    throw new Error("Failed to create transaction");
   }
-};
+}
 
-exports.deleteTransaction = async (transaction_id) => {
-  if (!transaction_id) {
-    throw new Error('Invalid transaction ID.');
-  }
-
-  try {
-    const transactionExists = await prisma.transaction.findUnique({
-      where: { transaction_id: parseInt(transaction_id) }
-    });
-
-    if (!transactionExists) {
-      throw new Error('Transaction with that ID was not found.');
-    }
-    return await prisma.transaction.delete({
-      where: { transaction_id: parseInt(transaction_id) }
-    });
-  } catch (error) {
-    throw new Error(`Failed to delete transaction: ${error.message}`);
-  }
+module.exports = {
+  getTransactionsByUserId,
+  createTransaction,
 };

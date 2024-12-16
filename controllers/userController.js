@@ -269,25 +269,25 @@ class UserController{
               message: 'User not found',
           });
       }
+        let email = req.body.email || existingUser.email;
 
-        let password = req.body.password? bcrypt.hashSync(value.password, parseInt(HASH)) : existingUser.password
-        const cekEmailUnik = await checkOtherEmail(value.email)
-        if(cekEmailUnik){
-          return res.status(400).json({
-              status: 'bad request',
-              message: "Email already used for another account"
-          })
+
+        let check = !(existingUser.email == email)
+        if(check){
+          const cekEmailUnik = await checkOtherEmail(email)
+          if(cekEmailUnik){
+            return res.status(400).json({
+                status : false,
+                message: "Email already used for another account"
+            })
+          }
         }
 
         const data = {
           name: req.body.name || existingUser.name,
           telephone_number: req.body.telephone_number || existingUser.telephone_number,
-          email: req.body.email || existingUser.email,
-          password: req.body.password
-              ? password
-              : existingUser.password,
+          email,
           address: req.body.address || existingUser.address,
-          gender: req.body.gender || existingUser.gender,
           identity_number: req.body.identity_number || existingUser.identity_number,
           age: req.body.age || existingUser.age,
           role: "user"
@@ -342,7 +342,6 @@ class UserController{
       }
       try{
         let {email, password} = value;
-        // console.log('masuk g ni')
         let userData = await getUserByEmail(email);
     
         if(!userData){

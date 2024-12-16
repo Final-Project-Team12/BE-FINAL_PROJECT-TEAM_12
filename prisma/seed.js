@@ -119,7 +119,8 @@ async function main() {
         await prisma.seat.create({
           data: {
             seat_number: seatNumber,
-            seat_class: seatClass,
+            class: seatClass,
+            price: 1000000,
             plane_id: plane.plane_id,
             is_available: true,
             version: 0,
@@ -159,7 +160,8 @@ async function main() {
         await prisma.seat.create({
           data: {
             seat_number: seatNumber,
-            seat_class: seatClass,
+            class: seatClass,
+            price: 100000,
             plane_id: reversePlane.plane_id,
             is_available: true,
             version: 0,

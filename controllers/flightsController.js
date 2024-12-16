@@ -7,7 +7,6 @@ class FlightsController {
         try {
             const queryParams = parseQueryParams(req.query);
 
-            // Cek jika ada error dari parseQueryParams
             if (queryParams.status && queryParams.status === 400) {
                 return res.status(queryParams.status).json(queryParams);
             }
@@ -26,9 +25,9 @@ class FlightsController {
             const hasPreviousPage = pageNumber > 1;
 
             if (!formattedOutboundFlights.length) {
-                return res.status(200).json({
-                    status: "success",
-                    message: "No flights are available for this route.",
+                return res.status(404).json({
+                    status: 404,
+                    message: "No outbound flights found for the specified route.",
                     data: {
                         outbound_flights: []
                     },
@@ -66,36 +65,61 @@ class FlightsController {
     static async searchFilteredFlights(req, res, next) {
         try {
             const queryParams = parseQueryParams(req.query);
-
-            // Cek jika ada error dari parseQueryParams
+    
             if (queryParams.status && queryParams.status === 400) {
                 return res.status(queryParams.status).json(queryParams);
             }
-
+    
             const { from, to, departureDate, returnDate, seatClass, continent, facilities, pageNumber, limitNumber, offset, totalPassengers, priceSort, departureSort, arrivalSort, durationSort, minPrice, maxPrice } = queryParams;
-
+    
             const [outbound_flights, return_flights, totalOutboundFlights, totalReturnFlights] = await Promise.all([
                 fetchFlights({ from, to, departureDate, returnDate, seatClass, continent: null, facilities, offset, limitNumber, isReturn: false, priceSort, departureSort, arrivalSort, durationSort, minPrice, maxPrice }),
                 returnDate ? fetchFlights({ from, to, departureDate, returnDate, seatClass, continent: null, facilities, offset, limitNumber, isReturn: true, priceSort, departureSort, arrivalSort, durationSort, minPrice, maxPrice }) : [],
                 countFlights({ from, to, departureDate, seatClass, continent: null, facilities, isReturn: false, priceSort, departureSort, arrivalSort, durationSort, minPrice, maxPrice }),
                 returnDate ? countFlights({ from, to, departureDate, seatClass, continent: null, facilities, isReturn: true, priceSort, departureSort, arrivalSort, durationSort, minPrice, maxPrice }) : 0
             ]);
-
+    
             const [formattedOutboundFlights, formattedReturnFlights] = await Promise.all([
                 formatFlights(outbound_flights, seatClass, totalPassengers),
                 formatFlights(return_flights, seatClass, totalPassengers)
             ]);
-
-            const totalItems = totalOutboundFlights + totalReturnFlights;
-            const totalPages = Math.ceil(totalItems / limitNumber);
+    
+            // Filter outbound flights dengan seat_detail yang kosong
+            const validOutboundFlights = formattedOutboundFlights.filter(flight => flight.seats_detail && flight.seats_detail.length > 0);
+            const validReturnFlights = formattedReturnFlights.filter(flight => flight.seats_detail && flight.seats_detail.length > 0);
+    
+            const totalOutboundPages = Math.ceil(validOutboundFlights.length / limitNumber);
+            const totalReturnPages = Math.ceil(validReturnFlights.length / limitNumber);
+    
+            const totalPages = Math.max(totalOutboundPages, totalReturnPages);
+    
             const hasNextPage = pageNumber < totalPages;
             const hasPreviousPage = pageNumber > 1;
-
+    
+            if (!validOutboundFlights.length && !validReturnFlights.length) {
+                return res.status(404).json({
+                    status: 404,
+                    message: "No flights found for the specified filters.",
+                    data: {
+                        outbound_flights: [],
+                        return_flights: []
+                    },
+                    pagination: {
+                        currentPage: pageNumber,
+                        totalPages,
+                        totalItems: validOutboundFlights.length + validReturnFlights.length,
+                        limit: limitNumber,
+                        hasNextPage,
+                        hasPreviousPage
+                    }
+                });
+            }
+    
             const responseData = {
-                outbound_flights: departureDate ? formattedOutboundFlights : [],
-                return_flights: returnDate ? formattedReturnFlights : []
+                outbound_flights: departureDate ? validOutboundFlights : [],
+                return_flights: returnDate ? validReturnFlights : []
             };
-
+    
             return res.status(200).json({
                 status: "success",
                 message: "Available flights have been successfully retrieved.",
@@ -103,7 +127,7 @@ class FlightsController {
                 pagination: {
                     currentPage: pageNumber,
                     totalPages,
-                    totalItems,
+                    totalItems: validOutboundFlights.length + validReturnFlights.length,
                     limit: limitNumber,
                     hasNextPage,
                     hasPreviousPage
@@ -113,6 +137,8 @@ class FlightsController {
             next(error);
         }
     }
+    
+    
 }
 
 module.exports = FlightsController;

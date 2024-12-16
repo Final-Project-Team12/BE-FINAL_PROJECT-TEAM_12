@@ -38,6 +38,7 @@ model Notification {
   description     String
   user_id         Int
   user            Users  @relation(fields: [user_id], references: [user_id])
+  is_read         Boolean @default(false)
 }
 
 model Transaction {

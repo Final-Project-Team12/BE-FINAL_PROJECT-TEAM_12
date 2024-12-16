@@ -96,7 +96,9 @@ class AirlineController {
                 where: { airline_id: parseInt(airline_id) }
             });
 
-            res.status(200).json({ message: 'Airline successfully deleted' });
+            res.status(200).json({ 
+                status: 'success',
+                message: 'Airline successfully deleted' });
         } catch (error) {
             next(error);
         }

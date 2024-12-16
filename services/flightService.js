@@ -30,14 +30,6 @@ async function fetchFlights({
     const orderBy = buildSortingConditions(departureSort, arrivalSort, durationSort);
 
     let planesWithSeats = await getPlanesWithSeats(whereConditions, offset, limitNumber, orderBy);
-
-    if (returnDate && new Date(returnDate) < new Date(departureDate)) {
-        return {
-            status: "Bad Request",
-            statusCode: 400,
-            message: "The return date must be greater than departure date."
-        };
-    }
     
     planesWithSeats.forEach(plane => {
         if (plane.seats) {

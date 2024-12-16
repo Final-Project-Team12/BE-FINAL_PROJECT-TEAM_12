@@ -41,9 +41,9 @@ const routers = [
   seatRoutes,
   forgotPasswordRoutes,
   //gak semuanya kena auth
-  airlineRoutes,
-  airportRoutes,
   userRoutes,
+  airportRoutes,
+  airlineRoutes,
   //auth semua
   paymentRoutes,
   notificationRoutes,
@@ -53,9 +53,6 @@ const routers = [
 
 routers.forEach(router => app.use('/api/v1', router));
 
-
-
-app.use(restrictJwt);
 
 app.use(errorHandler);
 //buat nangkep semua error langsung

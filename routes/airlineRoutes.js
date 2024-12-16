@@ -10,10 +10,10 @@ router.get('/airline/:airline_id', AirlineController.getAirlineById);
 
 const restrictedRoutes = express.Router();
 
-restrictedRoutes.post('/airline/upload-airline-image', multerUpload.single('image'), AirlineController.uploadImageAirlines);
-restrictedRoutes.delete('/airline/:airline_id', AirlineController.deleteAirline);
-restrictedRoutes.put('/airline/:airline_id', multerUpload.single('image'), AirlineController.updateAirline);
+restrictedRoutes.post('/upload-airline-image', multerUpload.single('image'), AirlineController.uploadImageAirlines);
+restrictedRoutes.delete('/:airline_id', AirlineController.deleteAirline);
+restrictedRoutes.put('/:airline_id', multerUpload.single('image'), AirlineController.updateAirline);
 
-router.use(restrictJwt, restrictedRoutes);
+router.use('/airline', restrictJwt, restrictedRoutes);
 
 module.exports = router;

@@ -8,10 +8,12 @@ router.post('/user/verify', UserController.verifyUser)
 router.post('/user/resend', UserController.resendOtp)
 router.post('/user/login', UserController.login)
 
-router.use(restrictJwt);
+const restrictedRoutes = express.Router();
 
-router.get('/:user_id', UserController.getUser);
-router.put('/:user_id', UserController.updateUser);
-router.delete('/:user_id', UserController.deleteUser);
+restrictedRoutes.get('/:user_id', UserController.getUser);
+restrictedRoutes.put('/:user_id', UserController.updateUser);
+restrictedRoutes.delete('/:user_id', UserController.deleteUser);
+
+router.use('/user', restrictJwt, restrictedRoutes);
 
 module.exports = router;

@@ -7,7 +7,9 @@ class AirlineController {
     static async uploadImageAirlines(req, res, next){
         try {
             if (!req.body.airline_name || !req.body.times_used) {
-                return res.status(400).json({ message: "Airline name, times used, and image must all be provided." });
+                return res.status(400).json({
+                    status: "bad request",
+                    message: "Airline name, times used, and image must all be provided." });
             }
 
             const stringFile = req.file.buffer.toString('base64');
@@ -62,7 +64,10 @@ class AirlineController {
             const airline = await prisma.airline.findUnique({
                 where: { airline_id: parseInt(airline_id) }
             });
-            if (!airline) return res.status(404).json({ message: 'Airline not found' });
+            if (!airline) return res.status(404).json({ 
+                status: 'not found',
+                message: 'Airline not found' 
+            });
 
             res.status(200).json(airline);
         } catch (error) {
@@ -79,7 +84,10 @@ class AirlineController {
             });
 
             if (!airlineToDelete) {
-                return res.status(404).json({ message: 'Airline not found' });
+                return res.status(404).json({ 
+                    status: 'not found',
+                    message: 'Airline not found' 
+                });
             }
 
             await imagekit.deleteFile(airlineToDelete.fileId); 

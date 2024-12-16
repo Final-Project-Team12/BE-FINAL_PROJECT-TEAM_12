@@ -75,7 +75,7 @@ class UserController{
       const { error, value } = login_schema.validate(req.body);
       if (error) {
           return res.status(400).json({
-            status: false,
+            status: 'bad request',
             message: 'input error',
             error: error.details[0].message
           });
@@ -128,7 +128,7 @@ class UserController{
             const { error, value } = user_schema.validate(req.body);
             if (error) {
                 return res.status(400).json({
-                    status: false,
+                    status: 'bad request',
                     message: 'input error',
                     error: error.details[0].message
                 });
@@ -139,7 +139,7 @@ class UserController{
 
             if(cekEmailUnik){
               return res.status(400).json({
-                  status : false,
+                  status: 'bad request',
                   message: "Email already exists"
               })
             }
@@ -156,6 +156,7 @@ class UserController{
               identity_number: value.identity_number,
               age: value.age,
               role: 'user',
+              auth_method: 'manual',
               otp : otpGen,
               otp_expiry: otpExpiry
             }
@@ -180,7 +181,7 @@ class UserController{
       const { email, otp } = req.body;
       if (!email || !otp) {
         return res.status(400).json({
-          status: false, 
+          status: 'bad request',
           message: 'Email and OTP are required'
         });
       }
@@ -190,7 +191,7 @@ class UserController{
   
         if (!user) {
           return res.status(404).json({ 
-            status: false,
+            status: 'bad request',
             message: 'User not found'
           });
         }
@@ -201,7 +202,7 @@ class UserController{
   
         if (!isOtpValid) {
           return res.status(400).json({ 
-            status: false,
+            status: 'bad request',
             message: 'Invalid or expired OTP'
           });
         }
@@ -255,7 +256,7 @@ class UserController{
         const { error, value } = user_update_schema.validate(req.body);
         if (error) {
             return res.status(400).json({
-                status: false,
+                status: 'bad request',
                 message: 'input error',
                 error: error.details[0].message
             });
@@ -269,6 +270,7 @@ class UserController{
           });
       }
         let email = req.body.email || existingUser.email;
+
 
         let check = !(existingUser.email == email)
         if(check){
@@ -333,7 +335,7 @@ class UserController{
       const { error, value } = login_schema.validate(req.body);
       if (error) {
           return res.status(400).json({
-            status: false,
+            status: 'bad request',
             message: 'input error',
             error: error.details[0].message
           });
@@ -369,7 +371,8 @@ class UserController{
               };
               const accessToken = jwt.sign({
                   user_id: userData.user_id,
-                  user_email: userData.email
+                  user_email: userData.email,
+                  user_role: userData.role
               }, JWT_SECRET, options)
   
               return res.status(200).json({

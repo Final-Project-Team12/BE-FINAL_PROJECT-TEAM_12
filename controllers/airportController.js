@@ -5,11 +5,17 @@ class AirportController {
     static async uploadImageAirport(req, res, next) {
         try {
             if (!req.body.name || !req.body.airport_code || !req.body.continent_id) {
-                return res.status(400).json({ message: "Airport name, code, continent ID, and image must be provided." });
+                return res.status(400).json({ 
+                    status: 'bad request',
+                    message: "Airport name, code, continent ID, and image must be provided." 
+                });
             }
 
             if (!req.file) {
-                return res.status(400).json({ message: "Image file is required" });
+                return res.status(400).json({ 
+                    status: 'bad request',
+                    message: "Image file is required" 
+                });
             }
 
             const stringFile = req.file.buffer.toString('base64');
@@ -56,7 +62,10 @@ class AirportController {
         const { airport_id } = req.params;
         try {
             const airport = await AirportService.getAirportById(airport_id);
-            if (!airport) return res.status(404).json({ message: 'Airport not found' });
+            if (!airport) return res.status(404).json({ 
+                status: 'not found',
+                message: 'Airport not found' 
+            });
 
             res.status(200).json(airport);
         } catch (error) {
@@ -71,7 +80,10 @@ class AirportController {
             const airportToDelete = await AirportService.getAirportById(airport_id);
 
             if (!airportToDelete) {
-                return res.status(404).json({ message: 'Airport not found' });
+                return res.status(404).json({
+                    status: 'not found',
+                    message: 'Airport not found' 
+                });
             }
 
             await imagekit.deleteFile(airportToDelete.file_id);
@@ -106,7 +118,10 @@ class AirportController {
             }
 
             if (Object.keys(updateData).length === 0) {
-                return res.status(400).json({ message: 'No data provided for update' });
+                return res.status(400).json({ 
+                    status: 'bad request',
+                    message: 'No data provided for update' 
+                });
             }
 
             const airport = await AirportService.updateAirportById(airport_id, updateData);

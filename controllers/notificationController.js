@@ -40,7 +40,9 @@ class NotificationController {
         where: { notification_id: parseInt(notification_id) },
       });
       if (!notification) {
-        return res.status(404).json({ message: "Notification not found" });
+        return res.status(404).json({ 
+          status: 'not found',
+          message: "Notification not found" });
       }
       res.status(200).json(notification);
     } catch (error) {

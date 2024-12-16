@@ -27,8 +27,7 @@ class FlightsController {
 
             if (!formattedOutboundFlights.length) {
                 return res.status(200).json({
-                    status: "Success",
-                    statusCode: 200,
+                    status: "success",
                     message: "No flights are available for this route.",
                     data: {
                         outbound_flights: []
@@ -45,8 +44,7 @@ class FlightsController {
             }
 
             return res.status(200).json({
-                status: "Success",
-                statusCode: 200,
+                status: "success",
                 message: "Outbound flights have been successfully retrieved.",
                 data: {
                     outbound_flights: formattedOutboundFlights
@@ -98,8 +96,7 @@ class FlightsController {
             };
     
             return res.status(200).json({
-                status: "Success",
-                statusCode: 200,
+                status: "success",
                 message: "Available flights have been successfully retrieved.",
                 data: responseData,
                 pagination: {

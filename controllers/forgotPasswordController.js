@@ -9,19 +9,25 @@ const prisma = new PrismaClient();
 const JWT_SECRET = process.env.JWT_SECRET;
 const JWT_EXPIRATION_TIME = process.env.JWT_EXPIRATION_TIME;
 
-class PasswordController {
+class ForgotPasswordController {
   static async forgotPassword(req, res, next) {
     const { email } = req.body;
 
     if (!email) {
-      return res.status(400).json({ message: 'Email is required' });
+      return res.status(400).json({ 
+        status: 'bad request',
+        message: 'Email is required' 
+      });
     }
 
     try {
       const user = await prisma.users.findUnique({ where: { email } });
 
       if (!user) {
-        return res.status(404).json({ message: 'User not found' });
+        return res.status(404).json({ 
+          status: 'not found',
+          message: 'User not found' 
+        });
       }
 
       const otp = crypto.randomInt(100000, 999999).toString();
@@ -45,14 +51,19 @@ class PasswordController {
     const { email, otp } = req.body;
 
     if (!email || !otp) {
-      return res.status(400).json({ message: 'Email and OTP are required' });
+      return res.status(400).json({ 
+        status: 'bad request',
+        message: 'Email and OTP are required' 
+      });
     }
 
     try {
       const user = await prisma.users.findUnique({ where: { email } });
 
       if (!user) {
-        return res.status(404).json({ message: 'User not found' });
+        return res.status(404).json({ 
+          status: 'not found',
+          message: 'User not found' });
       }
 
       const currentUtcTime = new Date().toISOString(); 
@@ -60,7 +71,10 @@ class PasswordController {
       const isOtpValid = user.otp === otp && user.otp_expiry > currentUtcTime;
 
       if (!isOtpValid) {
-        return res.status(400).json({ message: 'Invalid or expired OTP' });
+        return res.status(400).json({
+          status: 'bad request',
+          message: 'Invalid or expired OTP' 
+        });
       }
 
       const resetToken = jwt.sign(
@@ -75,6 +89,7 @@ class PasswordController {
       });
 
       return res.status(200).json({
+        status: 'success',
         message: 'OTP verified. Use reset-token to reset your password.',
         resetToken,
       });
@@ -88,25 +103,34 @@ class PasswordController {
 
     if (!email || !newPassword || !confirmPassword || !resetToken) {
       return res.status(400).json({
+        status: 'bad request',
         message: 'Email, new password, confirmation password, and reset-token are required',
       });
     }
 
     if (newPassword !== confirmPassword) {
-      return res.status(400).json({ message: 'Passwords do not match' });
+      return res.status(400).json({ 
+        status: 'bad request',
+        message: 'Passwords do not match' });
     }
 
     try {
       const decoded = jwt.verify(resetToken, JWT_SECRET);
 
       if (decoded.email !== email) {
-        return res.status(400).json({ message: 'Invalid reset token' });
+        return res.status(400).json({ 
+          status: 'bad request',
+          message: 'Invalid reset token' 
+        });
       }
 
       const user = await prisma.users.findUnique({ where: { email } });
 
       if (!user) {
-        return res.status(404).json({ message: 'User not found' });
+        return res.status(404).json({ 
+          status: 'not found',
+          message: 'User not found' 
+        });
       }
 
       const hashedPassword = await bcrypt.hash(newPassword, 10);
@@ -116,11 +140,14 @@ class PasswordController {
         data: { password: hashedPassword },
       });
 
-      return res.status(200).json({ message: 'Password updated successfully' });
+      return res.status(200).json({ 
+        status: 'success',
+        message: 'Password updated successfully' 
+      });
     } catch (error) {
       next(error);
     }
   }
 }
 
-module.exports = PasswordController;
+module.exports = ForgotPasswordController;

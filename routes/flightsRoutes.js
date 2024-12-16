@@ -1,5 +1,5 @@
 const express = require("express");
-const FlightsController = require("../controllers/FlightsController");
+const FlightsController = require("../controllers/flightsController");
 const router = express.Router();
 
 // Endpoint untuk /flights

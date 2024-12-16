@@ -38,15 +38,17 @@ app.use('/auth', googleAuthRoutes);
 const routers = [
   ticketListingRoutes,
   paginationRoutes,
-  userRoutes,
   seatRoutes,
   forgotPasswordRoutes,
+  //gak semuanya kena auth
+  airlineRoutes,
+  airportRoutes,
+  userRoutes,
+  //auth semua
   paymentRoutes,
   notificationRoutes,
   transactionRoutes,
   ticketRoutes,
-  airlineRoutes,
-  airportRoutes,
 ];
 
 routers.forEach(router => app.use('/api/v1', router));

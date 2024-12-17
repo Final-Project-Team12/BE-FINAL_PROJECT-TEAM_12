@@ -241,7 +241,8 @@ async function main() {
       data: {
         title: `Notification ${i}`,
         description: `Description for notification ${i}`,
-        user_id: userIds[i % userIds.length]
+        user_id: userIds[i % userIds.length],
+        notification_date: new Date('2024-12-12T00:00:00+07:00'),
       }
     });
   }

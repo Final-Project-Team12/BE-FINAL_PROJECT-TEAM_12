@@ -36,6 +36,7 @@ model Notification {
   notification_id Int    @id @default(autoincrement())
   title           String
   description     String
+  notification_date DateTime
   user_id         Int
   user            Users  @relation(fields: [user_id], references: [user_id])
   is_read         Boolean @default(false)

@@ -11,8 +11,7 @@ class RestrictJwt{
         const { authorization } = req.headers;
         if (!authorization || !authorization.startsWith('Bearer ')) {
             return res.status(401).json({
-                status: "Unauthorized",
-                statusCode: 401,
+                status: "unauthorized",
                 message: "You are not authorized",
             });
         }
@@ -34,8 +33,7 @@ class RestrictJwt{
 
             if (!userData) {
                 return res.status(401).json({
-                    status: "Unauthorized",
-                    statusCode: 401,
+                    status: "unauthorized",
                     message: "User not found",
                 });
             }
@@ -44,8 +42,7 @@ class RestrictJwt{
             next();
         } catch (err) {
             res.status(401).json({
-                status: "Unauthorized",
-                statusCode: 401,
+                status: "unauthorized",
                 message: "You are not authorized",
             });
         }

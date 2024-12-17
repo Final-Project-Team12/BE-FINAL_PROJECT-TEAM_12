@@ -1,30 +1,23 @@
-const imagekit = require('../libs/imagekit');
-const { PrismaClient } = require('@prisma/client');
-const prisma = new PrismaClient();
+const AirlineService = require('../services/airlineService');
 
 class AirlineController {
-
-    static async uploadImageAirlines(req, res, next){
+    static async uploadImageAirlines(req, res, next) {
         try {
-            if (!req.body.airline_name || !req.body.times_used) {
-                return res.status(400).json({ message: "Airline name, times used, and image must all be provided." });
+            if (!req.body.airline_name || !req.file) {
+                return res.status(400).json({
+                    status: "bad request",
+                    message: "Airline name, times used, and image must all be provided."
+                });
             }
 
-            const stringFile = req.file.buffer.toString('base64');
+            const uploadImage = await AirlineService.uploadImage(req.file);
 
-            const uploadImage = await imagekit.upload({
-                fileName: req.file.originalname,
-                file: stringFile
+            const airlineRecord = await AirlineService.createAirline({
+                airline_name: req.body.airline_name,
+                image_url: uploadImage.url,
+                file_id: uploadImage.fileId
             });
 
-            const airlineRecord = await prisma.airline.create({
-                data: {
-                    airline_name: req.body.airline_name,
-                    times_used: parseInt(req.body.times_used, 10),                    
-                    image_url: uploadImage.url,
-                    file_id: uploadImage.fileId
-                }
-            });
             res.status(201).json({
                 status: 'success',
                 message: 'Image successfully uploaded to airline',
@@ -37,14 +30,7 @@ class AirlineController {
 
     static async getAirlines(req, res, next) {
         try {
-            const airlines = await prisma.airline.findMany({
-                select: {
-                    airline_id: true,
-                    airline_name: true,
-                    image_url: true,
-                    times_used: true
-                }
-            });
+            const airlines = await AirlineService.getAllAirlines();
 
             res.status(200).json({
                 status: 'success',
@@ -59,36 +45,43 @@ class AirlineController {
     static async getAirlineById(req, res, next) {
         const { airline_id } = req.params;
         try {
-            const airline = await prisma.airline.findUnique({
-                where: { airline_id: parseInt(airline_id) }
-            });
-            if (!airline) return res.status(404).json({ message: 'Airline not found' });
+            const airline = await AirlineService.getAirlineById(airline_id);
+            if (!airline) {
+                return res.status(404).json({
+                    status: 'not found',
+                    message: 'Airline not found'
+                });
+            }
 
-            res.status(200).json(airline);
+            res.status(200).json({
+                status: 'success',
+                message: 'Airline retrieved successfully',
+                data: airline
+            });
         } catch (error) {
             next(error);
         }
     }
 
     static async deleteAirline(req, res, next) {
-        const { airline_id } = req.params; 
-
+        const { airline_id } = req.params;
         try {
-            const airlineToDelete = await prisma.airline.findUnique({
-                where: { airline_id: parseInt(airline_id) }
-            });
+            const airlineToDelete = await AirlineService.getAirlineById(airline_id);
 
             if (!airlineToDelete) {
-                return res.status(404).json({ message: 'Airline not found' });
+                return res.status(404).json({
+                    status: 'not found',
+                    message: 'Airline not found'
+                });
             }
 
-            await imagekit.deleteFile(airlineToDelete.fileId); 
+            await AirlineService.deleteImage(airlineToDelete.file_id);
+            await AirlineService.deleteAirline(airline_id);
 
-            await prisma.airline.delete({
-                where: { airline_id: parseInt(airline_id) }
+            res.status(200).json({
+                status: 'success',
+                message: 'Airline successfully deleted'
             });
-
-            res.status(200).json({ message: 'Airline successfully deleted' });
         } catch (error) {
             next(error);
         }
@@ -98,41 +91,40 @@ class AirlineController {
         const { airline_id } = req.params;
         const { airline_name, times_used } = req.body;
         const file = req.file;
-    
+
         try {
+            const airlineToUpdate = await AirlineService.getAirlineById(airline_id);
+            if (!airlineToUpdate) {
+                return res.status(404).json({
+                    status: 'not found',
+                    message: 'Airline not found'
+                });
+            }
+
             const updateData = {
                 ...(airline_name && { airline_name }),
-                ...(times_used && { times_used: parseInt(times_used) }),
+                ...(times_used && { times_used: parseInt(times_used) })
             };
-    
+
             if (file) {
-                const uploadResult = await imagekit.upload({
-                    fileName: file.originalname,
-                    file: file.buffer.toString('base64'),
-                });
+                await AirlineService.deleteImage(airlineToUpdate.file_id);
+
+                const uploadResult = await AirlineService.uploadImage(file);
                 updateData.image_url = uploadResult.url;
                 updateData.file_id = uploadResult.fileId;
             }
-    
-            if (Object.keys(updateData).length === 0) {
-                return res.status(400).json({ message: 'No data provided for update' });
-            }
-    
-            const airline = await prisma.airline.update({
-                where: { airline_id: parseInt(airline_id) },
-                data: updateData,
-            });
-    
+
+            const updatedAirline = await AirlineService.updateAirline(airline_id, updateData);
+
             res.status(200).json({
                 status: 'success',
                 message: 'Airline successfully updated',
-                data: airline,
+                data: updatedAirline
             });
         } catch (error) {
             next(error);
         }
-    }    
-    
+    }
 }
 
 module.exports = AirlineController;

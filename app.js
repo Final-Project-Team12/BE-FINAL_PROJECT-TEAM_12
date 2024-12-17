@@ -15,13 +15,14 @@ const prisma = new PrismaClient();
 const restrictJwt = require('./middlewares/restrictJwt');
 const errorHandler = require('./middlewares/errorHandler');
 
+const googleAuthRoutes = require('./routes/googleAuthRoutes');
 const ticketListingRoutes = require("./routes/flightsRoutes");
 const paginationRoutes = require('./routes/paginationRoutes')
 const userRoutes = require('./routes/userRoutes');
 const seatRoutes = require('./routes/seatRoutes');
 const airportRoutes = require('./routes/airportRoutes');
 const airlineRoutes = require("./routes/airlineRoutes");
-const passwordRoutes = require("./routes/passwordRoutes");
+const forgotPasswordRoutes = require("./routes/forgotPasswordRoutes");
 const paymentRoutes = require('./routes/paymentRoutes');
 const notificationRoutes = require("./routes/notificationRoutes");
 const transactionRoutes = require('./routes/transactionsRoutes');
@@ -33,15 +34,17 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
-
+app.use('/auth', googleAuthRoutes);
 const routers = [
   ticketListingRoutes,
   paginationRoutes,
-  userRoutes,
   seatRoutes,
-  airlineRoutes,
+  forgotPasswordRoutes,
+  //gak semuanya kena auth
+  userRoutes,
   airportRoutes,
-  passwordRoutes,
+  airlineRoutes,
+  //auth semua
   paymentRoutes,
   notificationRoutes,
   transactionRoutes,
@@ -50,9 +53,6 @@ const routers = [
 
 routers.forEach(router => app.use('/api/v1', router));
 
-
-
-app.use(restrictJwt);
 
 app.use(errorHandler);
 //buat nangkep semua error langsung

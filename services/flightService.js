@@ -30,7 +30,7 @@ async function fetchFlights({
     const orderBy = buildSortingConditions(departureSort, arrivalSort, durationSort);
 
     let planesWithSeats = await getPlanesWithSeats(whereConditions, offset, limitNumber, orderBy);
-
+    
     planesWithSeats.forEach(plane => {
         if (plane.seats) {
             if (seatClass) {

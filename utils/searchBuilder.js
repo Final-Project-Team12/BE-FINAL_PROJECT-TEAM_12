@@ -6,9 +6,7 @@ function buildSearchConditions({
     returnDate, 
     isReturn = false
 }) {
-    console.log(`isReturn: ${isReturn}`);
-    console.log(`departureDate: ${departureDate}`);
-    console.log(`returnDate: ${returnDate}`);
+  
 
     const parseDate = (date) => {
         if (!date) return null; 
@@ -22,8 +20,7 @@ function buildSearchConditions({
     let departureDateParsed = parseDate(departureDate);
     let returnDateParsed = parseDate(returnDate);
 
-    console.log(`Parsed departureDate: ${departureDateParsed ? departureDateParsed.toISOString() : "Invalid date"}`);
-    console.log(`Parsed returnDate: ${returnDateParsed ? returnDateParsed.toISOString() : "null"}`);
+
 
     let departureTime;
     let origin, destination;
@@ -51,7 +48,6 @@ function buildSearchConditions({
         ...(seatClass && { seats: { some: { class: seatClass } } } ),
     };
 
-    console.log("Generated Search Conditions:", JSON.stringify(conditions, null, 2));
 
     return conditions;
 }

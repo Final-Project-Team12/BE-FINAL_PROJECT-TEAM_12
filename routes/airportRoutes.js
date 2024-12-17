@@ -1,8 +1,9 @@
 const express = require('express');
 const AirportController = require('../controllers/airportController');
-const router = express.Router();
 const multerUpload = require('../libs/multerUpload');
 const restrictJwt = require('../middlewares/restrictJwt');
+
+const router = express.Router();
 
 router.get('/airport', AirportController.getAirports);
 router.get('/airport/:airport_id', AirportController.getAirportById);

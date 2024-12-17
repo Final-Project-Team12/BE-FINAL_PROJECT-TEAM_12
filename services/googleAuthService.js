@@ -2,7 +2,9 @@ const bcrypt = require('bcrypt');
 const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient();
 const { google } = require('googleapis');
+const jwt = require('jsonwebtoken');
 const generateToken = require('../utils/jwtGenerator');
+const { generateResetToken } = require('../utils/jwtResetToken');
 
 const oauth2Client = new google.auth.OAuth2(
   process.env.GOOGLE_CLIENT_ID,
@@ -25,68 +27,69 @@ async function getGoogleUserProfile(code) {
     });
 
     const userInfo = await oauth2.userinfo.get();
-    return { userInfo, tokens };
+    return { userInfo };
   } catch (error) {
     throw new Error('Error fetching Google user info: ' + error.message);
   }
 }
 
-async function handleGoogleUser(userProfile, tokens) {
+async function handleGoogleUser(userProfile) {
   let user = await prisma.users.findUnique({
     where: { email: userProfile.email },
   });
 
-  const userData = {
-    name: userProfile.name,
-    email: userProfile.email,
-    password: '',
-    role: 'user',
-    verified: true,
-    telephone_number: userProfile.phone || '-',
-    address: userProfile.address || '-',
-    gender: userProfile.gender || '-',
-    identity_number: userProfile.identity_number || '-',
-    age: userProfile.age || 0,
-  };
-
   if (!user) {
     user = await prisma.users.create({
-      data: userData,
+      data: {
+        name: userProfile.name,
+        email: userProfile.email,
+        password: '',
+        role: 'user',
+        verified: true,
+        telephone_number: '-',
+        address: '-',
+        gender: '-',
+        identity_number: '-',
+        age: 0,
+      },
     });
+    const resetToken = generateResetToken(user.email);
+    return { resetToken };
+  }
+
+  if (!user.password) {
+    const resetToken = generateResetToken(user.email);
+    return { resetToken };
   }
 
   const accessToken = generateToken(user);
-  const refreshToken = tokens.refresh_token;
-
-  return { accessToken, refreshToken, user };
+  return { accessToken };
 }
 
-async function setPassword(userId, password) {
-  const userIdInt = parseInt(userId);
+async function setPassword(email, password, resetToken) {
+  const decoded = jwt.verify(resetToken, process.env.JWT_SECRET);
 
-  if (isNaN(userIdInt)) {
-    throw new Error('Invalid user_id');
+  if (decoded.email !== email) {
+    throw new Error('Invalid reset token');
   }
 
   let user = await prisma.users.findUnique({
-    where: { user_id: userIdInt },
+    where: { email },
   });
 
   if (!user) {
     throw new Error('User not found');
   }
 
-  const saltRounds = parseInt(process.env.HASH, 10) || 10;
-  const hashedPassword = await bcrypt.hash(password, saltRounds);
+  const hashedPassword = await bcrypt.hash(password, 10);
 
   user = await prisma.users.update({
-    where: { user_id: userIdInt },
+    where: { email },
     data: { password: hashedPassword },
   });
 
   const accessToken = generateToken(user);
-
-  return { accessToken, user };
+  return accessToken;
 }
 
 function generateAuthUrl() {
@@ -99,6 +102,6 @@ function generateAuthUrl() {
 module.exports = {
   getGoogleUserProfile,
   handleGoogleUser,
-  generateAuthUrl,
   setPassword,
+  generateAuthUrl,
 };

@@ -1,47 +1,19 @@
-require('dotenv').config();
-const { PrismaClient } = require('@prisma/client');
-const bcrypt = require('bcryptjs');
-const jwt = require('jsonwebtoken');
-const Mailer = require('../libs/mailer');
-const crypto = require('crypto');
-
-const prisma = new PrismaClient();
-const JWT_SECRET = process.env.JWT_SECRET;
-const JWT_EXPIRATION_TIME = process.env.JWT_EXPIRATION_TIME;
+const ForgotPasswordService = require('../services/forgotPasswordService');
 
 class ForgotPasswordController {
   static async forgotPassword(req, res, next) {
     const { email } = req.body;
 
     if (!email) {
-      return res.status(400).json({ 
+      return res.status(400).json({
         status: 'bad request',
-        message: 'Email is required' 
+        message: 'Email is required',
       });
     }
 
     try {
-      const user = await prisma.users.findUnique({ where: { email } });
-
-      if (!user) {
-        return res.status(404).json({ 
-          status: 'not found',
-          message: 'User not found' 
-        });
-      }
-
-      const otp = crypto.randomInt(100000, 999999).toString();
-      const otpExpiry = new Date(Date.now() + 5 * 60 * 1000).toISOString();
-
-      await prisma.users.update({
-        where: { email },
-        data: { otp, otp_expiry: otpExpiry },
-      });
-
-      console.log(otp);
-      await Mailer.sendPasswordResetEmail(email, otp);
-
-      return res.status(200).json({ message: 'OTP sent to your email' });
+      const response = await ForgotPasswordService.sendOtp(email);
+      return res.status(200).json(response);
     } catch (error) {
       next(error);
     }
@@ -51,47 +23,18 @@ class ForgotPasswordController {
     const { email, otp } = req.body;
 
     if (!email || !otp) {
-      return res.status(400).json({ 
+      return res.status(400).json({
         status: 'bad request',
-        message: 'Email and OTP are required' 
+        message: 'Email and OTP are required',
       });
     }
 
     try {
-      const user = await prisma.users.findUnique({ where: { email } });
-
-      if (!user) {
-        return res.status(404).json({ 
-          status: 'not found',
-          message: 'User not found' });
-      }
-
-      const currentUtcTime = new Date().toISOString(); 
-
-      const isOtpValid = user.otp === otp && user.otp_expiry > currentUtcTime;
-
-      if (!isOtpValid) {
-        return res.status(400).json({
-          status: 'bad request',
-          message: 'Invalid or expired OTP' 
-        });
-      }
-
-      const resetToken = jwt.sign(
-        { email: user.email },
-        JWT_SECRET,
-        { expiresIn: JWT_EXPIRATION_TIME }
-      );
-
-      await prisma.users.update({
-        where: { email },
-        data: { otp: null, otp_expiry: null },
-      });
-
+      const response = await ForgotPasswordService.verifyOtp(email, otp);
       return res.status(200).json({
         status: 'success',
         message: 'OTP verified. Use reset-token to reset your password.',
-        resetToken,
+        resetToken: response.resetToken,
       });
     } catch (error) {
       next(error);
@@ -109,41 +52,15 @@ class ForgotPasswordController {
     }
 
     if (newPassword !== confirmPassword) {
-      return res.status(400).json({ 
+      return res.status(400).json({
         status: 'bad request',
-        message: 'Passwords do not match' });
+        message: 'Passwords do not match',
+      });
     }
 
     try {
-      const decoded = jwt.verify(resetToken, JWT_SECRET);
-
-      if (decoded.email !== email) {
-        return res.status(400).json({ 
-          status: 'bad request',
-          message: 'Invalid reset token' 
-        });
-      }
-
-      const user = await prisma.users.findUnique({ where: { email } });
-
-      if (!user) {
-        return res.status(404).json({ 
-          status: 'not found',
-          message: 'User not found' 
-        });
-      }
-
-      const hashedPassword = await bcrypt.hash(newPassword, 10);
-
-      await prisma.users.update({
-        where: { email },
-        data: { password: hashedPassword },
-      });
-
-      return res.status(200).json({ 
-        status: 'success',
-        message: 'Password updated successfully' 
-      });
+      const response = await ForgotPasswordService.resetPassword(email, newPassword, resetToken);
+      return res.status(200).json(response);
     } catch (error) {
       next(error);
     }

@@ -2,19 +2,19 @@ const imagekit = require('../libs/imagekit');
 const AirportService = require('../services/airportService');
 
 class AirportController {
-    static async uploadImageAirport(req, res, next) {
+    static async createAirport(req, res, next) {
         try {
             if (!req.body.name || !req.body.airport_code || !req.body.continent_id) {
-                return res.status(400).json({ 
+                return res.status(400).json({
                     status: 'bad request',
-                    message: "Airport name, code, continent ID, and image must be provided." 
+                    message: "Nama bandara, kode bandara, dan ID benua harus disediakan."
                 });
             }
 
             if (!req.file) {
-                return res.status(400).json({ 
+                return res.status(400).json({
                     status: 'bad request',
-                    message: "Image file is required" 
+                    message: "File gambar diperlukan."
                 });
             }
 
@@ -31,12 +31,13 @@ class AirportController {
                 airport_code: req.body.airport_code,
                 image_url: uploadImage.url,
                 file_id: uploadImage.fileId,
-                continent_id: req.body.continent_id
+                continent_id: parseInt(req.body.continent_id)
             });
+            
 
             res.status(201).json({
                 status: 'success',
-                message: 'Image successfully uploaded to airport',
+                message: 'Bandara berhasil dibuat dan gambar diupload.',
                 data: airportRecord
             });
         } catch (error) {
@@ -50,7 +51,7 @@ class AirportController {
 
             res.status(200).json({
                 status: 'success',
-                message: 'Airports retrieved successfully',
+                message: 'Data bandara berhasil diambil.',
                 data: airports
             });
         } catch (error) {
@@ -62,9 +63,9 @@ class AirportController {
         const { airport_id } = req.params;
         try {
             const airport = await AirportService.getAirportById(airport_id);
-            if (!airport) return res.status(404).json({ 
+            if (!airport) return res.status(404).json({
                 status: 'not found',
-                message: 'Airport not found' 
+                message: 'Bandara tidak ditemukan.'
             });
 
             res.status(200).json(airport);
@@ -82,15 +83,14 @@ class AirportController {
             if (!airportToDelete) {
                 return res.status(404).json({
                     status: 'not found',
-                    message: 'Airport not found' 
+                    message: 'Bandara tidak ditemukan.'
                 });
             }
 
             await imagekit.deleteFile(airportToDelete.file_id);
-
             await AirportService.deleteAirportById(airport_id);
 
-            res.status(200).json({ message: 'Airport successfully deleted' });
+            res.status(200).json({ message: 'Bandara berhasil dihapus.' });
         } catch (error) {
             next(error);
         }
@@ -109,18 +109,19 @@ class AirportController {
             };
 
             if (file) {
+                const stringFile = file.buffer.toString('base64');
                 const uploadResult = await imagekit.upload({
                     fileName: file.originalname,
-                    file: file.buffer.toString('base64'),
+                    file: stringFile,
                 });
                 updateData.image_url = uploadResult.url;
                 updateData.file_id = uploadResult.fileId;
             }
 
             if (Object.keys(updateData).length === 0) {
-                return res.status(400).json({ 
+                return res.status(400).json({
                     status: 'bad request',
-                    message: 'No data provided for update' 
+                    message: 'Tidak ada data yang diberikan untuk pembaruan.'
                 });
             }
 
@@ -128,7 +129,7 @@ class AirportController {
 
             res.status(200).json({
                 status: 'success',
-                message: 'Airport successfully updated',
+                message: 'Bandara berhasil diperbarui.',
                 data: airport,
             });
         } catch (error) {

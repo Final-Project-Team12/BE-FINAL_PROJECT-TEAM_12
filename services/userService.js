@@ -56,12 +56,22 @@ async function updateUserByEmail(email, data){
     return userData;
 }
 
-async function deleteUserById(user_id){
+async function deleteUserById(user_id) {
+    await prisma.notification.deleteMany({
+        where: {
+            user_id: user_id
+        }
+    });
+    await prisma.transaction.deleteMany({
+        where: {
+            user_id: user_id
+        }
+    });
     const deletedUser = await prisma.users.delete({
         where: {
-            user_id
+            user_id: user_id
         }
-    }) 
+    });
     
     return deletedUser;
 }

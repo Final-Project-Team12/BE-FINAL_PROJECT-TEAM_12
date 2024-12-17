@@ -156,7 +156,6 @@ class UserController{
               identity_number: value.identity_number,
               age: value.age,
               role: 'user',
-              auth_method: 'manual',
               otp : otpGen,
               otp_expiry: otpExpiry
             }

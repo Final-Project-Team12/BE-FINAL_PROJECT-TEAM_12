@@ -36,6 +36,7 @@ model Notification {
   notification_id Int     @id @default(autoincrement())
   title           String
   description     String
+  notification_date DateTime
   user_id         Int
   user            Users   @relation(fields: [user_id], references: [user_id], onDelete: Cascade)
   is_read         Boolean @default(false)
@@ -125,7 +126,7 @@ model Airline {
   airline_id   Int     @id @default(autoincrement())
   airline_name String
   image_url    String
-  times_used   Int
+  times_used   Int     @default(0)
   file_id      String  @unique
   planes       Plane[]
 }

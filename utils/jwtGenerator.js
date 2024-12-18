@@ -4,9 +4,9 @@ const JWT_SECRET = process.env.JWT_SECRET;
 function generateToken(userData) {
   try {
     const payload = {
-      user_id: userData.id,
-      email: userData.email,
-      role: userData.role
+      user_id: userData.user_id,
+      user_email: userData.email,
+      User_role: userData.role
     };
 
     const options = {

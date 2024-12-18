@@ -38,7 +38,6 @@ async function createTransaction(
   planeId
 ) {
   try {
-    // Validate input data
     if (!userData?.user_id) throw new Error("INVALID_USER_DATA");
     if (!Array.isArray(passengerData) || passengerData.length === 0)
       throw new Error("INVALID_PASSENGER_DATA");
@@ -46,7 +45,6 @@ async function createTransaction(
       throw new Error("INVALID_SEAT_SELECTIONS");
     if (!planeId) throw new Error("INVALID_PLANE_ID");
 
-    // Verify plane exists
     const plane = await prisma.plane.findUnique({
       where: { plane_id: parseInt(planeId) },
     });
@@ -56,7 +54,6 @@ async function createTransaction(
       throw new Error("PLANE_NOT_FOUND");
     }
 
-    // Verify seat availability
     const seatChecks = await Promise.all(
       seatSelections.map(async (selection) => {
         const seat = await prisma.seat.findUnique({
@@ -66,12 +63,11 @@ async function createTransaction(
       })
     );
 
-    if (seatChecks.includes(true)) {
+    if (seatChecks.includes(false)) {
       console.error("[createTransaction] Invalid seats found:", seatChecks);
       throw new Error("INVALID_SEATS_SELECTED");
     }
 
-    // Create transaction in a single database transaction
     return await prisma.$transaction(async (tx) => {
       // Create initial transaction record
       const transaction = await tx.transaction.create({
@@ -86,7 +82,6 @@ async function createTransaction(
         },
       });
 
-      // Create passenger records
       const passengers = await Promise.all(
         passengerData.map((passenger) =>
           tx.passenger.create({
@@ -105,7 +100,6 @@ async function createTransaction(
         )
       );
 
-      // Create tickets and update seats
       const tickets = await Promise.all(
         seatSelections.map(async (selection, index) => {
           await tx.seat.update({

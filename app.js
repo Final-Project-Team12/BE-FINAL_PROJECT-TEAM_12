@@ -40,6 +40,7 @@ const routers = [
   paginationRoutes,
   seatRoutes,
   forgotPasswordRoutes,
+  transactionRoutes,
   //gak semuanya kena auth
   userRoutes,
   airportRoutes,
@@ -47,7 +48,6 @@ const routers = [
   //auth semua
   paymentRoutes,
   notificationRoutes,
-  transactionRoutes,
   ticketRoutes,
 ];
 

@@ -3,7 +3,6 @@ name: Node.js CI/CD
 on:
   push:
     branches:
-      - "main"
       - "development"
 
 jobs:
@@ -24,7 +23,6 @@ jobs:
         run: npm install
 
   deploy:
-    if: github.ref == 'refs/heads/development'
     needs: build
     runs-on: ubuntu-latest
     steps:
@@ -46,23 +44,7 @@ jobs:
 
             git config --global --add safe.directory /home/ubuntu/BE
 
-            sudo git pull origin development
+            git pull origin development
 
             npm install
             pm2 restart app1
-
-  merge-main:
-    if: github.ref == 'refs/heads/main'
-    needs: build
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-
-      - name: Merge changes to development
-        run: |
-          git checkout development
-          git merge main
-          git push origin development

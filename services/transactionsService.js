@@ -2,149 +2,216 @@ const { PrismaClient } = require("@prisma/client");
 const prisma = new PrismaClient();
 
 async function getTransactionsByUserId(userId) {
-  try {
-    const transactions = await prisma.transaction.findMany({
-      where: { user_id: userId },
-      include: {
-        tickets: {
-          include: {
-            passenger: true,
-            seat: true,
-            plane: true,
-          },
-        },
-        user: true,
-      },
-      orderBy: {
-        transaction_date: "desc",
-      },
-    });
+    try {
+        const user = await prisma.users.findUnique({
+            where: { user_id: userId },
+        });
 
-    if (!transactions) {
-      throw new Error("TRANSACTIONS_NOT_FOUND");
+        if (!user) {
+            throw new Error("USER_NOT_FOUND");
+        }
+
+        const transactions = await prisma.transaction.findMany({
+            where: { user_id: userId },
+            include: {
+                tickets: {
+                    include: {
+                        passenger: true,
+                        seat: true,
+                        plane: {
+                            include: {
+                                airline: true,
+                                origin_airport: true,
+                                destination_airport: true,
+                            },
+                        },
+                    },
+                },
+                user: true,
+            },
+            orderBy: {
+                transaction_date: "desc",
+            },
+        });
+
+        return transactions;
+    } catch (error) {
+        console.error("[Error in getTransactionsByUserId]:", error);
+        throw error;
     }
-
-    return transactions;
-  } catch (error) {
-    console.error("[Error in getTransactionsByUserId]:", error.message);
-    throw new Error("Failed to get transactions history");
-  }
 }
 
-async function createTransaction(
-  userData,
-  passengerData,
-  seatSelections,
-  planeId
-) {
-  try {
-    if (!userData?.user_id) throw new Error("INVALID_USER_DATA");
-    if (!Array.isArray(passengerData) || passengerData.length === 0)
-      throw new Error("INVALID_PASSENGER_DATA");
-    if (!Array.isArray(seatSelections) || seatSelections.length === 0)
-      throw new Error("INVALID_SEAT_SELECTIONS");
-    if (!planeId) throw new Error("INVALID_PLANE_ID");
+async function createTransaction(userData, passengerData, seatSelections, planeId) {
+    try {
+        if (!userData?.user_id) throw new Error("INVALID_USER_DATA");
+        if (!Array.isArray(passengerData) || passengerData.length === 0)
+            throw new Error("INVALID_PASSENGER_DATA");
+        if (!Array.isArray(seatSelections) || seatSelections.length === 0)
+            throw new Error("INVALID_SEAT_SELECTIONS");
+        if (!planeId) throw new Error("INVALID_PLANE_ID");
 
-    const plane = await prisma.plane.findUnique({
-      where: { plane_id: parseInt(planeId) },
-    });
-
-    if (!plane) {
-      console.error("[createTransaction] Plane not found:", planeId);
-      throw new Error("PLANE_NOT_FOUND");
-    }
-
-    const seatChecks = await Promise.all(
-      seatSelections.map(async (selection) => {
-        const seat = await prisma.seat.findUnique({
-          where: { seat_id: parseInt(selection.seat_id) },
+        const plane = await prisma.plane.findUnique({
+            where: { plane_id: parseInt(planeId) },
         });
-        return seat && seat.is_available;
-      })
-    );
 
-    if (seatChecks.includes(false)) {
-      console.error("[createTransaction] Invalid seats found:", seatChecks);
-      throw new Error("INVALID_SEATS_SELECTED");
+        if (!plane) {
+            throw new Error("PLANE_NOT_FOUND");
+        }
+
+        const selectedSeats = await Promise.all(
+            seatSelections.map(async (selection) => {
+                const seat = await prisma.seat.findUnique({
+                    where: { seat_id: parseInt(selection.seat_id) },
+                });
+
+                if (!seat) {
+                    throw new Error("INVALID_SEATS_SELECTED");
+                }
+
+                if (!seat.is_available) {
+                    throw new Error("SEATS_UNAVAILABLE");
+                }
+
+                return seat;
+            })
+        );
+
+        const totalPayment = selectedSeats.reduce(
+            (sum, seat) => sum + seat.price,
+            0
+        );
+
+        return await prisma.$transaction(async (tx) => {
+            const transaction = await tx.transaction.create({
+                data: {
+                    status: "PENDING",
+                    redirect_url: "",
+                    transaction_date: new Date(),
+                    token: Math.random().toString(36).substring(7),
+                    message: "Transaction initiated",
+                    total_payment: totalPayment,
+                    user_id: parseInt(userData.user_id),
+                },
+            });
+
+            const passengers = await Promise.all(
+                passengerData.map((passenger) =>
+                    tx.passenger.create({
+                        data: {
+                            title: passenger.title,
+                            full_name: passenger.full_name,
+                            family_name: passenger.family_name || null,
+                            nationality: passenger.nationality,
+                            id_number: passenger.id_number || null,
+                            id_issuer: passenger.id_issuer || null,
+                            id_expiry: passenger.id_expiry
+                                ? new Date(passenger.id_expiry)
+                                : null,
+                            birth_date: passenger.birth_date
+                                ? new Date(passenger.birth_date)
+                                : null,
+                        },
+                    })
+                )
+            );
+
+            const tickets = await Promise.all(
+                seatSelections.map(async (selection, index) => {
+                    await tx.seat.update({
+                        where: { seat_id: parseInt(selection.seat_id) },
+                        data: {
+                            is_available: false,
+                            version: { increment: 1 },
+                        },
+                    });
+                    
+                    return await tx.ticket.create({
+                        data: {
+                            transaction_id: transaction.transaction_id,
+                            plane_id: parseInt(planeId),
+                            passenger_id: passengers[index].passenger_id,
+                            seat_id: parseInt(selection.seat_id),
+                        },
+                    });
+                })
+            );
+
+            return await tx.transaction.findUnique({
+                where: { transaction_id: transaction.transaction_id },
+                include: {
+                    tickets: {
+                        include: {
+                            passenger: true,
+                            seat: true,
+                            plane: {
+                                include: {
+                                    airline: true,
+                                    origin_airport: true,
+                                    destination_airport: true,
+                                },
+                            },
+                        },
+                    },
+                    user: true,
+                },
+            });
+        });
+    } catch (error) {
+        console.error("[Error in createTransaction]:", error);
+        throw error;
     }
+}
 
-    return await prisma.$transaction(async (tx) => {
-      // Create initial transaction record
-      const transaction = await tx.transaction.create({
-        data: {
-          status: "PENDING",
-          redirect_url: "",
-          transaction_date: new Date(),
-          token: Math.random().toString(36).substring(7),
-          message: "Transaction initiated",
-          total_payment: 0,
-          user_id: parseInt(userData.user_id),
-        },
-      });
-
-      const passengers = await Promise.all(
-        passengerData.map((passenger) =>
-          tx.passenger.create({
-            data: {
-              title: passenger.title,
-              full_name: passenger.full_name,
-              family_name: passenger.family_name || null,
-              nationality: passenger.nationality,
-              id_number: passenger.id_number,
-              id_issuer: passenger.id_issuer,
-              id_expiry: passenger.id_expiry
-                ? new Date(passenger.id_expiry)
-                : null,
-            },
-          })
-        )
-      );
-
-      const tickets = await Promise.all(
-        seatSelections.map(async (selection, index) => {
-          await tx.seat.update({
-            where: { seat_id: parseInt(selection.seat_id) },
-            data: {
-              is_available: false,
-              version: { increment: 1 },
-            },
-          });
-
-          return await tx.ticket.create({
-            data: {
-              transaction_id: transaction.transaction_id,
-              plane_id: parseInt(planeId),
-              passenger_id: passengers[index].passenger_id,
-              seat_id: parseInt(selection.seat_id),
-            },
-          });
-        })
-      );
-
-      // Update transaction with final details
-      return await tx.transaction.update({
-        where: { transaction_id: transaction.transaction_id },
-        data: {
-          total_payment: tickets.length * 500000,
-          message: "Transaction completed successfully",
-        },
-        include: {
-          tickets: {
+async function updateTransaction(transactionId, updateData) {
+    try {
+        const transaction = await prisma.transaction.update({
+            where: { transaction_id: transactionId },
+            data: updateData,
             include: {
-              passenger: true,
-              seat: true,
+                tickets: {
+                    include: {
+                        passenger: true,
+                        seat: true,
+                        plane: {
+                            include: {
+                                airline: true,
+                                origin_airport: true,
+                                destination_airport: true,
+                            },
+                        },
+                    },
+                },
+                user: true,
             },
-          },
-        },
-      });
-    });
-  } catch (error) {
-    console.error("[Error in createTransaction]:", error.message);
-    throw new Error("Failed to create transaction");
-  }
+        });
+
+        return transaction;
+    } catch (error) {
+        console.error("[Error in updateTransaction]:", error);
+        if (error.code === "P2025") {
+            throw new Error("TRANSACTION_NOT_FOUND");
+        }
+        throw error;
+    }
+}
+
+async function deleteTransaction(transactionId) {
+    try {
+        await prisma.transaction.delete({
+            where: { transaction_id: transactionId },
+        });
+    } catch (error) {
+        console.error("[Error in deleteTransaction]:", error);
+        if (error.code === "P2025") {
+            throw new Error("TRANSACTION_NOT_FOUND");
+        }
+        throw error;
+    }
 }
 
 module.exports = {
-  getTransactionsByUserId,
-  createTransaction,
+    getTransactionsByUserId,
+    createTransaction,
+    updateTransaction,
+    deleteTransaction,
 };

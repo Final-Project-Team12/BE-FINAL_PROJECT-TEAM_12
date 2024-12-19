@@ -3,10 +3,12 @@ const router = express.Router();
 const PaymentController = require('../controllers/paymentController');
 const restrictJwt = require('../middlewares/restrictJwt');
 
-router.use(restrictJwt);
+const restrictedRoutes = express.Router();
 
-router.post('/payments', PaymentController.createPaymentController);
-router.post('/payments/:orderId/cancel', PaymentController.cancelPaymentController);
-router.get('/payments/:orderId/status', PaymentController.getPaymentStatus);
+restrictedRoutes.post('', PaymentController.createPaymentController);
+restrictedRoutes.post('/:orderId/cancel', PaymentController.cancelPaymentController);
+restrictedRoutes.get('/:orderId/status', PaymentController.getPaymentStatus);
+
+router.use('/payments', restrictJwt, restrictedRoutes);
 
 module.exports = router;

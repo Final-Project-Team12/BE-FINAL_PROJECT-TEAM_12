@@ -10,14 +10,14 @@ class TicketController{
             let seat = await prisma.seat.findMany()
             if(seat){
                 return res.status(200).json({
-                    status: true,
+                    status: 200,
                     message: "success",
                     data: seat
                 })
             }
             else{
                 return res.status(404).json({
-                    status: false,
+                    status: 404,
                     message: "Seats do not exist"
                 })
             }
@@ -36,14 +36,14 @@ class TicketController{
             })
             if(seat){
                 return res.status(200).json({
-                    status: true,
+                    status: 200,
                     message: "success",
                     data: seat
                 })
             }
             else{
                 return res.status(404).json({
-                    status: false,
+                    status: 404,
                     message: "Seat not found"
                 })
             }

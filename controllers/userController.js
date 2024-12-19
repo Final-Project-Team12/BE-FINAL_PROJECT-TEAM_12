@@ -75,7 +75,7 @@ class UserController{
       const { error, value } = login_schema.validate(req.body);
       if (error) {
           return res.status(400).json({
-            status: 'bad request',
+            status: 400,
             message: 'input error',
             error: error.details[0].message
           });
@@ -85,7 +85,7 @@ class UserController{
     
         if(!userData){
           return res.status(401).json({
-            status: false,
+            status: 401,
             message: 'invalid login',
           })
         }
@@ -93,7 +93,7 @@ class UserController{
           let isPassword = bcrypt.compareSync(value.password, userData.password)
           if(!isPassword){
             return res.status(401).json({
-              status: false,
+              status: 401,
               message: 'invalid login',
             })
           }
@@ -111,7 +111,7 @@ class UserController{
             const userData = await updateUserByEmail(value.email, data)
 
             return res.status(200).json({
-              status: true,
+              status: 200,
               message: "OTP successfully resent",
               userData
             })
@@ -128,7 +128,7 @@ class UserController{
             const { error, value } = user_schema.validate(req.body);
             if (error) {
                 return res.status(400).json({
-                    status: 'bad request',
+                    status: 400,
                     message: 'input error',
                     error: error.details[0].message
                 });
@@ -139,7 +139,7 @@ class UserController{
 
             if(cekEmailUnik){
               return res.status(400).json({
-                  status: 'bad request',
+                  status: 400,
                   message: "Email already exists"
               })
             }
@@ -165,7 +165,7 @@ class UserController{
             const { otp, ...userWithoutOtp } = newUser;
             
             return res.status(200).json({
-                status: true,
+                status: 200,
                 message: "success",
                 data: userWithoutOtp
             });
@@ -180,7 +180,7 @@ class UserController{
       const { email, otp } = req.body;
       if (!email || !otp) {
         return res.status(400).json({
-          status: 'bad request',
+          status: 400,
           message: 'Email and OTP are required'
         });
       }
@@ -190,7 +190,7 @@ class UserController{
   
         if (!user) {
           return res.status(404).json({ 
-            status: 'bad request',
+            status: 404,
             message: 'User not found'
           });
         }
@@ -201,7 +201,7 @@ class UserController{
   
         if (!isOtpValid) {
           return res.status(400).json({ 
-            status: 'bad request',
+            status: 400,
             message: 'Invalid or expired OTP'
           });
         }
@@ -215,7 +215,7 @@ class UserController{
         let userData = await updateUserByEmail(email, data);
   
         return res.status(200).json({
-          status: true,
+          status: 200,
           message: 'Account verified',
           userData
         });
@@ -232,14 +232,14 @@ class UserController{
             
             if(user){
                 return res.status(200).json({
-                    status: true,
+                    status: 200,
                     message: "success",
                     data: user
                 })
             }
             else{
                 return res.status(404).json({
-                    status: false,
+                    status: 404,
                     message: "user not found"
                 })
             }
@@ -255,7 +255,7 @@ class UserController{
         const { error, value } = user_update_schema.validate(req.body);
         if (error) {
             return res.status(400).json({
-                status: 'bad request',
+                status: 400,
                 message: 'input error',
                 error: error.details[0].message
             });
@@ -264,7 +264,7 @@ class UserController{
         const existingUser = await getUserById(parseInt(user_id));
         if (!existingUser) {
           return res.status(404).json({
-              status: false,
+              status: 404,
               message: 'User not found',
           });
       }
@@ -276,7 +276,7 @@ class UserController{
           const cekEmailUnik = await checkOtherEmail(email)
           if(cekEmailUnik){
             return res.status(400).json({
-                status : false,
+                status : 400,
                 message: "Email already used for another account"
             })
           }
@@ -295,7 +295,7 @@ class UserController{
         const new_user = await updateUserById(parseInt(user_id), data)
         
         return res.status(200).json({
-            status: true,
+            status: 200,
             message: "success",
             data: new_user
         });
@@ -311,7 +311,7 @@ class UserController{
           const existingUser = await getUserById(parseInt(user_id))
           if (!existingUser) {
               return res.status(404).json({
-                status: false,
+                status: 404,
                 message: "User not found",
               });
             }
@@ -319,7 +319,7 @@ class UserController{
           const deletedUser = await deleteUserById(parseInt(user_id));
           
           return res.status(200).json({
-              status: true,
+              status: 200,
               message: "success",
               data: deletedUser
           })
@@ -334,7 +334,7 @@ class UserController{
       const { error, value } = login_schema.validate(req.body);
       if (error) {
           return res.status(400).json({
-            status: 'bad request',
+            status: 400,
             message: 'input error',
             error: error.details[0].message
           });
@@ -345,7 +345,7 @@ class UserController{
     
         if(!userData){
           return res.status(401).json({
-            status: false,
+            status: 401,
             message: 'invalid login',
           })
         }
@@ -354,14 +354,14 @@ class UserController{
             let isPassword = bcrypt.compareSync(password, userData.password)
             if(!isPassword){
               return res.status(401).json({
-                status: false,
+                status: 401,
                 message: 'invalid login',
               })
             }
             else{
               if(userData.verified == false){
                 return res.status(401).json({
-                  status: false,
+                  status: 401,
                   message: 'The email address has not been verified yet',
                 })
               }
@@ -375,7 +375,7 @@ class UserController{
               }, JWT_SECRET, options)
   
               return res.status(200).json({
-                  status: true,
+                  status: 200,
                   message: "Login success",
                   accessToken
               })

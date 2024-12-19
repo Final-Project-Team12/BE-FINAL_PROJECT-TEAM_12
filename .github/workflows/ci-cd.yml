@@ -39,16 +39,11 @@ jobs:
           key: ${{ secrets.SERVER_SSH_KEY }}
           script: |
             sudo su
-            cd /home/ubuntu/BE-FINAL_PROJECT-TEAM_12
-
-            git checkout development
-
-            git config --global --add safe.directory /home/ubuntu/BE
-
+            cd /home/***/BE-FINAL_PROJECT-TEAM_12
+            git config --global --add safe.directory /home/***/BE-FINAL_PROJECT-TEAM_12
             git pull origin development
-
+            sudo chmod -R 775 /home/***/BE-FINAL_PROJECT-TEAM_12
             npm install
-            
+            # Restart app1 jika sudah ada, jika tidak, jalankan
             pm2 describe app1 || pm2 start app.js --name app1
-
             pm2 restart app1 --update-env

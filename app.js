@@ -56,7 +56,7 @@ routers.forEach(router => app.use('/api/v1', router));
 
 
 app.use(errorHandler);
-//buat nangkep semua error langsung
+//buat nangkap error
 
 app.use((err, req, res, next) => {
   console.log(err);

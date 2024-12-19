@@ -66,7 +66,7 @@ async function createPayment(orderId, amount, customerDetails, productDetails) {
             })),
             expiry: {
                 start_time: startTime,
-                duration: 10,
+                duration: 430,
                 unit: "minute"
             }
         };

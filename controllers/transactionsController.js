@@ -1,33 +1,33 @@
 const transactionsService = require('../services/transactionsService');
 
 const transactionsController = {
-  getTransactionsByUserId: async (req, res) => {
-    try {
-        const { user_id } = req.params;
-        
-        const transactions = await transactionsService.getTransactionsByUserId(parseInt(user_id));
-        
-        return res.status(200).json({
-            status: 'success',
-            message: 'Transactions retrieved successfully',
-            data: transactions
-        });
-    } catch (error) {
-        console.error('Get transactions by user ID error:', error);
-        
-        if (error.message === 'USER_NOT_FOUND') {
-            return res.status(404).json({
+    getTransactionsByUserId: async (req, res) => {
+        try {
+            const { user_id } = req.params;
+            
+            const transactions = await transactionsService.getTransactionsByUserId(parseInt(user_id));
+            
+            return res.status(200).json({
+                status: 'success',
+                message: 'Transactions retrieved successfully',
+                data: transactions
+            });
+        } catch (error) {
+            console.error('Get transactions by user ID error:', error);
+            
+            if (error.message === 'TRANSACTIONS_NOT_FOUND') {
+                return res.status(404).json({
+                    status: 'error',
+                    message: 'Transactions not found for this user'
+                });
+            }
+
+            return res.status(500).json({
                 status: 'error',
-                message: 'User not found'
+                message: 'Internal server error'
             });
         }
-
-        return res.status(500).json({
-            status: 'error',
-            message: 'Internal server error'
-        });
-    }
-  },
+    },
 
     createTransaction: async (req, res) => {
         try {
@@ -46,19 +46,43 @@ const transactionsController = {
                 data: result
             });
         } catch (error) {
+            console.error('Create transaction error:', error);
+
+            if (error.message === 'INVALID_USER_DATA') {
+                return res.status(400).json({
+                    status: 'error',
+                    message: 'Invalid user data provided'
+                });
+            }
+
+            if (error.message === 'INVALID_PASSENGER_DATA') {
+                return res.status(400).json({
+                    status: 'error',
+                    message: 'Invalid passenger data provided'
+                });
+            }
+
+            if (error.message === 'INVALID_SEAT_SELECTIONS') {
+                return res.status(400).json({
+                    status: 'error',
+                    message: 'Invalid seat selections provided'
+                });
+            }
+
+            if (error.message === 'PLANE_NOT_FOUND') {
+                return res.status(404).json({
+                    status: 'error',
+                    message: 'Selected plane not found'
+                });
+            }
+
             if (error.message === 'SEATS_UNAVAILABLE') {
                 return res.status(409).json({
                     status: 'error',
                     message: 'One or more selected seats are no longer available'
                 });
             }
-            if (error.message === 'INVALID_SEATS_SELECTED') {
-                return res.status(400).json({
-                    status: 'error',
-                    message: 'Invalid seat selection'
-                });
-            }
-            console.error('Create transaction error:', error);
+
             return res.status(500).json({
                 status: 'error',
                 message: 'Internal server error'
@@ -72,7 +96,7 @@ const transactionsController = {
             const updateData = req.body;
             
             const updatedTransaction = await transactionsService.updateTransaction(
-                transaction_id,
+                parseInt(transaction_id),
                 updateData
             );
             
@@ -83,6 +107,14 @@ const transactionsController = {
             });
         } catch (error) {
             console.error('Update transaction error:', error);
+
+            if (error.message === 'TRANSACTION_NOT_FOUND') {
+                return res.status(404).json({
+                    status: 'error',
+                    message: 'Transaction not found'
+                });
+            }
+
             return res.status(500).json({
                 status: 'error',
                 message: 'Internal server error'
@@ -94,7 +126,7 @@ const transactionsController = {
         try {
             const { transaction_id } = req.params;
             
-            await transactionsService.deleteTransaction(transaction_id);
+            await transactionsService.deleteTransaction(parseInt(transaction_id));
             
             return res.status(200).json({
                 status: 'success',
@@ -102,6 +134,14 @@ const transactionsController = {
             });
         } catch (error) {
             console.error('Delete transaction error:', error);
+
+            if (error.message === 'TRANSACTION_NOT_FOUND') {
+                return res.status(404).json({
+                    status: 'error',
+                    message: 'Transaction not found'
+                });
+            }
+
             return res.status(500).json({
                 status: 'error',
                 message: 'Internal server error'

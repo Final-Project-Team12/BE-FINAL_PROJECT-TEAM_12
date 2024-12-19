@@ -4,52 +4,75 @@ const QRCode = require('qrcode');
 const ticketsController = {
     createTicket: async (req, res) => {
         try {
-            const ticketData = req.body;
-            
-            if (!ticketData.transaction_id || !ticketData.plane_id || 
-                !ticketData.passenger_id || !ticketData.seat_id) {
+            const { transaction_id, plane_id, passenger_id, seat_id } = req.body;
+            if (!transaction_id || !plane_id || !passenger_id || !seat_id) {
                 return res.status(400).json({
-                    status: 'error',
-                    message: 'Missing required fields'
+                    message: 'All fields (transaction_id, plane_id, passenger_id, seat_id) are required',
+                    status: 400,
                 });
             }
 
-            const result = await ticketsService.createTicket(ticketData);
+            const result = await ticketsService.createTicket({ 
+                transaction_id, 
+                plane_id, 
+                passenger_id, 
+                seat_id 
+            });
             
-            const qrCode = await QRCode.toDataURL(JSON.stringify({
+            // Generate QR Code dengan informasi tiket
+            const qrCodeData = {
                 ticket_id: result.ticket_id,
                 passenger: result.passenger.full_name,
-                seat: result.seat.seat_number
-            }));
+                seat: result.seat.seat_number,
+                flight_number: result.plane.plane_code,
+                airline: result.plane.airline.airline_name,
+                class: result.seat.class,
+                departure_time: result.plane.departure_time,
+                from: result.plane.origin_airport.airport_code,
+                to: result.plane.destination_airport.airport_code
+            };
+
+            const qrCode = await QRCode.toDataURL(JSON.stringify(qrCodeData));
             
             return res.status(201).json({
-                status: 'success',
-                message: 'Ticket created successfully',
-                data: { ...result, qrCode }
+                status: 201,
+                message: 'Ticket issued successfully',
+                data: {
+                    ticket_details: {
+                        ticket_id: result.ticket_id,
+                        passenger_name: result.passenger.full_name,
+                        seat_number: result.seat.seat_number,
+                        class: result.seat.class,
+                        flight_number: result.plane.plane_code,
+                        airline: result.plane.airline.airline_name,
+                        departure_time: result.plane.departure_time,
+                        departure_airport: result.plane.origin_airport.airport_code,
+                        arrival_airport: result.plane.destination_airport.airport_code
+                    },
+                    qrCode
+                }
             });
         } catch (error) {
-            if (error.message === 'SEAT_ALREADY_TAKEN') {
-                return res.status(409).json({
-                    status: 'error',
-                    message: 'Selected seat is no longer available'
-                });
-            }
-            if (error.message === 'INVALID_PASSENGER') {
-                return res.status(400).json({
-                    status: 'error',
-                    message: 'Invalid passenger information'
-                });
-            }
-            if (error.message === 'INVALID_TRANSACTION') {
-                return res.status(400).json({
-                    status: 'error',
-                    message: 'Invalid transaction information'
-                });
-            }
             console.error('Create ticket error:', error);
+            
+            const errorMessages = {
+                'NO_TICKET_FOUND': 'No ticket found for this transaction',
+                'INVALID_TRANSACTION': 'Invalid transaction ID',
+                'INVALID_PLANE_ID': 'Plane ID does not match the transaction',
+                'INVALID_PASSENGER_ID': 'Passenger ID does not match the transaction',
+                'INVALID_SEAT_ID': 'Seat ID does not match the transaction'
+            };
+
+            if (errorMessages[error.message]) {
+                return res.status(400).json({
+                    message: errorMessages[error.message],
+                    status: 400
+                });
+            }
+
             return res.status(500).json({
-                status: 'error',
-                message: 'Internal server error'
+                message: 'Internal server error',
+                status: 500
             });
         }
     },
@@ -61,35 +84,36 @@ const ticketsController = {
             
             if (!ticket_id) {
                 return res.status(400).json({
-                    status: 'error',
-                    message: 'Ticket ID is required'
+                    message: 'Ticket ID is required',
+                    status: 400
                 });
             }
             
             const updatedTicket = await ticketsService.updateTicket(ticket_id, updateData);
             
             return res.status(200).json({
-                status: 'success',
                 message: 'Ticket updated successfully',
+                status: 200,
                 data: updatedTicket
             });
         } catch (error) {
-            if (error.message === 'TICKET_NOT_FOUND') {
-                return res.status(404).json({
-                    status: 'error',
-                    message: 'Ticket not found'
-                });
-            }
-            if (error.message === 'INVALID_UPDATE_DATA') {
-                return res.status(400).json({
-                    status: 'error',
-                    message: 'Invalid update data'
-                });
-            }
             console.error('Update ticket error:', error);
+            
+            const errorMessages = {
+                'TICKET_NOT_FOUND': 'Ticket not found',
+                'TICKET_ALREADY_USED': 'Cannot update a completed ticket'
+            };
+
+            if (errorMessages[error.message]) {
+                return res.status(400).json({
+                    message: errorMessages[error.message],
+                    status: 400
+                });
+            }
+
             return res.status(500).json({
-                status: 'error',
-                message: 'Internal server error'
+                message: 'Internal server error',
+                status: 500
             });
         }
     },
@@ -100,34 +124,35 @@ const ticketsController = {
             
             if (!ticket_id) {
                 return res.status(400).json({
-                    status: 'error',
-                    message: 'Ticket ID is required'
+                    message: 'Ticket ID is required',
+                    status: 400
                 });
             }
 
             await ticketsService.deleteTicket(ticket_id);
             
             return res.status(200).json({
-                status: 'success',
-                message: 'Ticket deleted successfully'
+                message: 'Ticket deleted successfully',
+                status: 200
             });
         } catch (error) {
-            if (error.message === 'TICKET_NOT_FOUND') {
-                return res.status(404).json({
-                    status: 'error',
-                    message: 'Ticket not found'
-                });
-            }
-            if (error.message === 'TICKET_ALREADY_USED') {
-                return res.status(400).json({
-                    status: 'error',
-                    message: 'Cannot delete a used ticket'
-                });
-            }
             console.error('Delete ticket error:', error);
+            
+            const errorMessages = {
+                'TICKET_NOT_FOUND': 'Ticket not found',
+                'TICKET_ALREADY_USED': 'Cannot delete a completed ticket'
+            };
+
+            if (errorMessages[error.message]) {
+                return res.status(400).json({
+                    message: errorMessages[error.message],
+                    status: 400
+                });
+            }
+
             return res.status(500).json({
-                status: 'error',
-                message: 'Internal server error'
+                message: 'Internal server error',
+                status: 201
             });
         }
     }

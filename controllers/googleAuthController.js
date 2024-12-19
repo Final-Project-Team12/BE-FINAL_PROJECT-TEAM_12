@@ -15,7 +15,7 @@ class GoogleAuthController {
 
     if (!code) {
       return res.status(400).json({
-        status: 'fail',
+        status: 400,
         message: 'No code received from Google. Please try again.',
       });
     }
@@ -26,14 +26,14 @@ class GoogleAuthController {
 
       if (response.resetToken) {
         return res.status(401).json({
-          status: 'unauthorized',
+          status: 401,
           message: 'Please set your password',
           resetToken: response.resetToken,
         });
       }
 
       return res.status(200).json({
-        status: 'success',
+        status: 200,
         message: 'Login success',
         accessToken: response.accessToken,
       });
@@ -47,7 +47,7 @@ class GoogleAuthController {
 
     if (!email || !password || !resetToken) {
       return res.status(400).json({
-        status: 'fail',
+        status: 400,
         message: 'Email, password, and resetToken are required.',
       });
     }
@@ -56,7 +56,7 @@ class GoogleAuthController {
       const accessToken = await googleAuthService.setPassword(email, password, resetToken);
 
       return res.status(200).json({
-        status: 'success',
+        status: 200,
         message: 'Password updated successfully',
         accessToken: accessToken      
       });

@@ -5,7 +5,7 @@ class AirlineController {
         try {
             if (!req.body.airline_name || !req.file) {
                 return res.status(400).json({
-                    status: "bad request",
+                    status: 400,
                     message: "Airline name, times used, and image must all be provided."
                 });
             }
@@ -19,7 +19,7 @@ class AirlineController {
             });
 
             res.status(201).json({
-                status: 'success',
+                status: 201,
                 message: 'Image successfully uploaded to airline',
                 data: airlineRecord
             });
@@ -33,7 +33,7 @@ class AirlineController {
             const airlines = await AirlineService.getAllAirlines();
 
             res.status(200).json({
-                status: 'success',
+                status: 200,
                 message: 'Airlines retrieved successfully',
                 data: airlines
             });
@@ -48,13 +48,13 @@ class AirlineController {
             const airline = await AirlineService.getAirlineById(airline_id);
             if (!airline) {
                 return res.status(404).json({
-                    status: 'not found',
+                    status: 404,
                     message: 'Airline not found'
                 });
             }
 
             res.status(200).json({
-                status: 'success',
+                status: 200,
                 message: 'Airline retrieved successfully',
                 data: airline
             });
@@ -70,7 +70,7 @@ class AirlineController {
 
             if (!airlineToDelete) {
                 return res.status(404).json({
-                    status: 'not found',
+                    status: 404,
                     message: 'Airline not found'
                 });
             }
@@ -79,7 +79,7 @@ class AirlineController {
             await AirlineService.deleteAirline(airline_id);
 
             res.status(200).json({
-                status: 'success',
+                status: 200,
                 message: 'Airline successfully deleted'
             });
         } catch (error) {
@@ -96,7 +96,7 @@ class AirlineController {
             const airlineToUpdate = await AirlineService.getAirlineById(airline_id);
             if (!airlineToUpdate) {
                 return res.status(404).json({
-                    status: 'not found',
+                    status: 404,
                     message: 'Airline not found'
                 });
             }
@@ -117,7 +117,7 @@ class AirlineController {
             const updatedAirline = await AirlineService.updateAirline(airline_id, updateData);
 
             res.status(200).json({
-                status: 'success',
+                status: 200,
                 message: 'Airline successfully updated',
                 data: updatedAirline
             });

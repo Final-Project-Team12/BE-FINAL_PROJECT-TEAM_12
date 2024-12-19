@@ -76,7 +76,7 @@ class UserController{
       if (error) {
           return res.status(400).json({
             status: 400,
-            message: 'input error',
+            message: 'Input error',
             error: error.details[0].message
           });
       }
@@ -86,7 +86,7 @@ class UserController{
         if(!userData){
           return res.status(401).json({
             status: 401,
-            message: 'invalid login',
+            message: 'Invalid login',
           })
         }
         else{
@@ -94,7 +94,7 @@ class UserController{
           if(!isPassword){
             return res.status(401).json({
               status: 401,
-              message: 'invalid login',
+              message: 'Invalid login',
             })
           }
           else{
@@ -129,7 +129,7 @@ class UserController{
             if (error) {
                 return res.status(400).json({
                     status: 400,
-                    message: 'input error',
+                    message: 'Input error',
                     error: error.details[0].message
                 });
             }
@@ -166,7 +166,7 @@ class UserController{
             
             return res.status(200).json({
                 status: 200,
-                message: "success",
+                message: "Success",
                 data: userWithoutOtp
             });
           }
@@ -227,36 +227,48 @@ class UserController{
 
     static async getUser(req, res, next){
       const user_id = req.params.user_id;
-        try{
-            let user = await getUserById(parseInt(user_id));
-            
-            if(user){
-                return res.status(200).json({
-                    status: 200,
-                    message: "success",
-                    data: user
-                })
-            }
-            else{
-                return res.status(404).json({
-                    status: 404,
-                    message: "user not found"
-                })
-            }
+      try{
+        if(!(req.user.user_id == user_id)){
+          return res.status(401).json({
+            status: 401,
+            message: "Cannot get other user data"
+          })
         }
-        catch(error){
-            next(error);
-            return;
+        let user = await getUserById(parseInt(user_id));
+        
+        if(user){
+            return res.status(200).json({
+                status: 200,
+                message: "Success",
+                data: user
+            })
         }
+        else{
+            return res.status(404).json({
+                status: 404,
+                message: "User not found"
+            })
+        }
+      }
+      catch(error){
+          next(error);
+          return;
+      }
     }
     static async updateUser(req, res, next){
       const user_id = req.params.user_id;
       try{
+        if(!(req.user.user_id == user_id)){
+          return res.status(401).json({
+            status: 401,
+            message: "Cannot update other user data"
+          })
+        }
         const { error, value } = user_update_schema.validate(req.body);
         if (error) {
             return res.status(400).json({
                 status: 400,
-                message: 'input error',
+                message: 'Input error',
                 error: error.details[0].message
             });
         }
@@ -296,7 +308,7 @@ class UserController{
         
         return res.status(200).json({
             status: 200,
-            message: "success",
+            message: "Success",
             data: new_user
         });
       }
@@ -308,6 +320,13 @@ class UserController{
     static async deleteUser(req, res, next){
       const user_id = req.params.user_id;
       try{
+        if(!(req.user.user_id == user_id)){
+          return res.status(401).json({
+            status: 401,
+            message: "Cannot delete other user"
+          })
+        }
+          // currUserId = req.user.
           const existingUser = await getUserById(parseInt(user_id))
           if (!existingUser) {
               return res.status(404).json({

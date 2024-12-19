@@ -6,7 +6,7 @@ const { getUserById } = require("../services/userService");
 
 let JWT_SECRET = process.env.JWT_SECRET;
 
-class RestrictJwt{
+class RestrictJwtAdmin{
     static async restrict(req, res, next) {
         const { authorization } = req.headers;
         if (!authorization || !authorization.startsWith('Bearer ')) {
@@ -38,9 +38,17 @@ class RestrictJwt{
                 });
             }
 
+            if(!(userData.role == 'admin')) {
+                res.status(401).json({
+                    status: 401,
+                    message: "You are not authorized",
+                });
+            }
+
             req.user = userData;
             next();
         } catch (err) {
+            console.log(err);
             res.status(401).json({
                 status: 401,
                 message: "You are not authorized",
@@ -50,4 +58,4 @@ class RestrictJwt{
 
 }
 
-module.exports = RestrictJwt.restrict;
+module.exports = RestrictJwtAdmin.restrict;

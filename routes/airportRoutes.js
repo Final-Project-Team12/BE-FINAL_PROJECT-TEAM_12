@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const AirportController = require('../controllers/airportController');
 const multerUpload = require('../libs/multerUpload');
-const restrictJwt = require('../middlewares/restrictJwt');
+const restrictJwtAdmin = require('../middlewares/restrictJwtAdmin')
 
 router.get('/airport', AirportController.getAirports);
 router.get('/airport/:airport_id', AirportController.getAirportById);
@@ -13,6 +13,6 @@ restrictedRoutes.post('/', multerUpload.single('image'), AirportController.creat
 restrictedRoutes.delete('/:airport_id', AirportController.deleteAirport);
 restrictedRoutes.put('/:airport_id', multerUpload.single('image'), AirportController.updateAirport);
 
-router.use('/airport', restrictJwt, restrictedRoutes);
+router.use('/airport', restrictJwtAdmin, restrictedRoutes);
 
 module.exports = router;

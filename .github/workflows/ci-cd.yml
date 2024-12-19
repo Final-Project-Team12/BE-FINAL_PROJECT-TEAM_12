@@ -48,4 +48,7 @@ jobs:
             git pull origin development
 
             npm install
-            pm2 restart app1
+            
+            pm2 describe app1 || pm2 start app.js --name app1
+
+            pm2 restart app1 --update-env

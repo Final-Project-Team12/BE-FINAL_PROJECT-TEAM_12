@@ -6,14 +6,14 @@ class AirportController {
         try {
             if (!req.body.name || !req.body.airport_code || !req.body.continent_id) {
                 return res.status(400).json({
-                    status: 'bad request',
+                    status: 400,
                     message: "Airport name, airport code, and continent ID must be provided."
                 });
             }
         
             if (!req.file) {
                 return res.status(400).json({
-                    status: 'bad request',
+                    status: 400,
                     message: "Image file is required."
                 });
             }
@@ -35,7 +35,7 @@ class AirportController {
             });
     
             res.status(201).json({
-                status: 'success',
+                status: 201,
                 message: 'Airport successfully created and image uploaded.',
                 data: airportRecord
             });
@@ -49,7 +49,7 @@ class AirportController {
             const airports = await AirportService.getAirports();
 
             res.status(200).json({
-                status: 'success',
+                status: 200,
                 message: 'List of airports successfully retrieved.',
                 data: airports
             });
@@ -64,13 +64,13 @@ class AirportController {
             const airport = await AirportService.getAirportById(airport_id);
             if (!airport) {
                 return res.status(404).json({
-                    status: 'not found',
+                    status: 404,
                     message: 'The requested airport was not found.'
                 });
             }
 
             res.status(200).json({
-                status: 'success',
+                status: 200,
                 message: 'Airport details successfully retrieved.',
                 data: airport
             });
@@ -87,7 +87,7 @@ class AirportController {
 
             if (!airportToDelete) {
                 return res.status(404).json({
-                    status: 'not found',
+                    status: 404,
                     message: 'The airport to delete was not found.'
                 });
             }
@@ -96,7 +96,7 @@ class AirportController {
             await AirportService.deleteAirportById(airport_id);
 
             res.status(200).json({ 
-                status: 'success',
+                status: 200,
                 message: 'Airport successfully deleted.' 
             });
         } catch (error) {
@@ -114,7 +114,7 @@ class AirportController {
     
             if (!airportToUpdate) {
                 return res.status(404).json({
-                    status: 'not found',
+                    status: 404,
                     message: 'The airport to update was not found.'
                 });
             }
@@ -143,7 +143,7 @@ class AirportController {
     
             if (Object.keys(updateData).length === 0) {
                 return res.status(400).json({
-                    status: 'bad request',
+                    status: 400,
                     message: 'No data provided for the update.'
                 });
             }
@@ -151,7 +151,7 @@ class AirportController {
             const updatedAirport = await AirportService.updateAirportById(airport_id, updateData);
     
             res.status(200).json({
-                status: 'success',
+                status: 200,
                 message: 'Airport successfully updated.',
                 data: updatedAirport,
             });

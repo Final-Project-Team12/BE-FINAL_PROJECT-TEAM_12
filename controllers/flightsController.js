@@ -43,7 +43,7 @@ class FlightsController {
             }
 
             return res.status(200).json({
-                status: "success",
+                status: 200,
                 message: "Outbound flights have been successfully retrieved.",
                 data: {
                     outbound_flights: formattedOutboundFlights
@@ -84,7 +84,6 @@ class FlightsController {
                 formatFlights(return_flights, seatClass, totalPassengers)
             ]);
     
-            // Filter outbound flights dengan seat_detail yang kosong
             const validOutboundFlights = formattedOutboundFlights.filter(flight => flight.seats_detail && flight.seats_detail.length > 0);
             const validReturnFlights = formattedReturnFlights.filter(flight => flight.seats_detail && flight.seats_detail.length > 0);
     
@@ -121,7 +120,7 @@ class FlightsController {
             };
     
             return res.status(200).json({
-                status: "success",
+                status: 200,
                 message: "Available flights have been successfully retrieved.",
                 data: responseData,
                 pagination: {

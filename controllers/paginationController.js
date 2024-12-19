@@ -50,7 +50,7 @@ class PaginationController{
         let pagination = this.getPagination(req, count, limit, page, 'tickets')
 
         res.status(200).json({
-            status: true,
+            status: 200,
             message: "success",
             page,
             limit, 

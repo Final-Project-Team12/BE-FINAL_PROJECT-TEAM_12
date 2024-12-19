@@ -38,6 +38,7 @@ jobs:
           username: ${{ secrets.SERVER_USER }}
           key: ${{ secrets.SERVER_SSH_KEY }}
           script: |
+            sudo su
             cd /home/ubuntu/BE-FINAL_PROJECT-TEAM_12
 
             git checkout development

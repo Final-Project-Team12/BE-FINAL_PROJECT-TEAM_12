@@ -33,6 +33,14 @@ function formatDate(date) {
 
 async function createPayment(orderId, amount, customerDetails, productDetails) {
     try {
+        const user = await db.users.findUnique({
+            where: { email: customerDetails.email }
+        });
+
+        if (!user) {
+            throw new Error("User not found");
+        }
+
         const existingPayment = await db.payment.findUnique({
             where: { orderId }
         });
@@ -73,21 +81,34 @@ async function createPayment(orderId, amount, customerDetails, productDetails) {
 
         const transaction = await snap.createTransaction(payload);
 
-        const payment = await db.payment.create({
-            data: {
-                orderId,
-                status: PAYMENT_STATUS.PENDING,
-                amount,
-                snapToken: transaction.token,
-                customerName: customerDetails.name,
-                customerEmail: customerDetails.email,
-                customerPhone: customerDetails.mobile_number,
-                customerAddress: customerDetails.address
-            }
+        const result = await db.$transaction(async (tx) => {
+            const payment = await tx.payment.create({
+                data: {
+                    orderId,
+                    status: PAYMENT_STATUS.PENDING,
+                    amount,
+                    snapToken: transaction.token,
+                    customerName: customerDetails.name,
+                    customerEmail: customerDetails.email,
+                    customerPhone: customerDetails.mobile_number,
+                    customerAddress: customerDetails.address
+                }
+            });
+            await tx.notification.create({
+                data: {
+                    title: "Payment Initiated",
+                    description: `Your payment with Order ID ${orderId} has been initiated. Amount: ${amount}. Please complete the payment.`,
+                    notificationDate: new Date(),
+                    user_id: user.user_id,
+                    is_read: false
+                }
+            });
+
+            return payment;
         });
 
         return {
-            payment,
+            payment: result,
             token: transaction.token,
             redirectUrl: transaction.redirect_url
         };
@@ -103,7 +124,11 @@ async function createPayment(orderId, amount, customerDetails, productDetails) {
 async function cancelPayment(orderId) {
     try {
         const payment = await db.payment.findUnique({
-            where: { orderId }
+            where: { orderId },
+            select: {
+                status: true,
+                customerEmail: true
+            }
         });
 
         if (!payment) {
@@ -114,17 +139,36 @@ async function cancelPayment(orderId) {
             throw new Error(`Cannot cancel payment with status: ${payment.status}`);
         }
 
-        // Cancel in Midtrans
-        const response = await snap.transaction.cancel(orderId);
-        const updatedPayment = await db.payment.update({
-            where: { orderId },
-            data: { status: PAYMENT_STATUS.CANCELLED }
+        const user = await db.users.findUnique({
+            where: { email: payment.customerEmail }
         });
 
-        return {
-            midtransResponse: response,
-            payment: updatedPayment
-        };
+        const result = await db.$transaction(async (tx) => {
+            const response = await snap.transaction.cancel(orderId);
+            
+            const updatedPayment = await tx.payment.update({
+                where: { orderId },
+                data: { status: PAYMENT_STATUS.CANCELLED }
+            });
+            if (user) {
+                await tx.notification.create({
+                    data: {
+                        title: "Payment Cancelled",
+                        description: `Your payment with Order ID ${orderId} has been cancelled.`,
+                        notificationDate: new Date(),
+                        user_id: user.user_id,
+                        is_read: false
+                    }
+                });
+            }
+
+            return {
+                midtransResponse: response,
+                payment: updatedPayment
+            };
+        });
+
+        return result;
     } catch (error) {
         console.error("Payment cancellation failed:", error);
         throw error;
@@ -141,32 +185,71 @@ async function getPaymentStatus(orderId) {
             throw new Error("Payment not found");
         }
 
+        const user = await db.users.findUnique({
+            where: { email: payment.customerEmail }
+        });
+
         const midtransStatus = await snap.transaction.status(orderId);
         let status = payment.status;
+        let shouldNotify = false;
+        let notificationTitle = "";
+        let notificationDescription = "";
 
         switch (midtransStatus.transaction_status) {
+            case "pending":
+                status = PAYMENT_STATUS.PENDING;
+                shouldNotify = true;
+                notificationTitle = "Payment Pending";
+                notificationDescription = `Your payment with Order ID ${orderId} is waiting for completion.`;
+                break;
             case "settlement":
             case "capture":
                 status = PAYMENT_STATUS.SETTLEMENT;
+                shouldNotify = true;
+                notificationTitle = "Payment Successful";
+                notificationDescription = `Your payment with Order ID ${orderId} has been completed successfully.`;
                 break;
             case "expire":
                 status = PAYMENT_STATUS.EXPIRED;
+                shouldNotify = true;
+                notificationTitle = "Payment Expired";
+                notificationDescription = `Your payment with Order ID ${orderId} has expired.`;
                 break;
             case "cancel":
                 status = PAYMENT_STATUS.CANCELLED;
+                shouldNotify = true;
+                notificationTitle = "Payment Cancelled";
+                notificationDescription = `Your payment with Order ID ${orderId} has been cancelled.`;
                 break;
             case "deny":
             case "failure":
                 status = PAYMENT_STATUS.FAILURE;
+                shouldNotify = true;
+                notificationTitle = "Payment Failed";
+                notificationDescription = `Your payment with Order ID ${orderId} has failed. Please try again.`;
                 break;
         }
 
         if (status !== payment.status) {
-            await db.payment.update({
-                where: { orderId },
-                data: {
-                    status,
-                    transactionId: midtransStatus.transaction_id || undefined
+            await db.$transaction(async (tx) => {
+                await tx.payment.update({
+                    where: { orderId },
+                    data: {
+                        status,
+                        transactionId: midtransStatus.transaction_id || undefined
+                    }
+                });
+
+                if (shouldNotify && user) {
+                    await tx.notification.create({
+                        data: {
+                            title: notificationTitle,
+                            description: notificationDescription,
+                            notificationDate: new Date(),
+                            user_id: user.user_id,
+                            is_read: false
+                        }
+                    });
                 }
             });
         }

@@ -50,6 +50,14 @@ async function createTransaction(userData, passengerData, seatSelections, planeI
             throw new Error("INVALID_SEAT_SELECTIONS");
         if (!planeId) throw new Error("INVALID_PLANE_ID");
 
+        const user = await prisma.users.findUnique({
+            where: { user_id: parseInt(userData.user_id) }
+        });
+
+        if (!user) {
+            throw new Error("USER_NOT_FOUND");
+        }
+
         const plane = await prisma.plane.findUnique({
             where: { plane_id: parseInt(planeId) },
         });
@@ -57,7 +65,6 @@ async function createTransaction(userData, passengerData, seatSelections, planeI
         if (!plane) {
             throw new Error("PLANE_NOT_FOUND");
         }
-
         const selectedSeats = await Promise.all(
             seatSelections.map(async (selection) => {
                 const seat = await prisma.seat.findUnique({
@@ -82,6 +89,23 @@ async function createTransaction(userData, passengerData, seatSelections, planeI
         );
 
         return await prisma.$transaction(async (tx) => {
+            // Verify seats are still available with version check
+            const currentSeats = await Promise.all(
+                seatSelections.map(selection =>
+                    tx.seat.findUnique({
+                        where: { seat_id: parseInt(selection.seat_id) }
+                    })
+                )
+            );
+
+            const unavailableSeats = currentSeats.filter(
+                (seat, index) => !seat.is_available || seat.version !== selectedSeats[index].version
+            );
+
+            if (unavailableSeats.length > 0) {
+                throw new Error("SEATS_UNAVAILABLE");
+            }
+
             const transaction = await tx.transaction.create({
                 data: {
                     status: "PENDING",
@@ -117,8 +141,11 @@ async function createTransaction(userData, passengerData, seatSelections, planeI
 
             const tickets = await Promise.all(
                 seatSelections.map(async (selection, index) => {
-                    await tx.seat.update({
-                        where: { seat_id: parseInt(selection.seat_id) },
+                    const updatedSeat = await tx.seat.update({
+                        where: { 
+                            seat_id: parseInt(selection.seat_id),
+                            version: selectedSeats[index].version 
+                        },
                         data: {
                             is_available: false,
                             version: { increment: 1 },
@@ -165,6 +192,8 @@ async function createTransaction(userData, passengerData, seatSelections, planeI
                     user: true,
                 },
             });
+        }, {
+            isolationLevel: 'Serializable'
         });
     } catch (error) {
         console.error("[Error in createTransaction]:", error);

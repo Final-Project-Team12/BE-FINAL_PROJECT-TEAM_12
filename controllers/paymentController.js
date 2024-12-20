@@ -10,6 +10,12 @@ class PaymentController {
                     status: 400
                 });
             }
+            if (!customerDetails.email || !customerDetails.mobile_number) {
+                return res.status(400).json({
+                    message: "Customer email and mobile number are required",
+                    status: 400
+                });
+            }
 
             const response = await PaymentService.createPayment(
                 orderId, 
@@ -25,14 +31,29 @@ class PaymentController {
             });
 
         } catch (error) {
-            if (error.code === 'P2002' || error.message.includes("already exists")) {
+            console.error("Payment creation error:", error);
+
+            if (error.message === "USER_NOT_FOUND") {
+                return res.status(404).json({
+                    message: "User not found with provided email or phone number",
+                    status: 404
+                });
+            }
+
+            if (error.message.includes("already exists")) {
                 return res.status(409).json({
                     message: `Payment with orderId ${req.body.orderId} already exists`,
                     status: 409
                 });
             }
 
-            console.error("Payment creation error:", error);
+            if (error.message.includes("Amount must be greater than 0")) {
+                return res.status(400).json({
+                    message: error.message,
+                    status: 400
+                });
+            }
+
             return res.status(500).json({
                 message: "Internal server error",
                 status: 500
@@ -59,6 +80,8 @@ class PaymentController {
                 data: response
             });
         } catch (error) {
+            console.error("Payment cancellation error:", error);
+
             if (error.message.includes("Payment not found")) {
                 return res.status(404).json({
                     message: error.message,
@@ -73,7 +96,6 @@ class PaymentController {
                 });
             }
 
-            console.error("Payment cancellation error:", error);
             return res.status(500).json({
                 message: "Failed to cancel payment",
                 status: 500
@@ -100,6 +122,8 @@ class PaymentController {
                 data: payment
             });
         } catch (error) {
+            console.error("Payment status retrieval error:", error);
+
             if (error.message.includes("Payment not found")) {
                 return res.status(404).json({
                     message: error.message,
@@ -107,7 +131,6 @@ class PaymentController {
                 });
             }
 
-            console.error("Payment status retrieval error:", error);
             return res.status(500).json({
                 message: "Failed to retrieve payment status",
                 status: 500

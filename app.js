@@ -56,7 +56,7 @@ routers.forEach(router => app.use('/api/v1', router));
 
 
 app.use(errorHandler);
-//buat nangkap error cek ci-cd 2
+//buat nangkap error cek ci-cd 14
 
 app.use((err, req, res, next) => {
   console.log(err);

@@ -35,8 +35,8 @@ app.use(express.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
 //routes
-app.use('/auth', googleAuthRoutes);
 const routers = [
+  googleAuthRoutes,
   ticketListingRoutes,
   paginationRoutes,
   seatRoutes,

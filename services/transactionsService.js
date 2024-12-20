@@ -42,44 +42,44 @@ async function getTransactionsByUserId(userId) {
 }
 
 async function createTransaction(userData, passengerData, seatSelections, planeId) {
-    try {
-        if (!userData?.user_id) throw new Error("INVALID_USER_DATA");
-        if (!Array.isArray(passengerData) || passengerData.length === 0)
-            throw new Error("INVALID_PASSENGER_DATA");
-        if (!Array.isArray(seatSelections) || seatSelections.length === 0)
-            throw new Error("INVALID_SEAT_SELECTIONS");
-        if (!planeId) throw new Error("INVALID_PLANE_ID");
+  try {
+      if (!userData?.user_id) throw new Error("INVALID_USER_DATA");
+      if (!Array.isArray(passengerData) || passengerData.length === 0)
+          throw new Error("INVALID_PASSENGER_DATA");
+      if (!Array.isArray(seatSelections) || seatSelections.length === 0)
+          throw new Error("INVALID_SEAT_SELECTIONS");
+      if (!planeId) throw new Error("INVALID_PLANE_ID");
 
-        const plane = await prisma.plane.findUnique({
-            where: { plane_id: parseInt(planeId) },
-        });
+      const plane = await prisma.plane.findUnique({
+          where: { plane_id: parseInt(planeId) },
+      });
 
-        if (!plane) {
-            throw new Error("PLANE_NOT_FOUND");
-        }
+      if (!plane) {
+          throw new Error("PLANE_NOT_FOUND");
+      }
 
-        const selectedSeats = await Promise.all(
-            seatSelections.map(async (selection) => {
-                const seat = await prisma.seat.findUnique({
-                    where: { seat_id: parseInt(selection.seat_id) },
-                });
+      const selectedSeats = await Promise.all(
+          seatSelections.map(async (selection) => {
+              const seat = await prisma.seat.findUnique({
+                  where: { seat_id: parseInt(selection.seat_id) },
+              });
 
-                if (!seat) {
-                    throw new Error("INVALID_SEATS_SELECTED");
-                }
+              if (!seat) {
+                  throw new Error("INVALID_SEATS_SELECTED");
+              }
 
-                if (!seat.is_available) {
-                    throw new Error("SEATS_UNAVAILABLE");
-                }
+              if (!seat.is_available) {
+                  throw new Error("SEATS_UNAVAILABLE");
+              }
 
-                return seat;
-            })
-        );
+              return seat;
+          })
+      );
 
-        const totalPayment = selectedSeats.reduce(
-            (sum, seat) => sum + seat.price,
-            0
-        );
+      const totalPayment = selectedSeats.reduce(
+          (sum, seat) => sum + seat.price,
+          0
+      );
 
         return await prisma.$transaction(async (tx) => {
             const transaction = await tx.transaction.create({

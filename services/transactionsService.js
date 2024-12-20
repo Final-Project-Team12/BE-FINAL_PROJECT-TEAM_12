@@ -135,6 +135,16 @@ async function createTransaction(userData, passengerData, seatSelections, planeI
                     });
                 })
             );
+            
+            await tx.notification.create({
+                data: {
+                    title: "New Transaction Created",
+                    description: `Your transaction with ID ${transaction.transaction_id} has been created with total payment ${totalPayment}`,
+                    notification_date: new Date(),
+                    user_id: parseInt(userData.user_id),
+                    is_read: false
+                }
+            });
 
             return await tx.transaction.findUnique({
                 where: { transaction_id: transaction.transaction_id },

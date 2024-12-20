@@ -8,8 +8,8 @@ const transactionsController = {
             const transactions = await transactionsService.getTransactionsByUserId(parseInt(user_id));
             
             return res.status(200).json({
-                status: 'success',
                 message: 'Transactions retrieved successfully',
+                status: 200,
                 data: transactions
             });
         } catch (error) {
@@ -17,14 +17,14 @@ const transactionsController = {
             
             if (error.message === 'TRANSACTIONS_NOT_FOUND') {
                 return res.status(404).json({
-                    status: 'error',
-                    message: 'Transactions not found for this user'
+                    message: 'Transactions not found for this user',
+                    status: 404
                 });
             }
 
             return res.status(500).json({
-                status: 'error',
-                message: 'Internal server error'
+                message: 'Internal server error',
+                status: 500
             });
         }
     },
@@ -41,8 +41,8 @@ const transactionsController = {
             );
 
             return res.status(201).json({
-                status: 'success',
                 message: 'Transaction created successfully',
+                status: 201,
                 data: result
             });
         } catch (error) {
@@ -50,42 +50,42 @@ const transactionsController = {
 
             if (error.message === 'INVALID_USER_DATA') {
                 return res.status(400).json({
-                    status: 'error',
-                    message: 'Invalid user data provided'
+                    message: 'Invalid user data provided',
+                    status: 400
                 });
             }
 
             if (error.message === 'INVALID_PASSENGER_DATA') {
                 return res.status(400).json({
-                    status: 'error',
-                    message: 'Invalid passenger data provided'
+                    message: 'Invalid passenger data provided',
+                    status: 400
                 });
             }
 
             if (error.message === 'INVALID_SEAT_SELECTIONS') {
                 return res.status(400).json({
-                    status: 'error',
-                    message: 'Invalid seat selections provided'
+                    message: 'Invalid seat selections provided',
+                    status: 400
                 });
             }
 
             if (error.message === 'PLANE_NOT_FOUND') {
                 return res.status(404).json({
-                    status: 'error',
-                    message: 'Selected plane not found'
+                    message: 'Selected plane not found',
+                    status: 404
                 });
             }
 
             if (error.message === 'SEATS_UNAVAILABLE') {
                 return res.status(409).json({
-                    status: 'error',
-                    message: 'One or more selected seats are no longer available'
+                    message: 'One or more selected seats are no longer available',
+                    status: 409
                 });
             }
 
             return res.status(500).json({
-                status: 'error',
-                message: 'Internal server error'
+                message: 'Internal server error',
+                status: 500
             });
         }
     },
@@ -101,8 +101,8 @@ const transactionsController = {
             );
             
             return res.status(200).json({
-                status: 'success',
                 message: 'Transaction updated successfully',
+                status: 200,
                 data: updatedTransaction
             });
         } catch (error) {
@@ -110,14 +110,14 @@ const transactionsController = {
 
             if (error.message === 'TRANSACTION_NOT_FOUND') {
                 return res.status(404).json({
-                    status: 'error',
-                    message: 'Transaction not found'
+                    message: 'Transaction not found',
+                    status: 404
                 });
             }
 
             return res.status(500).json({
-                status: 'error',
-                message: 'Internal server error'
+                message: 'Internal server error',
+                status: 500
             });
         }
     },
@@ -129,22 +129,22 @@ const transactionsController = {
             await transactionsService.deleteTransaction(parseInt(transaction_id));
             
             return res.status(200).json({
-                status: 'success',
-                message: 'Transaction deleted successfully'
+                message: 'Transaction deleted successfully',
+                status: 200
             });
         } catch (error) {
             console.error('Delete transaction error:', error);
 
             if (error.message === 'TRANSACTION_NOT_FOUND') {
                 return res.status(404).json({
-                    status: 'error',
-                    message: 'Transaction not found'
+                    message: 'Transaction not found',
+                    status: 404
                 });
             }
 
             return res.status(500).json({
-                status: 'error',
-                message: 'Internal server error'
+                message: 'Internal server error',
+                status: 500
             });
         }
     }

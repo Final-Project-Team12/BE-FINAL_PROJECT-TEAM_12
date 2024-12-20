@@ -33,12 +33,17 @@ function formatDate(date) {
 
 async function createPayment(orderId, amount, customerDetails, productDetails) {
     try {
-        const user = await db.users.findUnique({
-            where: { email: customerDetails.email }
+        const user = await db.users.findFirst({
+            where: {
+                OR: [
+                    { email: customerDetails.email },
+                    { telephone_number: customerDetails.mobile_number }
+                ]
+            }
         });
 
         if (!user) {
-            throw new Error("User not found");
+            throw new Error("USER_NOT_FOUND");
         }
 
         const existingPayment = await db.payment.findUnique({
@@ -94,11 +99,12 @@ async function createPayment(orderId, amount, customerDetails, productDetails) {
                     customerAddress: customerDetails.address
                 }
             });
+
             await tx.notification.create({
                 data: {
                     title: "Payment Initiated",
                     description: `Your payment with Order ID ${orderId} has been initiated. Amount: ${amount}. Please complete the payment.`,
-                    notificationDate: new Date(),
+                    notification_date: new Date(),
                     user_id: user.user_id,
                     is_read: false
                 }
@@ -114,9 +120,6 @@ async function createPayment(orderId, amount, customerDetails, productDetails) {
         };
     } catch (error) {
         console.error("Payment creation failed:", error);
-        if (error.code === 'P2002') {
-            throw new Error(`Duplicate order ID: ${orderId}`);
-        }
         throw error;
     }
 }
@@ -150,12 +153,13 @@ async function cancelPayment(orderId) {
                 where: { orderId },
                 data: { status: PAYMENT_STATUS.CANCELLED }
             });
+
             if (user) {
                 await tx.notification.create({
                     data: {
                         title: "Payment Cancelled",
                         description: `Your payment with Order ID ${orderId} has been cancelled.`,
-                        notificationDate: new Date(),
+                        notification_date: new Date(),
                         user_id: user.user_id,
                         is_read: false
                     }
@@ -245,7 +249,7 @@ async function getPaymentStatus(orderId) {
                         data: {
                             title: notificationTitle,
                             description: notificationDescription,
-                            notificationDate: new Date(),
+                            notification_date: new Date(),
                             user_id: user.user_id,
                             is_read: false
                         }

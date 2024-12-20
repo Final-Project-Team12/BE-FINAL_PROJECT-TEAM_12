@@ -50,7 +50,20 @@ async function createPayment(orderId, amount, customerDetails, productDetails) {
         });
 
         if (!user) {
-            throw new Error("User not found");
+            throw new Error("USER_NOT_FOUND");
+        }
+        const transaction = await db.transaction.findFirst({
+            where: { 
+                AND: [
+                    { user_id: user.user_id },
+                    { status: TRANSACTION_STATUS.PENDING }
+                ]
+            },
+            orderBy: { transaction_date: 'desc' }
+        });
+
+        if (!transaction) {
+            throw new Error("TRANSACTION_NOT_FOUND");
         }
 
         const existingPayment = await db.payment.findUnique({
@@ -106,6 +119,12 @@ async function createPayment(orderId, amount, customerDetails, productDetails) {
                     customerAddress: customerDetails.address
                 }
             });
+
+            await tx.transaction.update({
+                where: { transaction_id: transaction.transaction_id },
+                data: { token: orderId }
+            });
+
             await tx.notification.create({
                 data: {
                     title: "Payment Initiated",
@@ -158,6 +177,17 @@ async function cancelPayment(orderId) {
                 where: { orderId },
                 data: { status: PAYMENT_STATUS.CANCELLED }
             });
+            const transaction = await tx.transaction.findFirst({
+                where: { token: orderId }
+            });
+
+            if (transaction) {
+                await tx.transaction.update({
+                    where: { transaction_id: transaction.transaction_id },
+                    data: { status: TRANSACTION_STATUS.CANCELLED }
+                });
+            }
+
             if (user) {
                 await tx.notification.create({
                     data: {

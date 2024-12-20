@@ -38,12 +38,13 @@ jobs:
           username: ${{ secrets.SERVER_USER }}
           key: ${{ secrets.SERVER_SSH_KEY }}
           script: |
-            sudo su
+            sudo su <<EOF
             cd /home/ubuntu/BE-FINAL_PROJECT-TEAM_12
-            sudo chown -R $USER:$USER /home/ubuntu/BE-FINAL_PROJECT-TEAM_12
-            sudo chmod -R 775 /home/ubuntu/BE-FINAL_PROJECT-TEAM_12
-            git reset --hard
+            chown -R ubuntu:ubuntu /home/ubuntu/BE-FINAL_PROJECT-TEAM_12
+            chmod -R 775 /home/ubuntu/BE-FINAL_PROJECT-TEAM_12
             git pull origin development
             npm install
             pm2 describe app1 || pm2 start app.js --name app1
             pm2 restart app1 --update-env
+            EOF
+

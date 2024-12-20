@@ -32,10 +32,17 @@ async function markNotificationAsRead(notification_id) {
   });
 }
 
+async function getNotificationByUserId(user_id) {
+  return await prisma.notification.findMany({
+    where: { user_id: parseInt(user_id) },
+  });
+}
+
 module.exports = {
   createNotification,
   getAllNotifications,
   getNotificationById,
   deleteNotification,
   markNotificationAsRead,
+  getNotificationByUserId,
 };

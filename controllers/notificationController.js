@@ -113,6 +113,26 @@ class NotificationController {
       next(error);
     }
   }
+
+  static async getNotificationByUserId(req, res, next) {
+    const { user_id } = req.params;
+    try {
+      const notifications = await NotificationService.getNotificationByUserId(user_id);
+      if (!notifications.length) {
+        return res.status(404).json({
+          status: "not found",
+          message: "No notifications found for the specified user",
+        });
+      }
+
+      res.status(200).json({
+        status: "success",
+        data: notifications,
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
 }
 
 module.exports = NotificationController;

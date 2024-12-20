@@ -9,6 +9,7 @@ const restrictedRoutesUser = express.Router();
 
 restrictedRoutesUser.get("", NotificationController.getAllNotifications);
 restrictedRoutesUser.get("/:notification_id", NotificationController.getNotificationById);
+restrictedRoutesUser.get("/user/:user_id", NotificationController.getNotificationByUserId);
 
 router.use('/notifications', restrictJwt, restrictedRoutesUser);
 

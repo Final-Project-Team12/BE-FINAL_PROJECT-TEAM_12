@@ -24,13 +24,19 @@ const TRANSACTION_STATUS = {
 };
 
 async function checkMidtransStatus(orderId) {
-    try {
-        const midtransStatus = await snap.transaction.status(orderId);
-        return midtransStatus;
-    } catch (error) {
-        console.error(`[Error checking Midtrans status]:`, error);
-        return null;
-    }
+  try {
+      const midtransStatus = await snap.transaction.status(orderId);
+      return midtransStatus;
+  } catch (error) {
+      if (error.httpStatusCode === '404') {
+          return null;
+      }
+      
+      if (error.httpStatusCode !== '404') {
+          console.error(`Midtrans API Error for OrderID ${orderId}: ${error.message}`);
+      }
+      return null;
+  }
 }
 
 async function updateTransactionStatus(transaction, tx) {

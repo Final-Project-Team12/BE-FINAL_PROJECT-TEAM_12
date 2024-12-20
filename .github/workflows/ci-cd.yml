@@ -44,7 +44,6 @@ jobs:
             chmod -R 775 /home/ubuntu/BE-FINAL_PROJECT-TEAM_12
             git pull origin development
             npm install
-            pm2 describe app1 || pm2 start app.js --name app1
-            pm2 restart app1 --update-env
+            pm2 restart app1
             EOF
 

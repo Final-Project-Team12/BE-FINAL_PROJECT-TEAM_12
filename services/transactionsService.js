@@ -1,5 +1,115 @@
 const { PrismaClient } = require("@prisma/client");
+const midtransClient = require("midtrans-client");
 const prisma = new PrismaClient();
+
+const snap = new midtransClient.Snap({
+    isProduction: false,
+    serverKey: process.env.MIDTRANS_SERVER_KEY,
+    clientKey: process.env.MIDTRANS_CLIENT_KEY
+});
+
+const PAYMENT_STATUS = {
+    PENDING: 'PENDING',
+    SETTLEMENT: 'SETTLEMENT',
+    EXPIRED: 'EXPIRED',
+    CANCELLED: 'CANCELLED',
+    FAILURE: 'FAILURE'
+};
+
+const TRANSACTION_STATUS = {
+    PENDING: 'PENDING',
+    SUCCESS: 'SUCCESS',
+    FAILED: 'FAILED',
+    CANCELLED: 'CANCELLED'
+};
+
+async function checkMidtransStatus(orderId) {
+    try {
+        const midtransStatus = await snap.transaction.status(orderId);
+        return midtransStatus;
+    } catch (error) {
+        console.error(`[Error checking Midtrans status]:`, error);
+        return null;
+    }
+}
+
+async function updateTransactionStatus(transaction, tx) {
+    try {
+        if (transaction.status === TRANSACTION_STATUS.PENDING && transaction.token) {
+            const midtransStatus = await checkMidtransStatus(transaction.token);
+            
+            if (!midtransStatus) return transaction;
+
+            let newStatus = transaction.status;
+            let paymentStatus = PAYMENT_STATUS.PENDING;
+            let notificationTitle = "";
+            let notificationDescription = "";
+            
+            switch (midtransStatus.transaction_status) {
+                case "settlement":
+                case "capture":
+                    newStatus = TRANSACTION_STATUS.SUCCESS;
+                    paymentStatus = PAYMENT_STATUS.SETTLEMENT;
+                    notificationTitle = "Payment Successful";
+                    notificationDescription = `Your payment with Order ID ${transaction.token} has been completed successfully.`;
+                    break;
+                case "expire":
+                    newStatus = TRANSACTION_STATUS.FAILED;
+                    paymentStatus = PAYMENT_STATUS.EXPIRED;
+                    notificationTitle = "Payment Expired";
+                    notificationDescription = `Your payment with Order ID ${transaction.token} has expired.`;
+                    break;
+                case "cancel":
+                    newStatus = TRANSACTION_STATUS.CANCELLED;
+                    paymentStatus = PAYMENT_STATUS.CANCELLED;
+                    notificationTitle = "Payment Cancelled";
+                    notificationDescription = `Your payment with Order ID ${transaction.token} has been cancelled.`;
+                    break;
+                case "deny":
+                case "failure":
+                    newStatus = TRANSACTION_STATUS.FAILED;
+                    paymentStatus = PAYMENT_STATUS.FAILURE;
+                    notificationTitle = "Payment Failed";
+                    notificationDescription = `Your payment with Order ID ${transaction.token} has failed.`;
+                    break;
+            }
+
+            if (newStatus !== transaction.status) {
+                const updatedTransaction = await tx.transaction.update({
+                    where: { transaction_id: transaction.transaction_id },
+                    data: { 
+                        status: newStatus,
+                        message: notificationDescription
+                    }
+                });
+
+                await tx.payment.update({
+                    where: { orderId: transaction.token },
+                    data: {
+                        status: paymentStatus,
+                        transactionId: midtransStatus.transaction_id
+                    }
+                });
+
+                await tx.notification.create({
+                    data: {
+                        title: notificationTitle,
+                        description: notificationDescription,
+                        notification_date: new Date(),
+                        user_id: transaction.user_id,
+                        is_read: false
+                    }
+                });
+
+                return updatedTransaction;
+            }
+        }
+        return transaction;
+    } catch (error) {
+        console.error(`[Error updating transaction status]:`, error);
+        return transaction;
+    }
+}
 
 async function getTransactionsByUserId(userId) {
     try {
@@ -11,27 +121,37 @@ async function getTransactionsByUserId(userId) {
             throw new Error("USER_NOT_FOUND");
         }
 
-        const transactions = await prisma.transaction.findMany({
-            where: { user_id: userId },
-            include: {
-                tickets: {
-                    include: {
-                        passenger: true,
-                        seat: true,
-                        plane: {
-                            include: {
-                                airline: true,
-                                origin_airport: true,
-                                destination_airport: true,
+        const transactions = await prisma.$transaction(async (tx) => {
+            const userTransactions = await tx.transaction.findMany({
+                where: { user_id: userId },
+                include: {
+                    tickets: {
+                        include: {
+                            passenger: true,
+                            seat: true,
+                            plane: {
+                                include: {
+                                    airline: true,
+                                    origin_airport: true,
+                                    destination_airport: true,
+                                },
                             },
                         },
                     },
+                    user: true,
                 },
-                user: true,
-            },
-            orderBy: {
-                transaction_date: "desc",
-            },
+                orderBy: {
+                    transaction_date: "desc",
+                },
+            });
+
+            const updatedTransactions = await Promise.all(
+                userTransactions.map(transaction => 
+                    updateTransactionStatus(transaction, tx)
+                )
+            );
+
+            return updatedTransactions;
         });
 
         return transactions;
@@ -65,6 +185,7 @@ async function createTransaction(userData, passengerData, seatSelections, planeI
         if (!plane) {
             throw new Error("PLANE_NOT_FOUND");
         }
+
         const selectedSeats = await Promise.all(
             seatSelections.map(async (selection) => {
                 const seat = await prisma.seat.findUnique({
@@ -89,7 +210,6 @@ async function createTransaction(userData, passengerData, seatSelections, planeI
         );
 
         return await prisma.$transaction(async (tx) => {
-            // Verify seats are still available with version check
             const currentSeats = await Promise.all(
                 seatSelections.map(selection =>
                     tx.seat.findUnique({
@@ -108,7 +228,7 @@ async function createTransaction(userData, passengerData, seatSelections, planeI
 
             const transaction = await tx.transaction.create({
                 data: {
-                    status: "PENDING",
+                    status: TRANSACTION_STATUS.PENDING,
                     redirect_url: "",
                     transaction_date: new Date(),
                     token: Math.random().toString(36).substring(7),
@@ -162,7 +282,7 @@ async function createTransaction(userData, passengerData, seatSelections, planeI
                     });
                 })
             );
-            
+
             await tx.notification.create({
                 data: {
                     title: "New Transaction Created",

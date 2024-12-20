@@ -16,6 +16,13 @@ const PAYMENT_STATUS = {
     FAILURE: 'FAILURE'
 };
 
+const TRANSACTION_STATUS = {
+    PENDING: 'PENDING',
+    SUCCESS: 'SUCCESS',
+    FAILED: 'FAILED',
+    CANCELLED: 'CANCELLED'
+};
+
 const CANCELLABLE_STATUSES = [PAYMENT_STATUS.PENDING];
 
 function formatDate(date) {
@@ -44,6 +51,19 @@ async function createPayment(orderId, amount, customerDetails, productDetails) {
 
         if (!user) {
             throw new Error("USER_NOT_FOUND");
+        }
+        const transaction = await db.transaction.findFirst({
+            where: { 
+                AND: [
+                    { user_id: user.user_id },
+                    { status: TRANSACTION_STATUS.PENDING }
+                ]
+            },
+            orderBy: { transaction_date: 'desc' }
+        });
+
+        if (!transaction) {
+            throw new Error("TRANSACTION_NOT_FOUND");
         }
 
         const existingPayment = await db.payment.findUnique({
@@ -84,7 +104,7 @@ async function createPayment(orderId, amount, customerDetails, productDetails) {
             }
         };
 
-        const transaction = await snap.createTransaction(payload);
+        const midtransTransaction = await snap.createTransaction(payload);
 
         const result = await db.$transaction(async (tx) => {
             const payment = await tx.payment.create({
@@ -92,12 +112,17 @@ async function createPayment(orderId, amount, customerDetails, productDetails) {
                     orderId,
                     status: PAYMENT_STATUS.PENDING,
                     amount,
-                    snapToken: transaction.token,
+                    snapToken: midtransTransaction.token,
                     customerName: customerDetails.name,
                     customerEmail: customerDetails.email,
                     customerPhone: customerDetails.mobile_number,
                     customerAddress: customerDetails.address
                 }
+            });
+
+            await tx.transaction.update({
+                where: { transaction_id: transaction.transaction_id },
+                data: { token: orderId }
             });
 
             await tx.notification.create({
@@ -115,8 +140,8 @@ async function createPayment(orderId, amount, customerDetails, productDetails) {
 
         return {
             payment: result,
-            token: transaction.token,
-            redirectUrl: transaction.redirect_url
+            token: midtransTransaction.token,
+            redirectUrl: midtransTransaction.redirect_url
         };
     } catch (error) {
         console.error("Payment creation failed:", error);
@@ -148,11 +173,20 @@ async function cancelPayment(orderId) {
 
         const result = await db.$transaction(async (tx) => {
             const response = await snap.transaction.cancel(orderId);
-            
             const updatedPayment = await tx.payment.update({
                 where: { orderId },
                 data: { status: PAYMENT_STATUS.CANCELLED }
             });
+            const transaction = await tx.transaction.findFirst({
+                where: { token: orderId }
+            });
+
+            if (transaction) {
+                await tx.transaction.update({
+                    where: { transaction_id: transaction.transaction_id },
+                    data: { status: TRANSACTION_STATUS.CANCELLED }
+                });
+            }
 
             if (user) {
                 await tx.notification.create({
@@ -193,6 +227,10 @@ async function getPaymentStatus(orderId) {
             where: { email: payment.customerEmail }
         });
 
+        if (!user) {
+            throw new Error("User not found");
+        }
+
         const midtransStatus = await snap.transaction.status(orderId);
         let status = payment.status;
         let shouldNotify = false;
@@ -208,10 +246,12 @@ async function getPaymentStatus(orderId) {
                 break;
             case "settlement":
             case "capture":
-                status = PAYMENT_STATUS.SETTLEMENT;
-                shouldNotify = true;
-                notificationTitle = "Payment Successful";
-                notificationDescription = `Your payment with Order ID ${orderId} has been completed successfully.`;
+                if (payment.status !== PAYMENT_STATUS.SETTLEMENT) {
+                    status = PAYMENT_STATUS.SETTLEMENT;
+                    shouldNotify = true;
+                    notificationTitle = "Payment Successful";
+                    notificationDescription = `Your payment with Order ID ${orderId} has been completed successfully.`;
+                }
                 break;
             case "expire":
                 status = PAYMENT_STATUS.EXPIRED;
@@ -233,7 +273,6 @@ async function getPaymentStatus(orderId) {
                 notificationDescription = `Your payment with Order ID ${orderId} has failed. Please try again.`;
                 break;
         }
-
         if (status !== payment.status) {
             await db.$transaction(async (tx) => {
                 await tx.payment.update({
@@ -243,8 +282,26 @@ async function getPaymentStatus(orderId) {
                         transactionId: midtransStatus.transaction_id || undefined
                     }
                 });
+                const transaction = await tx.transaction.findFirst({
+                    where: { token: orderId }
+                });
 
-                if (shouldNotify && user) {
+                if (transaction) {
+                    let transactionStatus = TRANSACTION_STATUS.PENDING;
+                    if (status === PAYMENT_STATUS.SETTLEMENT) {
+                        transactionStatus = TRANSACTION_STATUS.SUCCESS;
+                    } else if (status === PAYMENT_STATUS.FAILURE) {
+                        transactionStatus = TRANSACTION_STATUS.FAILED;
+                    } else if (status === PAYMENT_STATUS.CANCELLED) {
+                        transactionStatus = TRANSACTION_STATUS.CANCELLED;
+                    }
+
+                    await tx.transaction.update({
+                        where: { transaction_id: transaction.transaction_id },
+                        data: { status: transactionStatus }
+                    });
+                }
+                if (shouldNotify) {
                     await tx.notification.create({
                         data: {
                             title: notificationTitle,

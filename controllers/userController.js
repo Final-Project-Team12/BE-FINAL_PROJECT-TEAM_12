@@ -338,7 +338,7 @@ class UserController{
           
           return res.status(200).json({
               status: 200,
-              message: "success",
+              message: "Success",
               data: deletedUser
           })
       }

@@ -114,4 +114,79 @@ describe('TicketsController User Tests', () => {
             status: 400,
         });
     });
+
+    // FOR INTERNAL SERVER ERROR
+    it('should return 500 for an internal server error in POST /api/v1/ticket', async () => {
+        jest.spyOn(prisma.ticket, 'createMany').mockImplementation(() => {
+            throw new Error('Internal Server Error');
+        });
+
+        const response = await request(app)
+            .post('/api/v1/ticket')
+            .set('Authorization', `Bearer ${jwtToken}`)
+            .send({ transaction_id: transactionId });
+
+        expect(response.status).toBe(500);
+        expect(response.body).toMatchObject({
+            message: 'Internal server error',
+            status: 500,
+        });
+
+        prisma.ticket.createMany.mockRestore();
+    });
+
+    it('should return 500 for an internal server error in GET /api/v1/ticket/:transactionId', async () => {
+        jest.spyOn(prisma.ticket, 'findMany').mockImplementation(() => {
+            throw new Error('Internal Server Error');
+        });
+
+        const response = await request(app)
+            .get(`/api/v1/ticket/${transactionId}`)
+            .set('Authorization', `Bearer ${jwtToken}`);
+
+        expect(response.status).toBe(500);
+        expect(response.body).toMatchObject({
+            message: 'Internal server error',
+            status: 500,
+        });
+
+        prisma.ticket.findMany.mockRestore();
+    });
+
+    it('should return 500 for an internal server error in PUT /api/v1/ticket/:ticketId', async () => {
+        jest.spyOn(prisma.ticket, 'update').mockImplementation(() => {
+            throw new Error('Internal Server Error');
+        });
+
+        const response = await request(app)
+            .put(`/api/v1/ticket/123`) // Assuming 123 ticket ID
+            .set('Authorization', `Bearer ${jwtToken}`)
+            .send({ seat_id: 2 });
+
+        expect(response.status).toBe(500);
+        expect(response.body).toMatchObject({
+            message: 'Internal server error',
+            status: 500,
+        });
+
+        prisma.ticket.update.mockRestore();
+    });
+
+    it('should return 500 for an internal server error in DELETE /api/v1/ticket/:ticketId', async () => {
+        jest.spyOn(prisma.ticket, 'delete').mockImplementation(() => {
+            throw new Error('Internal Server Error');
+        });
+
+        const response = await request(app)
+            .delete(`/api/v1/ticket/123`)
+            .set('Authorization', `Bearer ${jwtToken}`);
+
+        expect(response.status).toBe(500);
+        expect(response.body).toMatchObject({
+            message: 'Internal server error',
+            status: 500,
+        });
+
+        prisma.ticket.delete.mockRestore();
+    });
 });

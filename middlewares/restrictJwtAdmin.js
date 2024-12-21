@@ -38,7 +38,7 @@ class RestrictJwtAdmin{
                 });
             }
 
-            if(!(userData.role == 'admin')) {
+            if(!(userData.role == 'admin' || userData.role == 'Admin')) {
                 res.status(401).json({
                     status: 401,
                     message: "You are not authorized",

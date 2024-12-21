@@ -112,8 +112,7 @@ class UserController{
 
             return res.status(200).json({
               status: 200,
-              message: "OTP successfully resent",
-              userData
+              message: "OTP successfully resent"
             })
           }
         }
@@ -164,8 +163,8 @@ class UserController{
 
             const { otp, ...userWithoutOtp } = newUser;
             
-            return res.status(200).json({
-                status: 200,
+            return res.status(201).json({
+                status: 201,
                 message: "Success",
                 data: userWithoutOtp
             });

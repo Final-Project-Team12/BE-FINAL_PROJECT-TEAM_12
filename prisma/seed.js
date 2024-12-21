@@ -32,7 +32,7 @@ async function main() {
         gender: i % 2 === 0 ? "Male" : "Female",
         identity_number: `1234567890${i}`,
         age: 20 + i,
-        role: i % 2 === 0 ? "Admin" : "User",
+        role: i % 2 === 0 ? "admin" : "user",
       }
     });
     userIds.push(user.user_id);
@@ -187,21 +187,22 @@ async function main() {
     passengerIds.push(passenger.passenger_id);
   }
 
-  const transactionIds = [];
-  for (let i = 1; i <= 10; i++) {
-    const transaction = await prisma.transaction.create({
-      data: {
-        status: i % 2 === 0 ? "Completed" : "Pending",
-        redirect_url: `https://example.com/transaction/${i}`,
-        transaction_date: new Date(),
-        token: `token-${i}`,
-        message: `Transaction ${i}`,
-        total_payment: 5000000 + i * 100000,
-        user_id: userIds[i % userIds.length]
-      }
-    });
-    transactionIds.push(transaction.transaction_id);
-  }
+  // const transactionIds = [];
+  // for (let i = 1; i <= 10; i++) {
+  //   const transaction = await prisma.transaction.create({
+  //     data: {
+  //       status: i % 2 === 0 ? "Completed" : "Pending",
+  //       redirect_url: `https://example.com/transaction/${i}`,
+  //       transaction_date: new Date(),
+  //       token: `token-${i}`,
+  //       message: `Transaction ${i}`,
+  //       total_payment: 5000000 + i * 100000,
+  //       user_id: userIds[i % userIds.length],
+  //       base_amount: 
+  //     }
+  //   });
+  //   transactionIds.push(transaction.transaction_id);
+  // }
 
   // Create tickets
   console.log('Creating tickets...');

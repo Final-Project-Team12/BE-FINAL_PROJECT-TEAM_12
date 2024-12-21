@@ -30,10 +30,10 @@ async function getUserById(user_id){
 }
 
 async function updateUserByEmail(email, data){
-    let userData = await prisma.users.update({
-        where: { email },
+    const userData = await prisma.users.update({
+        where: {email},
         data
-    });
+    })
 
     return userData;
 }
@@ -43,15 +43,6 @@ async function updateUserById(user_id, data){
         where: { user_id },
         data
     });
-
-    return userData;
-}
-
-async function updateUserByEmail(email, data){
-    const userData = await prisma.users.update({
-        where: {email},
-        data
-    })
 
     return userData;
 }

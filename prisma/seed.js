@@ -37,8 +37,8 @@ async function main() {
         gender: i % 2 === 0 ? "Male" : "Female",
         identity_number: `1234567890${i}`,
         age: 20 + i,
-        role: i % 2 === 0 ? "Admin" : "User",
-      },
+        role: i % 2 === 0 ? "admin" : "user",
+      }
     });
     userIds.push(user.user_id);
   }

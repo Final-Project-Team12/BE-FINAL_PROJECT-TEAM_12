@@ -1,7 +1,13 @@
+const dotenv = require('dotenv');
 if (process.env.NODE_ENV !== 'production') {
-  require('dotenv').config();
+  if(process.env.NODE_ENV === 'test'){
+    dotenv.config({ path: '.env.test' });
+  }
+  else{
+    dotenv.config({ path: '.env' });
+  }
 }
-require("dotenv").config();
+
 const express = require("express");
 const { PrismaClient } = require("@prisma/client");
 const bodyParser = require("body-parser");
@@ -17,9 +23,7 @@ const errorHandler = require('./middlewares/errorHandler');
 
 const googleAuthRoutes = require('./routes/googleAuthRoutes');
 const ticketListingRoutes = require("./routes/flightsRoutes");
-const paginationRoutes = require('./routes/paginationRoutes')
 const userRoutes = require('./routes/userRoutes');
-const seatRoutes = require('./routes/seatRoutes');
 const airportRoutes = require('./routes/airportRoutes');
 const airlineRoutes = require("./routes/airlineRoutes");
 const forgotPasswordRoutes = require("./routes/forgotPasswordRoutes");
@@ -38,8 +42,6 @@ app.use(bodyParser.json());
 const routers = [
   googleAuthRoutes,
   ticketListingRoutes,
-  paginationRoutes,
-  seatRoutes,
   forgotPasswordRoutes,
   transactionRoutes,
   //gak semuanya kena auth
@@ -75,6 +77,11 @@ app.use((err, req, res, next) => {
 // Start Server
 
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
-  console.log(`Server running on http://localhost:${PORT} zefanya tanpa pemanis buatan`);
-});
+
+if (process.env.NODE_ENV !== 'test') {
+  app.listen(PORT, () => {
+    console.log(`Server running on http://localhost:${PORT}`);
+  });
+}
+
+module.exports = app;

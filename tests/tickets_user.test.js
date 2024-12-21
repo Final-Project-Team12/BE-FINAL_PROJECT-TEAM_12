@@ -115,6 +115,44 @@ describe('TicketsController User Tests', () => {
         });
     });
 
+    it('should return tickets for a valid transaction ID and return 200', async () => {
+        const response = await request(app)
+            .get(`/api/v1/ticket/${transactionId}`)
+            .set('Authorization', `Bearer ${jwtToken}`);
+
+        expect(response.status).toBe(200);
+        expect(response.body).toMatchObject({
+            status: 200,
+            message: 'Tickets details retrieved successfully',
+            data: expect.arrayContaining([
+                {
+                    ticket_id: expect.any(Number),
+                    passenger_name: expect.any(String),
+                    seat_number: expect.any(String),
+                    class: expect.any(String),
+                    flight_number: expect.any(String),
+                    airline: expect.any(String),
+                    departure_time: expect.any(String),
+                    departure_airport: expect.any(String),
+                    arrival_airport: expect.any(String),
+                },
+            ]),
+        });
+    });
+
+    it('should return 404 for a non-existing transaction ID in GET /api/v1/ticket/:transactionId', async () => {
+        const response = await request(app)
+            .get('/api/v1/ticket/9999') // Assuming 9999 does not exist
+            .set('Authorization', `Bearer ${jwtToken}`);
+
+        expect(response.status).toBe(404);
+        expect(response.body).toMatchObject({
+            message: 'Tickets not found',
+            status: 404,
+        });
+    });
+
+
     // FOR INTERNAL SERVER ERROR
     it('should return 500 for an internal server error in POST /api/v1/ticket', async () => {
         jest.spyOn(prisma.ticket, 'createMany').mockImplementation(() => {

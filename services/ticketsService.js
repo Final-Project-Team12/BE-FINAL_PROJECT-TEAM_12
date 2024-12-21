@@ -1,9 +1,8 @@
 const { PrismaClient } = require("@prisma/client");
 const prisma = new PrismaClient();
 
-async function createTicket(ticketData) {
+async function createTickets(transaction_id) {
     try {
-        const { transaction_id, plane_id, passenger_id, seat_id } = ticketData;
         const existingTransaction = await prisma.transaction.findUnique({
             where: { 
                 transaction_id: parseInt(transaction_id)
@@ -13,7 +12,13 @@ async function createTicket(ticketData) {
                     include: {
                         passenger: true,
                         seat: true,
-                        plane: true
+                        plane: {
+                            include: {
+                                airline: true,
+                                origin_airport: true,
+                                destination_airport: true
+                            }
+                        }
                     }
                 }
             }
@@ -23,23 +28,22 @@ async function createTicket(ticketData) {
             throw new Error("INVALID_TRANSACTION");
         }
 
-        const existingTicket = existingTransaction.tickets[0];
-        if (!existingTicket) {
-            throw new Error("NO_TICKET_FOUND");
-        }
-        if (parseInt(plane_id) !== existingTicket.plane_id) {
-            throw new Error("INVALID_PLANE_ID");
-        }
-        if (parseInt(passenger_id) !== existingTicket.passenger_id) {
-            throw new Error("INVALID_PASSENGER_ID");
-        }
-        if (parseInt(seat_id) !== existingTicket.seat_id) {
-            throw new Error("INVALID_SEAT_ID");
+        if (!existingTransaction.tickets || existingTransaction.tickets.length === 0) {
+            throw new Error("NO_TICKETS_FOUND");
         }
 
-        const ticket = await prisma.ticket.findFirst({
+        return existingTransaction.tickets;
+    } catch (error) {
+        console.error("[Error in createTickets]:", error);
+        throw error;
+    }
+}
+
+async function updateTicket(ticket_id, updateData) {
+    try {
+        const ticket = await prisma.ticket.findUnique({
             where: { 
-                transaction_id: parseInt(transaction_id)
+                ticket_id: parseInt(ticket_id)
             },
             include: {
                 passenger: true,
@@ -50,47 +54,33 @@ async function createTicket(ticketData) {
                         origin_airport: true,
                         destination_airport: true
                     }
-                },
-                transaction: true
+                }
             }
-        });
-
-        return ticket;
-    } catch (error) {
-        console.error("[Error in createTicket]:", error);
-        throw error;
-    }
-}
-
-async function updateTicket(ticket_id, updateData) {
-    try {
-        const ticket = await prisma.ticket.findUnique({
-            where: { ticket_id: parseInt(ticket_id) },
-            include: {
-                transaction: true,
-                passenger: true,
-                seat: true,
-                plane: true
-            },
         });
 
         if (!ticket) {
             throw new Error("TICKET_NOT_FOUND");
         }
 
-        if (ticket.transaction.status === "COMPLETED") {
-            throw new Error("TICKET_ALREADY_USED");
-        }
-
-        return await prisma.ticket.update({
-            where: { ticket_id: parseInt(ticket_id) },
+        const updatedTicket = await prisma.ticket.update({
+            where: { 
+                ticket_id: parseInt(ticket_id)
+            },
             data: updateData,
             include: {
                 passenger: true,
                 seat: true,
-                plane: true,
-            },
+                plane: {
+                    include: {
+                        airline: true,
+                        origin_airport: true,
+                        destination_airport: true
+                    }
+                }
+            }
         });
+
+        return updatedTicket;
     } catch (error) {
         console.error("[Error in updateTicket]:", error);
         throw error;
@@ -100,23 +90,22 @@ async function updateTicket(ticket_id, updateData) {
 async function deleteTicket(ticket_id) {
     try {
         const ticket = await prisma.ticket.findUnique({
-            where: { ticket_id: parseInt(ticket_id) },
-            include: {
-                transaction: true,
-            },
+            where: { 
+                ticket_id: parseInt(ticket_id)
+            }
         });
 
         if (!ticket) {
             throw new Error("TICKET_NOT_FOUND");
         }
 
-        if (ticket.transaction.status === "COMPLETED") {
-            throw new Error("TICKET_ALREADY_USED");
-        }
-
-        return await prisma.ticket.delete({
-            where: { ticket_id: parseInt(ticket_id) },
+        await prisma.ticket.delete({
+            where: { 
+                ticket_id: parseInt(ticket_id)
+            }
         });
+
+        return true;
     } catch (error) {
         console.error("[Error in deleteTicket]:", error);
         throw error;
@@ -124,7 +113,7 @@ async function deleteTicket(ticket_id) {
 }
 
 module.exports = {
-    createTicket,
+    createTickets,
     updateTicket,
-    deleteTicket,
+    deleteTicket
 };

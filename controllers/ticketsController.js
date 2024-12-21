@@ -2,65 +2,63 @@ const ticketsService = require('../services/ticketsService');
 const QRCode = require('qrcode');
 
 const ticketsController = {
-    createTicket: async (req, res) => {
+    createTickets: async (req, res) => {
         try {
-            const { transaction_id, plane_id, passenger_id, seat_id } = req.body;
-            if (!transaction_id || !plane_id || !passenger_id || !seat_id) {
+            const { transaction_id } = req.body;
+            
+            if (!transaction_id) {
                 return res.status(400).json({
-                    message: 'All fields (transaction_id, plane_id, passenger_id, seat_id) are required',
-                    status: 400,
+                    message: 'Transaction ID is required',
+                    status: 400
                 });
             }
 
-            const result = await ticketsService.createTicket({ 
-                transaction_id, 
-                plane_id, 
-                passenger_id, 
-                seat_id 
-            });
-            
-            // Generate QR Code dengan informasi tiket
-            const qrCodeData = {
-                ticket_id: result.ticket_id,
-                passenger: result.passenger.full_name,
-                seat: result.seat.seat_number,
-                flight_number: result.plane.plane_code,
-                airline: result.plane.airline.airline_name,
-                class: result.seat.class,
-                departure_time: result.plane.departure_time,
-                from: result.plane.origin_airport.airport_code,
-                to: result.plane.destination_airport.airport_code
-            };
+            const tickets = await ticketsService.createTickets(transaction_id);
 
-            const qrCode = await QRCode.toDataURL(JSON.stringify(qrCodeData));
-            
-            return res.status(201).json({
-                status: 201,
-                message: 'Ticket issued successfully',
-                data: {
+            // Generate QR codes for all tickets
+            const ticketResponses = await Promise.all(tickets.map(async (ticket) => {
+                const qrCodeData = {
+                    ticket_id: ticket.ticket_id,
+                    passenger: ticket.passenger.full_name,
+                    seat: ticket.seat.seat_number,
+                    flight_number: ticket.plane.plane_code,
+                    airline: ticket.plane.airline.airline_name,
+                    class: ticket.seat.class,
+                    departure_time: ticket.plane.departure_time,
+                    from: ticket.plane.origin_airport.airport_code,
+                    to: ticket.plane.destination_airport.airport_code
+                };
+
+                const qrCode = await QRCode.toDataURL(JSON.stringify(qrCodeData));
+
+                return {
                     ticket_details: {
-                        ticket_id: result.ticket_id,
-                        passenger_name: result.passenger.full_name,
-                        seat_number: result.seat.seat_number,
-                        class: result.seat.class,
-                        flight_number: result.plane.plane_code,
-                        airline: result.plane.airline.airline_name,
-                        departure_time: result.plane.departure_time,
-                        departure_airport: result.plane.origin_airport.airport_code,
-                        arrival_airport: result.plane.destination_airport.airport_code
+                        ticket_id: ticket.ticket_id,
+                        passenger_name: ticket.passenger.full_name,
+                        seat_number: ticket.seat.seat_number,
+                        class: ticket.seat.class,
+                        flight_number: ticket.plane.plane_code,
+                        airline: ticket.plane.airline.airline_name,
+                        departure_time: ticket.plane.departure_time,
+                        departure_airport: ticket.plane.origin_airport.airport_code,
+                        arrival_airport: ticket.plane.destination_airport.airport_code
                     },
                     qrCode
-                }
+                };
+            }));
+
+            return res.status(201).json({
+                status: 201,
+                message: 'Tickets issued successfully',
+                data: ticketResponses
             });
         } catch (error) {
-            console.error('Create ticket error:', error);
+            console.error('Create tickets error:', error);
             
             const errorMessages = {
-                'NO_TICKET_FOUND': 'No ticket found for this transaction',
                 'INVALID_TRANSACTION': 'Invalid transaction ID',
-                'INVALID_PLANE_ID': 'Plane ID does not match the transaction',
-                'INVALID_PASSENGER_ID': 'Passenger ID does not match the transaction',
-                'INVALID_SEAT_ID': 'Seat ID does not match the transaction'
+                'NO_TICKETS_FOUND': 'No tickets found for this transaction',
+                'TICKETS_ALREADY_PROCESSED': 'Tickets have already been processed for this transaction'
             };
 
             if (errorMessages[error.message]) {
@@ -152,7 +150,7 @@ const ticketsController = {
 
             return res.status(500).json({
                 message: 'Internal server error',
-                status: 201
+                status: 500
             });
         }
     }

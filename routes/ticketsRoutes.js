@@ -6,7 +6,7 @@ const restrictJwt = require('../middlewares/restrictJwt');
 
 const restrictedRoutes = express.Router();
 
-restrictedRoutes.post('', ticketsController.createTicket);
+restrictedRoutes.post('', ticketsController.createTickets);
 restrictedRoutes.put('/:ticket_id', ticketsController.updateTicket);
 restrictedRoutes.delete('/:ticket_id', ticketsController.deleteTicket);
 

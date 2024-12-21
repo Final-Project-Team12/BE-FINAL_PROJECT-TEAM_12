@@ -31,20 +31,49 @@ const transactionsController = {
 
     createTransaction: async (req, res) => {
         try {
-            const { userData, passengerData, seatSelections, planeId } = req.body;
-            
-            const result = await transactionsService.createTransaction(
-                userData,
-                passengerData,
-                seatSelections,
-                planeId
-            );
+            const { 
+                userData, 
+                passengerData, 
+                seatSelections, 
+                planeId,
+                isRoundTrip,
+                returnPlaneId,
+                returnSeatSelections 
+            } = req.body;
+
+            if (isRoundTrip && (!returnPlaneId || !returnSeatSelections)) {
+                return res.status(400).json({
+                    message: 'Return flight details are required for round trip',
+                    status: 400
+                });
+            }
+
+            let result;
+
+            if (!isRoundTrip) {
+                result = await transactionsService.createTransaction(
+                    userData,
+                    passengerData,
+                    seatSelections,
+                    planeId
+                );
+            } else {
+                result = await transactionsService.createRoundTripTransaction(
+                    userData,
+                    passengerData,
+                    seatSelections,
+                    planeId,
+                    returnSeatSelections,
+                    returnPlaneId
+                );
+            }
 
             return res.status(201).json({
-                message: 'Transaction created successfully',
+                message: isRoundTrip ? 'Round trip transaction created successfully' : 'Transaction created successfully',
                 status: 201,
                 data: result
             });
+
         } catch (error) {
             console.error('Create transaction error:', error);
 
@@ -69,6 +98,13 @@ const transactionsController = {
                 });
             }
 
+            if (error.message === 'INVALID_PLANE_ID') {
+                return res.status(404).json({
+                    message: 'Invalid plane ID provided',
+                    status: 404
+                });
+            }
+
             if (error.message === 'PLANE_NOT_FOUND') {
                 return res.status(404).json({
                     message: 'Selected plane not found',
@@ -80,6 +116,13 @@ const transactionsController = {
                 return res.status(409).json({
                     message: 'One or more selected seats are no longer available',
                     status: 409
+                });
+            }
+
+            if (error.message === 'INVALID_RETURN_FLIGHT') {
+                return res.status(400).json({
+                    message: 'Invalid return flight details',
+                    status: 400
                 });
             }
 

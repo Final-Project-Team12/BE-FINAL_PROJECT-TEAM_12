@@ -1,10 +1,11 @@
 const request = require('supertest');
 const app = require('../app');
 const { PrismaClient } = require('@prisma/client');
-const jwt = require('jsonwebtoken');
 require('dotenv').config({ path: '.env' });
 
 const prisma = new PrismaClient();
+const jwt = require('jsonwebtoken');
+
 const jwtToken = jwt.sign(
     { user_id: 11, user_email: 'dummyemail@gmail.com', user_role: 'user' },
     process.env.JWT_SECRET || 'jwt-b1n4r14n',
@@ -18,23 +19,14 @@ describe('TicketsController User Tests', () => {
         await prisma.$connect();
         console.log('Database connected');
 
-        // Create dummy user and transaction
-        const user = await prisma.users.upsert({
-            where: { email: 'dummyemail@gmail.com' },
-            update: {},
-            create: {
-                name: 'Dummy User',
-                telephone_number: '0812345678',
-                email: 'dummyemail@gmail.com',
-                password: 'hashedpassword',
-                address: 'Smith Road Number 10',
-                gender: 'male',
-                identity_number: '127123456789',
-                age: 20,
-                role: 'user',
-                verified: true,
-            },
+        const existingTransaction = await prisma.transaction.findFirst({
+            where: { token: 'dummy_token' },
         });
+
+        if (existingTransaction) {
+            await prisma.ticket.deleteMany({ where: { transaction_id: existingTransaction.transaction_id } });
+            await prisma.transaction.delete({ where: { transaction_id: existingTransaction.transaction_id } });
+        }
 
         const transaction = await prisma.transaction.create({
             data: {
@@ -46,7 +38,7 @@ describe('TicketsController User Tests', () => {
                 base_amount: 100,
                 tax_amount: 10,
                 total_payment: 110,
-                user_id: user.user_id,
+                user_id: 11,
             },
         });
 
@@ -54,9 +46,15 @@ describe('TicketsController User Tests', () => {
     });
 
     afterAll(async () => {
-        await prisma.ticket.deleteMany({});
-        await prisma.transaction.deleteMany({});
-        await prisma.users.deleteMany({ where: { email: 'dummyemail@gmail.com' } });
+        const transaction = await prisma.transaction.findFirst({
+            where: { token: 'dummy_token' },
+        });
+
+        if (transaction) {
+            await prisma.ticket.deleteMany({ where: { transaction_id: transaction.transaction_id } });
+            await prisma.transaction.delete({ where: { transaction_id: transaction.transaction_id } });
+        }
+
         await prisma.$disconnect();
     });
 

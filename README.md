@@ -72,12 +72,29 @@ Follow these steps to run the frontend project locally:
    ```
 5. Create `.env` file:
 ```env
+# Database Configuration
 DB_USERNAME=your_db_username
 DB_PASSWORD=your_db_password
 DB_NAME=your_db_name
 DB_HOST=your_db_host
+
+# Authentication
 JWT_SECRET=your_jwt_secret
+JWT_EXPIRES_IN=24h
+
+# Email Service
+SMTP_HOST=your_smtp_host
+SMTP_PORT=your_smtp_port
+SMTP_USER=your_smtp_user
+SMTP_PASS=your_smtp_pass
+
+# Payment Gateway
 MIDTRANS_SERVER_KEY=your_midtrans_key
+MIDTRANS_CLIENT_KEY=your_midtrans_client_key
+
+# OAuth
+GOOGLE_CLIENT_ID=your_google_client_id
+GOOGLE_CLIENT_SECRET=your_google_client_secret
 ```
 ## API Documentation
 
@@ -258,3 +275,40 @@ The API returns standard HTTP status codes:
    ]
 }
 ```
+#### User Schema
+```json
+{
+  "name": "string",
+  "email": "string",
+  "password": "string",
+  "phone": "string",
+  "address": "string"
+}
+```
+
+#### Flight Search Schema
+```json
+{
+  "from": "string",
+  "to": "string",
+  "departureDate": "YYYY-MM-DD",
+  "returnDate": "YYYY-MM-DD",
+  "passengers": {
+    "adult": "number",
+    "child": "number",
+    "infant": "number"
+  },
+  "class": "Economy|Business|First"
+}
+```
+## Table of Contents
+- [Teams](#teams)
+- [Project Overview](#project-overview)
+- [Technology Stack](#technology-stack)
+- [Getting Started](#getting-started)
+  - [Prerequisites](#prerequisites)
+  - [Installation](#installation)
+- [API Documentation](#api-documentation)
+- [Development Guidelines](#development-guidelines)
+- [Deployment](#deployment)
+## Getting Started

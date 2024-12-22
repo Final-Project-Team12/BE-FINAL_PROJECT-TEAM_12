@@ -38,24 +38,83 @@ async function main() {
         identity_number: `1234567890${i}`,
         age: 20 + i,
         role: i % 2 === 0 ? "admin" : "user",
-      }
+      },
     });
     userIds.push(user.user_id);
   }
 
+  const airlines = [
+    {
+      name: "Lion Air",
+      image:
+        "https://ik.imagekit.io/72mu50jam/Lion_Air-Logo.wine.svg?updatedAt=1733919579303",
+    },
+    {
+      name: "Air Asia",
+      image:
+        "https://ik.imagekit.io/72mu50jam/AirAsia_New_Logo.svg.png?updatedAt=1733919715163",
+    },
+    {
+      name: "Garuda Indonesia",
+      image:
+        "https://ik.imagekit.io/72mu50jam/garuda-indonesia-logo-8A90F09D68-seeklogo.com.png?updatedAt=1733325174717",
+    },
+    {
+      name: "Etihad Airways",
+      image:
+        "https://ik.imagekit.io/72mu50jam/etihad.png?updatedAt=1734886002218",
+    },
+    {
+      name: "Oman Air",
+      image:
+        "https://ik.imagekit.io/72mu50jam/oman-air-logo-4FCF52F691-seeklogo.com.png?updatedAt=1734887459453",
+    },
+    {
+      name: "Qatar Airways",
+      image:
+        "https://ik.imagekit.io/72mu50jam/800px-Qatar_Airways_Logo.png?updatedAt=1734886002596",
+    },
+    {
+      name: "Citilink",
+      image:
+        "https://ik.imagekit.io/72mu50jam/citi-logo.png?updatedAt=1734886002915",
+    },
+    {
+      name: "Fly Emirates",
+      image:
+        "https://ik.imagekit.io/72mu50jam/373-3737047_request-a-demo-fly-emirates-logo-png.png?updatedAt=1734886003276",
+    },
+    {
+      name: "Batik Air",
+      image:
+        "https://ik.imagekit.io/72mu50jam/Logo%20Batik%20Air%20(Cover).png?updatedAt=1734886003832",
+    },
+  ];
+
   const airlineIds = [];
-  for (let i = 1; i <= 10; i++) {
+  for (let i = 0; i < airlines.length; i++) {
     const airline = await prisma.airline.create({
       data: {
-        airline_name: "Garuda Indonesia",
-        image_url:
-          "https://ik.imagekit.io/72mu50jam/garuda-indonesia-logo-8A90F09D68-seeklogo.com.png?updatedAt=1733325174717",
-        times_used: i * 10,
-        file_id: `file-id-${i}`,
+        airline_name: airlines[i].name,
+        image_url: airlines[i].image,
+        times_used: (i + 1) * 10,
+        file_id: `file-id-${i + 1}`,
       },
     });
     airlineIds.push(airline.airline_id);
   }
+
+  const airportImages = [
+    "https://ik.imagekit.io/72mu50jam/RA_Pianemoisland_indtravel.jpg-2-1024x683%20(1).jpg?updatedAt=1733919247935",
+    "https://ik.imagekit.io/72mu50jam/71BBFEDE-473D-4F4E-82522A2197279310.jpeg?updatedAt=1733919247478",
+    "https://ik.imagekit.io/72mu50jam/1474116741_destination_for_malaysian_24343.jpg?updatedAt=1733919246551",
+    "https://ik.imagekit.io/72mu50jam/Dubai-United-Arab-Emirates-Burj-Khalifa-top.jpg?updatedAt=1733324845922",
+    "https://ik.imagekit.io/72mu50jam/Russia.jpg?updatedAt=1734886402647",
+    "https://ik.imagekit.io/72mu50jam/amsterdam.jpg?updatedAt=1734886403708",
+    "https://ik.imagekit.io/72mu50jam/new%20zealand.jpg?updatedAt=1734886403861",
+    "https://ik.imagekit.io/72mu50jam/swiss.jpg?updatedAt=1734886404090",
+    "https://ik.imagekit.io/72mu50jam/japan.jpg?updatedAt=1734886405616",
+  ];
 
   const airportIds = [];
   const countries = [
@@ -79,8 +138,7 @@ async function main() {
         name: `${country.name}`,
         address: `Alamat ${country.name}`,
         airport_code: `${country.name.slice(0, 3)}${i}`,
-        image_url:
-          "https://ik.imagekit.io/72mu50jam/Dubai-United-Arab-Emirates-Burj-Khalifa-top.jpg?updatedAt=1733324845922",
+        image_url: airportImages[i % airportImages.length],
         file_id: `airport-file-id-${i}`,
         continent_id: continentIds[continents.indexOf(country.continent)],
       },
@@ -114,20 +172,36 @@ async function main() {
     });
     planeIds.push(plane.plane_id);
 
-    // Create seats for each plane
+    // Create seats for each plane with different classes and prices
     const seatRows = ["A", "B", "C", "D", "E", "F"];
-    const numRows = 12;
+    const numRows = 24; // Increased rows to accommodate all classes
 
     for (let row = 1; row <= numRows; row++) {
       for (let col of seatRows) {
         const seatNumber = `${col}${row}`;
-        const seatClass = row <= 3 ? "Business" : "Economy";
+        let seatClass;
+        let price;
+
+        // Determine seat class and price based on row number
+        if (row <= 3) {
+          seatClass = "First Class";
+          price = 18000000; // 18 juta
+        } else if (row <= 8) {
+          seatClass = "Business";
+          price = 12000000; // 12 juta
+        } else if (row <= 14) {
+          seatClass = "Premium Economy";
+          price = 6000000; // 6 juta
+        } else {
+          seatClass = "Economy";
+          price = 3000000; // 3 juta
+        }
 
         await prisma.seat.create({
           data: {
             seat_number: seatNumber,
             class: seatClass,
-            price: 1000000,
+            price: price,
             plane_id: plane.plane_id,
             is_available: true,
             version: 0,
@@ -158,17 +232,33 @@ async function main() {
     });
     planeIds.push(reversePlane.plane_id);
 
-    // Create seats for reverse plane
+    // Create seats for reverse plane with different classes and prices
     for (let row = 1; row <= numRows; row++) {
       for (let col of seatRows) {
         const seatNumber = `${col}${row}`;
-        const seatClass = row <= 3 ? "Business" : "Economy";
+        let seatClass;
+        let price;
+
+        // Determine seat class and price based on row number
+        if (row <= 3) {
+          seatClass = "First Class";
+          price = 18000000;
+        } else if (row <= 8) {
+          seatClass = "Business";
+          price = 12000000;
+        } else if (row <= 14) {
+          seatClass = "Premium Economy";
+          price = 6000000;
+        } else {
+          seatClass = "Economy";
+          price = 3000000;
+        }
 
         await prisma.seat.create({
           data: {
             seat_number: seatNumber,
             class: seatClass,
-            price: 100000,
+            price: price,
             plane_id: reversePlane.plane_id,
             is_available: true,
             version: 0,
@@ -196,8 +286,8 @@ async function main() {
 
   const transactionIds = [];
   for (let i = 1; i <= 10; i++) {
-    const baseAmount = 1000000; // Misalkan harga dasar
-    const taxAmount = Math.round(baseAmount * 0.1); // Pajak 10%
+    const baseAmount = 1000000;
+    const taxAmount = Math.round(baseAmount * 0.1);
     const totalPayment = baseAmount + taxAmount;
 
     const transaction = await prisma.transaction.create({

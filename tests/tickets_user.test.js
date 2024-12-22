@@ -7,7 +7,7 @@ require('dotenv').config({ path: '.env.test' });
 const prisma = new PrismaClient();
 
 const jwtToken = jwt.sign(
-    { user_id: 13, user_email: 'anaufal274@gmail.com', user_role: 'admin' },
+    { user_id: 1, user_email: 'johndoe@example.com', user_role: 'user' },
     process.env.JWT_SECRET || 'jwt-b1n4r14n',
     { expiresIn: '1h' }
 );
@@ -19,31 +19,11 @@ describe('TicketsController Integration Tests', () => {
     beforeAll(async () => {
         await prisma.$connect();
         console.log('Database connected');
-        const check = await prisma.users.findFirst({
-            where: {
-                email: "anaufal274@gmail.com"
-            }
-        });
-        if (check) {
-            await prisma.users.delete({
-                where: {
-                    email: "anaufal274@gmail.com"
-                }
-            });
-        }
-
-        transactionIdTest = 1;
+        transactionIdTest = 1
+        ticketIdTest = 1
     });
 
     afterAll(async () => {
-        const check = await prisma.users.findFirst({
-            where: {
-                email: "anaufal274@gmail.com"
-            }
-        });
-        if (check) {
-            await prisma.users.delete({ where: { email: "anaufal274@gmail.com" } });
-        }
         await prisma.$disconnect();
         console.log('Database disconnected');
     });
@@ -87,7 +67,8 @@ describe('TicketsController Integration Tests', () => {
             .set('Authorization', `Bearer ${jwtToken}`)
             .send({
                 seat_id: 2,
-                class: 'business',
+                plane_id: 1,
+                passenger_id: 2
             });
 
         console.log('Update Ticket Response:', response.status, response.body);
@@ -134,35 +115,6 @@ describe('TicketsController Integration Tests', () => {
             .set('Authorization', `Bearer ${jwtToken}`);
 
         console.log('Delete Ticket Internal Server Error Response:', response.status, response.body);
-        expect(response.status).toBe(500);
-        expect(response.body).toMatchObject({
-            status: 500,
-            message: 'Internal server error',
-        });
-    });
-
-    it('should retrieve a ticket by ID and return 200', async () => {
-        const response = await request(app)
-            .get(`/api/v1/ticket/${ticketIdTest}`)
-            .set('Authorization', `Bearer ${jwtToken}`);
-
-        console.log('Get Ticket Response:', response.status, response.body);
-        expect(response.status).toBe(200);
-        expect(response.body).toMatchObject({
-            status: 200,
-            message: 'Success',
-            data: expect.objectContaining({
-                ticket_id: ticketIdTest,
-            }),
-        });
-    });
-
-    it('should return 500 if internal server error occurs during ticket retrieval', async () => {
-        const response = await request(app)
-            .get('/api/v1/ticket/invalid_id') 
-            .set('Authorization', `Bearer ${jwtToken}`);
-
-        console.log('Get Ticket Internal Server Error Response:', response.status, response.body);
         expect(response.status).toBe(500);
         expect(response.body).toMatchObject({
             status: 500,

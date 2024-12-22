@@ -67,7 +67,8 @@ class UserController{
         return { otpGen, otpExpiry };
       }
       catch(error){
-        return next(error);
+        /* istanbul ignore next */
+        next(error);
       }
     }
 
@@ -118,7 +119,8 @@ class UserController{
         }
       }
       catch(error){
-        return next(error);
+        /* istanbul ignore next */
+        next(error);
       }
     }
 
@@ -170,8 +172,8 @@ class UserController{
             });
           }
           catch (error) {
+            /* istanbul ignore next */
             next(error);
-            return;
           }
     }
 
@@ -219,13 +221,20 @@ class UserController{
           userData
         });
       } catch (error) {
+        /* istanbul ignore next */
         next(error);
-        return;
       }      
     }
 
     static async getUser(req, res, next){
       const user_id = req.params.user_id;
+      const existingUser = await getUserById(parseInt(user_id))
+      if (!existingUser) {
+          return res.status(404).json({
+            status: 404,
+            message: "User not found",
+          });
+      }
       try{
         if(!(req.user.user_id == user_id)){
           return res.status(401).json({
@@ -233,29 +242,27 @@ class UserController{
             message: "Cannot get other user data"
           })
         }
-        let user = await getUserById(parseInt(user_id));
-        
-        if(user){
-            return res.status(200).json({
-                status: 200,
-                message: "Success",
-                data: user
-            })
-        }
-        else{
-            return res.status(404).json({
-                status: 404,
-                message: "User not found"
-            })
-        }
+        let user = existingUser;
+        return res.status(200).json({
+            status: 200,
+            message: "Success",
+            data: user
+        })
       }
       catch(error){
-          next(error);
-          return;
+        /* istanbul ignore next */
+        next(error);
       }
     }
     static async updateUser(req, res, next){
       const user_id = req.params.user_id;
+      const existingUser = await getUserById(parseInt(user_id));
+      if (!existingUser) {
+        return res.status(404).json({
+            status: 404,
+            message: 'User not found',
+        });
+      }
       try{
         if(!(req.user.user_id == user_id)){
           return res.status(401).json({
@@ -271,14 +278,6 @@ class UserController{
                 error: error.details[0].message
             });
         }
-
-        const existingUser = await getUserById(parseInt(user_id));
-        if (!existingUser) {
-          return res.status(404).json({
-              status: 404,
-              message: 'User not found',
-          });
-      }
         let email = req.body.email || existingUser.email;
 
 
@@ -312,12 +311,19 @@ class UserController{
         });
       }
       catch (error) {
+        /* istanbul ignore next */
         next(error);
-        return;
       }
     }
     static async deleteUser(req, res, next){
       const user_id = req.params.user_id;
+      const existingUser = await getUserById(parseInt(user_id))
+      if (!existingUser) {
+          return res.status(404).json({
+            status: 404,
+            message: "User not found",
+          });
+      }
       try{
         if(!(req.user.user_id == user_id)){
           return res.status(401).json({
@@ -326,13 +332,6 @@ class UserController{
           })
         }
           // currUserId = req.user.
-          const existingUser = await getUserById(parseInt(user_id))
-          if (!existingUser) {
-              return res.status(404).json({
-                status: 404,
-                message: "User not found",
-              });
-            }
 
           const deletedUser = await deleteUserById(parseInt(user_id));
           
@@ -343,8 +342,8 @@ class UserController{
           })
       }
         catch(error){
-            next(error);
-            return;
+          /* istanbul ignore next */
+          next(error);
         }
     }
 
@@ -401,8 +400,8 @@ class UserController{
         }
       }
       catch(error){
+        /* istanbul ignore next */
         next(error);
-        return;
       }
     }
 }

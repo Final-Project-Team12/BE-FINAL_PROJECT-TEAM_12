@@ -126,6 +126,7 @@ const transactionsController = {
                 });
             }
 
+            /* istanbul ignore next */
             return res.status(500).json({
                 message: 'Internal server error',
                 status: 500

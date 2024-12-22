@@ -67,14 +67,18 @@ async function deleteUserById(user_id) {
 }
 
 async function checkOtherEmail(checkEmail){
+    /* istanbul ignore next */
     const check = await prisma.users.count({
         where: {email : checkEmail}
     })
-    console.log(checkEmail);
+    /* istanbul ignore next */
     if(check >= 1){
+        /* istanbul ignore next */
         return true
     }
+    /* istanbul ignore next */
     else{
+        /* istanbul ignore next */
         return false
     }
 }

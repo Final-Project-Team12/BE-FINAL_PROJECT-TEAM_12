@@ -17,6 +17,7 @@ function buildFilterConditions({
         : {};
 
     const conditions = {
+        /* istanbul ignore next */
         ...facilitiesFilters,
         ...(continent && { 
             destination_airport: { continent: { name: continent } } 

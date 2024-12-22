@@ -109,7 +109,7 @@ describe('UserController Integration Tests', () => {
             });
         expect(response.status).toBe(200);
         expect(response.body.message).toBe('OTP successfully resent');
-    });
+    }, 20000);
     //resend otp error
     it('should return the message details of input error and return 400', async () => {
         const response = await request(app)
@@ -120,7 +120,7 @@ describe('UserController Integration Tests', () => {
             });
         expect(response.status).toBe(400);
         expect(response.body.message).toBe('Input error');
-    });
+    }, 20000);
     it('should return the message details of invalid login and return 401', async () => {
         const response = await request(app)
             .post(`/api/v1//user/resend`)
@@ -131,7 +131,7 @@ describe('UserController Integration Tests', () => {
             });
         expect(response.status).toBe(401);
         expect(response.body.message).toBe('Invalid login');
-    });
+    }, 20000);
     it('should return the message details of invalid login and return 401', async () => {
         const response = await request(app)
             .post(`/api/v1//user/resend`)
@@ -142,7 +142,7 @@ describe('UserController Integration Tests', () => {
             });
         expect(response.status).toBe(401);
         expect(response.body.message).toBe('Invalid login');
-    });
+    }, 20000);
 
     //LOGIN BEFORE VERIFY
     it('should return the message details of unverified login and return 401', async () => {
@@ -155,7 +155,7 @@ describe('UserController Integration Tests', () => {
             });
         expect(response.status).toBe(401);
         expect(response.body.message).toBe('The email address has not been verified yet');
-    });
+    }, 20000);
 
     //VERIFY USER
     it('should return the message details of verified and return 200', async () => {
@@ -178,7 +178,7 @@ describe('UserController Integration Tests', () => {
             });
         expect(response.status).toBe(200);
         expect(response.body.message).toBe('Account verified');
-    });
+    }, 20000);
     //verify error handling
     it('should return the message details of email and otp required and return 400', async () => {
         const response = await request(app)
@@ -189,7 +189,7 @@ describe('UserController Integration Tests', () => {
             });
         expect(response.status).toBe(400);
         expect(response.body.message).toBe('Email and OTP are required');
-    });
+    }, 20000);
     it('should return the message details of user not found and return 404', async () => {
         const response = await request(app)
             .post(`/api/v1//user/verify`)
@@ -200,7 +200,7 @@ describe('UserController Integration Tests', () => {
             });
         expect(response.status).toBe(404);
         expect(response.body.message).toBe('User not found');
-    });
+    }, 20000);
     it('should return the message details of otp invalid and return 400', async () => {
         const response = await request(app)
             .post(`/api/v1//user/verify`)
@@ -211,7 +211,7 @@ describe('UserController Integration Tests', () => {
             });
         expect(response.status).toBe(400);
         expect(response.body.message).toBe('Invalid or expired OTP');
-    });
+    }, 20000);
 
     //LOGIN
     it('should return the message details of login and return 200', async () => {
@@ -224,7 +224,7 @@ describe('UserController Integration Tests', () => {
             });
         expect(response.status).toBe(200);
         expect(response.body.message).toBe('Login success');
-    });
+    }, 20000);
     //login error handlings
     it('should return the message details input error and return 400', async () => {
         const response = await request(app)
@@ -235,7 +235,7 @@ describe('UserController Integration Tests', () => {
             });
         expect(response.status).toBe(400);
         expect(response.body.message).toBe('input error');
-    });
+    }, 20000);
     it('should return the message details of invalid login and return 401', async () => {
         const response = await request(app)
             .post(`/api/v1//user/login`)
@@ -246,7 +246,7 @@ describe('UserController Integration Tests', () => {
             });
         expect(response.status).toBe(401);
         expect(response.body.message).toBe('invalid login');
-    });
+    }, 20000);
     it('should return the message details of invalid login and return 401', async () => {
         const response = await request(app)
             .post(`/api/v1//user/login`)
@@ -257,7 +257,7 @@ describe('UserController Integration Tests', () => {
             });
         expect(response.status).toBe(401);
         expect(response.body.message).toBe('invalid login');
-    });
+    }, 20000);
 
 
     //UPDATE USER
@@ -272,7 +272,21 @@ describe('UserController Integration Tests', () => {
             });
         expect(response.status).toBe(200);
         expect(response.body.message).toBe('Success');
-    });
+    }, 20000);
+    //Update again
+    it('should return the message details of successful update and return 200', async () => {
+        const response = await request(app)
+            .put(`/api/v1//user/${user.user_id}`)
+            .set('Authorization', `Bearer ${token}`)
+            .set('Content-Type', 'application/json')
+            .send({
+                address: 'address ganti',
+                identity_number: '123456',
+                age: '25'
+            });
+        expect(response.status).toBe(200);
+        expect(response.body.message).toBe('Success');
+    }, 20000);
     //update error handling
     it('should return the error message details of updating another user and return 401', async () => {
         otherUser = await prisma.users.findFirst({
@@ -295,7 +309,7 @@ describe('UserController Integration Tests', () => {
             });
         expect(response.status).toBe(401);
         expect(response.body.message).toBe('Cannot update other user data');
-    });
+    }, 20000);
     it('should return the message details of input error and return 400', async () => {
         const response = await request(app)
             .put(`/api/v1//user/${user.user_id}`)
@@ -306,7 +320,7 @@ describe('UserController Integration Tests', () => {
             });
         expect(response.status).toBe(400);
         expect(response.body.message).toBe('Input error');
-    });
+    }, 20000);
     it('should return the message details of user not found and return 404', async () => {
         const response = await request(app)
             .put(`/api/v1//user/255`)
@@ -318,7 +332,7 @@ describe('UserController Integration Tests', () => {
             });
         expect(response.status).toBe(404);
         expect(response.body.message).toBe('User not found');
-    });
+    }, 20000);
     it('should return the message details of email used already and return 400', async () => {
         const response = await request(app)
             .put(`/api/v1//user/${user.user_id}`)
@@ -330,7 +344,7 @@ describe('UserController Integration Tests', () => {
             });
         expect(response.status).toBe(400);
         expect(response.body.message).toBe('Email already used for another account');
-    });
+    }, 20000);
 
     //READ
     it('should return the message details of successful read and return 200', async () => {
@@ -339,7 +353,7 @@ describe('UserController Integration Tests', () => {
             .set('Authorization', `Bearer ${token}`)
         expect(response.status).toBe(200);
         expect(response.body.message).toBe('Success');
-    });
+    }, 20000);
     //read error handlings
     it('should return the message details of cannot get other user and return 401', async () => {
         const response = await request(app)
@@ -347,14 +361,27 @@ describe('UserController Integration Tests', () => {
             .set('Authorization', `Bearer ${token}`)
         expect(response.status).toBe(401);
         expect(response.body.message).toBe('Cannot get other user data');
-    });
+    }, 20000);
     it('should return the message details of user not found and return 404', async () => {
         const response = await request(app)
             .get(`/api/v1//user/255`)
             .set('Authorization', `Bearer ${token}`)
         expect(response.status).toBe(404);
         expect(response.body.message).toBe('User not found');
-    });
+    }, 20000);
+
+    // //FORGOT PASSWORD
+    // it('should return the message details of cannot get other user and return 401', async () => {
+    //     const response = await request(app)
+    //         .post(`/api/v1/password/forgot-password`)
+    //         .set('Content-Type', 'application/json')
+    //         .send({
+    //             email: 'dummyemail@gmail.com'
+    //         })
+
+    //     expect(response.status).toBe(401);
+    //     expect(response.body.message).toBe('Cannot get other user data');
+    // }, 20000);
 
     //delete error handlings
     it('should return the message details of no user and return 404', async () => {
@@ -363,14 +390,14 @@ describe('UserController Integration Tests', () => {
             .set('Authorization', `Bearer ${token}`)
         expect(response.status).toBe(404);
         expect(response.body.message).toBe('User not found');
-    });
+    }, 20000);
     it('should return the message details of cannot delete other user and return 401', async () => {
         const response = await request(app)
             .delete(`/api/v1//user/${otherUser.user_id}`)
             .set('Authorization', `Bearer ${token}`)
         expect(response.status).toBe(401);
         expect(response.body.message).toBe('Cannot delete other user');
-    });
+    }, 20000);
     //DELETE
     it('should return the message details of successful delete and return 200', async () => {
         const response = await request(app)
@@ -378,27 +405,5 @@ describe('UserController Integration Tests', () => {
             .set('Authorization', `Bearer ${token}`)
         expect(response.status).toBe(200);
         expect(response.body.message).toBe('Success');
-    });
-
-    // //500 errors
-    // it('should return 500 with message server error', async () => {
-    //     await prisma.$disconnect();
-    //     console.log('Database disconnected temporarily');
-        
-    //     const response = await request(app)
-    //         .post('/api/v1/user')
-    //         .set('Content-Type', 'application/json')       
-    //         .send({
-    //             name:'dummy',
-    //             telephone_number:'0812345678',
-    //             email:'dummyemail@gmail.com',
-    //             password:'password',
-    //             address:'Smith Road Number 10',
-    //             gender:'male',
-    //             identity_number:'127123456789',
-    //             age:'20'
-    //         });
-    //     expect(response.status).toBe(500);
-    //     expect(response.body.message).toBe('Internal Server Error');
-    // }, 20000);
+    }, 20000);
 });

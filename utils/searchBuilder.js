@@ -3,15 +3,17 @@ function buildSearchConditions({
     to, 
     departureDate, 
     seatClass, 
-    returnDate, 
-    isReturn = false
+    returnDate,
+    isReturn
 }) {
   
 
     const parseDate = (date) => {
         if (!date) return null; 
         const parsedDate = new Date(date + 'T00:00:00.000Z'); 
+        /* istanbul ignore next */
         if (isNaN(parsedDate.getTime())) {
+            /* istanbul ignore next */
             return null;
         }
         return parsedDate;

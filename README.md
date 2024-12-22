@@ -1,13 +1,26 @@
 # Flight Booking System Documentation
-
 ## Table of Contents
 - [Backend Team](#Backend-team)
+- [Project Overview](#project-overview)
 - [Project Setup](#project-setup)
 - [API Documentation](#api-documentation)
+- [Technology Stack](#technology-stack)
   - [Overview](#overview)
   - [Authentication](#authentication)
   - [Base URL](#base-url)
   - [API Endpoints](#api-endpoints)
+
+
+## Project Overview
+
+Our Flight Booking System is a comprehensive solution that enables users to:
+- Search and book flights
+- Manage bookings
+- Process payments
+- Receive notifications
+- Manage user profiles
+
+
 
 ## Backend Team
 
@@ -21,6 +34,24 @@
 | **Alif Naufal Taufiqi**|
 
 For tasks and progress, visit our ClickUp workspace: [ClickUp Tasks](https://app.clickup.com/9018681465/v/b/8crwa3t-458)
+## Technology Stack
+### Backend
+- Node.js
+- Express.js
+- PostgreSQL
+- Sequelize ORM
+- JSON Web Tokens (JWT)
+- Nodemailer
+- Midtrans Payment Gateway
+
+### Key Features
+- User authentication with email verification
+- Flight search with multiple filters
+- Secure payment processing
+- Booking management
+- Admin dashboard for system management
+- Real-time notifications
+- Google OAuth integration
 
 ## Project Setup
 Follow these steps to run the frontend project locally:
@@ -39,7 +70,15 @@ Follow these steps to run the frontend project locally:
    ```bash
    npm install
    ```
-
+5. Create `.env` file:
+```env
+DB_USERNAME=your_db_username
+DB_PASSWORD=your_db_password
+DB_NAME=your_db_name
+DB_HOST=your_db_host
+JWT_SECRET=your_jwt_secret
+MIDTRANS_SERVER_KEY=your_midtrans_key
+```
 ## API Documentation
 
 ### Overview

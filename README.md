@@ -1,7 +1,12 @@
-# 🛫 Flight Booking System Backend
 <div align="center">
+<!-- Premium 3D Animated Header -->
+<img src="https://capsule-render.vercel.app/api?type=venom&height=300&color=gradient&customColorList=0,2,2,5,30&text=Flight%20Booking%20System&desc=%20%20&animation=twinkling&fontSize=60&descSize=20&fontColor=d6ace6&theme=tokyonight" width="100%"/>
 
-![Flight Booking System](https://readme-typing-svg.demolab.com?font=Fira+Code&size=30&duration=3000&pause=1000&color=38F77CFF&center=true&vCenter=true&width=435&lines=Flight+Booking+System;Backend+Development;Team+12+Project)
+<!-- Futuristic Animated Banner -->
+<img src="https://raw.githubusercontent.com/Anmol-Baranwal/Cool-GIFs-For-GitHub/master/media/GLaDOS.gif" width="800">
+
+<!-- Dynamic Title Animation -->
+![Flight Booking System](https://readme-typing-svg.demolab.com?font=Fira+Code&size=30&duration=3000&pause=1000&color=38F77CFF&center=true&vCenter=true&width=435&lines=Backend+Development;Quick+Fly+Project)
 
 [![GitHub Stars](https://img.shields.io/github/stars/Final-Project-Team12/BE-FINAL_PROJECT-TEAM_12?style=social)](https://github.com/Final-Project-Team12/BE-FINAL_PROJECT-TEAM_12/stargazers)
 [![GitHub Forks](https://img.shields.io/github/forks/Final-Project-Team12/BE-FINAL_PROJECT-TEAM_12?style=social)](https://github.com/Final-Project-Team12/BE-FINAL_PROJECT-TEAM_12/network/members)
@@ -9,19 +14,55 @@
 [![GitHub Pull Requests](https://img.shields.io/github/issues-pr/Final-Project-Team12/BE-FINAL_PROJECT-TEAM_12)](https://github.com/Final-Project-Team12/BE-FINAL_PROJECT-TEAM_12/pulls)
 [![GitHub License](https://img.shields.io/github/license/Final-Project-Team12/BE-FINAL_PROJECT-TEAM_12)](https://github.com/Final-Project-Team12/BE-FINAL_PROJECT-TEAM_12/blob/main/LICENSE)
 
+
+<!-- Premium Tech Stack Header -->
+<img src="https://readme-typing-svg.demolab.com?font=Orbitron&weight=700&size=35&duration=1500&pause=500&color=A855F7&center=true&vCenter=true&repeat=false&width=700&lines=%F0%9F%8C%9F+Technology+Stack" alt="Tech Stack Title"/>
+
+<!-- Advanced Tech Animation -->
+<img src="https://user-images.githubusercontent.com/74038190/229223263-cf2e4b07-2615-4f87-9c38-e37600f8381a.gif" width="500">
+
+<!-- Premium Tech Stack Grid -->
+### Core Technologies
+![Node.js](https://img.shields.io/badge/Node.js-339933?style=for-the-badge&logo=nodedotjs&logoColor=white)
+![Express](https://img.shields.io/badge/Express-000000?style=for-the-badge&logo=express&logoColor=white)
+![Prisma](https://img.shields.io/badge/Prisma-2D3748?style=for-the-badge&logo=prisma&logoColor=white)
+![PostgreSQL](https://img.shields.io/badge/PostgreSQL-316192?style=for-the-badge&logo=postgresql&logoColor=white)
+
+### Security & Authentication
+![JWT](https://img.shields.io/badge/JWT-000000?style=for-the-badge&logo=JSON%20web%20tokens&logoColor=white)
+![Bcrypt](https://img.shields.io/badge/Bcrypt-003A70?style=for-the-badge&logo=lock&logoColor=white)
+
+### Email & Communication
+![Nodemailer](https://img.shields.io/badge/Nodemailer-339933?style=for-the-badge&logo=gmail&logoColor=white)
+![Google APIs](https://img.shields.io/badge/Google_APIs-4285F4?style=for-the-badge&logo=google&logoColor=white)
+
+### Development & Testing
+![Jest](https://img.shields.io/badge/Jest-C21325?style=for-the-badge&logo=jest&logoColor=white)
+![Nodemon](https://img.shields.io/badge/Nodemon-76D04B?style=for-the-badge&logo=nodemon&logoColor=white)
+
+### Additional Tools
+![QR Code](https://img.shields.io/badge/QR_Code-000000?style=for-the-badge&logo=qrcode&logoColor=white)
+![ImageKit](https://img.shields.io/badge/ImageKit-FF4C4C?style=for-the-badge&logo=image&logoColor=white)
+![Midtrans](https://img.shields.io/badge/Midtrans-0059FF?style=for-the-badge&logo=payment&logoColor=white)
+
+  <img src="https://media.giphy.com/media/WUlplcMpOCEmTGBtBW/giphy.gif" width="100">
+</p>
+
+<!-- Repository Views Counter with Animation -->
+  <img src="https://komarev.com/ghpvc/?username=Final-Project-Team12&label=Total%20Views&color=brightgreen&style=flat-square" alt="Views"/>
+<!-- Repository Views Counter with Animation -->
+
+<!-- Animated Separator -->
+<img src="https://user-images.githubusercontent.com/74038190/212284100-561aa473-3905-4a80-b561-0d28506553ee.gif" width="100%">
+<!-- Animated Separator -->
 </div>
 
-## 📚 Table of Contents
-- [Our Team](#-our-amazing-team)
-- [Key Features](#-key-features)
-- [Technology Stack](#️-technology-stack)
-- [Getting Started](#-getting-started)
+# 📚 Table of Contents
+- [Project Setup](#project-setup)
 - [API Documentation](#-api-documentation)
 - [Database Schema](#-database-schema)
-- [Testing](#-testing)
 - [Project Management](#-project-management)
-- [Contributing](#-contributing)
-- [License](#-license)
+- [Testing](#-testing)
 
 ## 👥 Our Amazing Team
 
@@ -30,6 +71,14 @@
 | <img src="https://readme-typing-svg.demolab.com?font=Fira+Code&weight=700&size=25&duration=1000&pause=100&color=FF7F50&center=true&vCenter=true&repeat=false&width=435&lines=Zefanya+Diego+Forlandicco" alt="Zefanya Diego Forlandicco" /> | <img src="https://readme-typing-svg.demolab.com?font=Fira+Code&weight=700&size=25&duration=1000&pause=100&color=FF7F50&center=true&vCenter=true&repeat=false&width=435&lines=Wahyu+Pinanda+Ginting" alt="Wahyu Pinanda Ginting" /> | <img src="https://readme-typing-svg.demolab.com?font=Fira+Code&weight=700&size=25&duration=1000&pause=100&color=FF7F50&center=true&vCenter=true&repeat=false&width=435&lines=Cornellius+Barros+Kangga" alt="Cornellius Barros Kangga" /> | <img src="https://readme-typing-svg.demolab.com?font=Fira+Code&weight=700&size=25&duration=1000&pause=100&color=FF7F50&center=true&vCenter=true&repeat=false&width=435&lines=Alif+Naufal+Taufiqi" alt="Alif Naufal Taufiqi" /> |
 |:---:|:---:|:---:|:---:|
 | Backend Developer | Backend Developer | Backend Developer | Backend Developer |
+
+</div>
+
+## 📝 Project Management
+
+<div align="center">
+
+[![ClickUp Tasks](https://img.shields.io/badge/ClickUp-Tasks-7B68EE)](https://app.clickup.com/9018681465/v/b/8crwa3t-458)
 
 </div>
 
@@ -51,6 +100,12 @@ All authenticated endpoints require a Bearer token:
 ```http
 Authorization: Bearer <your_token>
 ```
+<div align="center">
+
+<img src="https://user-images.githubusercontent.com/74038190/212284100-561aa473-3905-4a80-b561-0d28506553ee.gif" width="100%">
+
+</div>
+
 
 ### API Endpoints
 
@@ -165,6 +220,11 @@ The API returns standard HTTP status codes:
 | 404 | Not Found |
 | 500 | Internal Server Error |
 
+<div align="center">
+<img src="https://user-images.githubusercontent.com/74038190/212284100-561aa473-3905-4a80-b561-0d28506553ee.gif" width="100%">
+</div>
+
+
 ### Sample Requests
 
 #### User Schema
@@ -265,6 +325,12 @@ The API returns standard HTTP status codes:
     "planeId": 7
 }
 ```
+<div align="center">
+
+<img src="https://user-images.githubusercontent.com/74038190/212284100-561aa473-3905-4a80-b561-0d28506553ee.gif" width="100%">
+
+</div>
+
 ## 📊 Database Schema
 
 <div align="center">
@@ -492,6 +558,10 @@ model Users {
   transactions     Transaction[]
 }
 ```
+<div align="center">
+<img src="https://user-images.githubusercontent.com/74038190/212284100-561aa473-3905-4a80-b561-0d28506553ee.gif" width="100%">
+</div>
+
 
 ### Entity Relationships
 
@@ -520,31 +590,70 @@ model Users {
    - Each Airport belongs to one Continent
    - Each Airport can be the origin for multiple Planes
    - Each Airport can be the destination for multiple Planes
+     
+<div align="center">
+<img src="https://user-images.githubusercontent.com/74038190/212284100-561aa473-3905-4a80-b561-0d28506553ee.gif" width="100%">
+</div>
 
 ### Database Migration
 
 To apply this schema:
 
 1. Ensure your PostgreSQL database is running
-2. Update your `.env` file with the database connection URL:
+## Project Setup
+Follow these steps to run the frontend project locally:
+
+1. Clone the repository from GitHub:
+   ```bash
+   git clone https://github.com/Final-Project-Team12/BE-FINAL_PROJECT-TEAM_12
+   ```
+
+2. Navigate to the project directory:
+   ```bash
+   cd BE-FINAL_PROJECT-TEAM_12
+   ```
+
+3. Install dependencies:
+   ```bash
+   npm install
+   ```
+5. Create `.env` file:
 ```env
-DATABASE_URL="postgresql://username:password@localhost:5432/Quickfly?schema=public"
+# Database Configuration
+DB_USERNAME=your_db_username
+DB_PASSWORD=your_db_password
+DB_NAME=your_db_name
+DB_HOST=your_db_host
+
+# Authentication
+JWT_SECRET=your_jwt_secret
+JWT_EXPIRES_IN=24h
+
+# Email Service
+SMTP_HOST=your_smtp_host
+SMTP_PORT=your_smtp_port
+SMTP_USER=your_smtp_user
+SMTP_PASS=your_smtp_pass
+
+# Payment Gateway
+MIDTRANS_SERVER_KEY=your_midtrans_key
+MIDTRANS_CLIENT_KEY=your_midtrans_client_key
+
+# OAuth
+GOOGLE_CLIENT_ID=your_google_client_id
+GOOGLE_CLIENT_SECRET=your_google_client_secret
 ```
 
-3. Run Prisma migrations:
+6. Run Prisma migrations:
 ```bash
 # Generate migration
 npx prisma migrate dev --name init
-
-# Apply migration
-npx prisma migrate deploy
 ```
 
-4. Generate Prisma Client:
+7. Generate Prisma Client:
 ```bash
-npx prisma generate
+npm run start
 ```
-
 
 ## 🧪 Testing
 
@@ -558,26 +667,6 @@ npm test -- users.test.js
 # Run with coverage report
 npm run test:coverage
 ```
-
-## 📝 Project Management
-
-<div align="center">
-
-[![ClickUp Tasks](https://img.shields.io/badge/ClickUp-Tasks-7B68EE)](https://app.clickup.com/9018681465/v/b/8crwa3t-458)
-
-</div>
-
-## 🤝 Contributing
-
-1. Fork the repository
-2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
-3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
-4. Push to the branch (`git push origin feature/AmazingFeature`)
-5. Open a Pull Request
-
-## 📜 License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
 <div align="center">
 

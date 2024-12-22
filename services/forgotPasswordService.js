@@ -55,7 +55,7 @@ class ForgotPasswordService {
 
   static async resetPassword(email, newPassword, resetToken) {
     const decoded = jwt.verify(resetToken, process.env.JWT_SECRET);
-
+    
     if (decoded.email !== email) {
       throw new Error('Invalid reset token');
     }

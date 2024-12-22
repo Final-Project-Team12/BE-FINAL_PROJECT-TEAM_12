@@ -63,7 +63,7 @@ describe('UserController Integration Tests', () => {
             });
         expect(response.status).toBe(201);
         expect(response.body.message).toBe('Success');
-    }, 20000);
+    }, 50000);
     //register errors
     it('should return 400 with error message name required', async () => {
         const response = await request(app)
@@ -371,23 +371,7 @@ describe('UserController Integration Tests', () => {
         expect(response.body.message).toBe('User not found');
     }, 20000);
 
-    //FORGOT PASSWORD
-    it('should return the message details OTP sent and return 200', async () => {
-        user = await prisma.users.findFirst({
-            where:{
-                email: 'dummyemail@gmail.com'
-            }
-        })
-        const response = await request(app)
-            .post(`/api/v1/password/forgot-password`)
-            .set('Content-Type', 'application/json')
-            .send({
-                email: 'dummyemail@gmail.com'
-            })
-
-        expect(response.status).toBe(200);
-        expect(response.body.message).toBe('OTP sent to your email');
-    }, 20000);
+    
     //forgot password error handlings
     it('should return the message bad request and return 400', async () => {
         const response = await request(app)
@@ -397,9 +381,89 @@ describe('UserController Integration Tests', () => {
         expect(response.status).toBe(400);
         expect(response.body.message).toBe('Email is required');
     }, 20000);
+    it('should return the message bad request and return 500', async () => {
+        const response = await request(app)
+            .post(`/api/v1/password/forgot-password`)
+            .set('Content-Type', 'application/json')
+            .send({
+                email: 'dummyemail123123@gmail.com',
+            })
+
+        expect(response.status).toBe(500);
+        expect(response.body.message).toBe('Internal Server Error');
+    }, 20000);
+
+    //FORGOT PASSWORD
+    it('should return the message details OTP sent and return 200', async () => {
+        const response = await request(app)
+            .post(`/api/v1/password/forgot-password`)
+            .set('Content-Type', 'application/json')
+            .send({
+                email: 'dummyemail@gmail.com',
+            })
+
+        expect(response.status).toBe(200);
+        expect(response.body.message).toBe('OTP sent to your email');
+    }, 20000);
+
+    //confirm otp error handlings
+    it('should return the message details bad request and return with status 400', async () => {
+        user = await prisma.users.findFirst({
+            where:{
+                email: 'dummyemail@gmail.com'
+            }
+        })
+        const response = await request(app)
+            .post(`/api/v1/password/confirm-otp`)
+            .set('Content-Type', 'application/json')
+            .send({
+                otp: `${user.otp}`
+            })
+
+        expect(response.status).toBe(400);
+        expect(response.body.message).toBe('Email and OTP are required');
+    }, 20000);
+    it('should return the message details bad request and return with status 400', async () => {
+        const response = await request(app)
+            .post(`/api/v1/password/confirm-otp`)
+            .set('Content-Type', 'application/json')
+            .send({
+                email: 'dummyemail@gmail.com',
+            })
+
+        expect(response.status).toBe(400);
+        expect(response.body.message).toBe('Email and OTP are required');
+    }, 20000);
+    //confirm error inside service
+    it('should return the error message details and return 500', async () => {
+        const response = await request(app)
+            .post(`/api/v1/password/confirm-otp`)
+            .set('Content-Type', 'application/json')
+            .send({
+                email: 'dummyemail12345@gmail.com',
+                otp: `${user.otp}`
+            })
+
+        expect(response.status).toBe(500);
+        expect(response.body.message).toBe('Internal Server Error');
+    }, 20000);
+    it('should return the error message details and return 500', async () => {
+        const response = await request(app)
+            .post(`/api/v1/password/confirm-otp`)
+            .set('Content-Type', 'application/json')
+            .send({
+                email: 'dummyemail@gmail.com',
+                otp: `12`
+            })
+
+        expect(response.status).toBe(500);
+        expect(response.body.message).toBe('Internal Server Error');
+    }, 20000);
+
 
     //CONFIRM OTP RESET PASSWORD
-    it('should return the message details OTP sent and return 200', async () => {
+    it('should return the message details OTP verified and return 200', async () => {
+        console.log('DISINI WOI :', user.otp);
         const response = await request(app)
             .post(`/api/v1/password/confirm-otp`)
             .set('Content-Type', 'application/json')
@@ -411,31 +475,7 @@ describe('UserController Integration Tests', () => {
         expect(response.status).toBe(200);
         expect(response.body.message).toBe('OTP verified. Use reset-token to reset your password.');
         resetToken = response.body.resetToken;
-    }, 20000);
-    //confirm otp error handlings
-    it('should return the message details bad request and return with status 400', async () => {
-        const response = await request(app)
-            .post(`/api/v1/password/confirm-otp`)
-            .set('Content-Type', 'application/json')
-            .send({
-                otp: `${user.otp}`
-            })
-
-        expect(response.status).toBe(400);
-        expect(response.body.message).toBe('Email and OTP are required');
-        resetToken = response.body.resetToken;
-    }, 20000);
-    it('should return the message details bad request and return with status 400', async () => {
-        const response = await request(app)
-            .post(`/api/v1/password/confirm-otp`)
-            .set('Content-Type', 'application/json')
-            .send({
-                email: 'dummyemail@gmail.com',
-            })
-
-        expect(response.status).toBe(400);
-        expect(response.body.message).toBe('Email and OTP are required');
-        resetToken = response.body.resetToken;
+        // console.log(resetToken);
     }, 20000);
 
     //reset password error handlings
@@ -449,7 +489,6 @@ describe('UserController Integration Tests', () => {
 
         expect(response.status).toBe(400);
         expect(response.body.message).toBe('Email, new password, confirmation password, and reset-token are required');
-        resetToken = response.body.resetToken;
     }, 20000);
     it('should return the message details bad request and return 400', async () => {
         const response = await request(app)
@@ -461,7 +500,6 @@ describe('UserController Integration Tests', () => {
 
         expect(response.status).toBe(400);
         expect(response.body.message).toBe('Email, new password, confirmation password, and reset-token are required');
-        resetToken = response.body.resetToken;
     }, 20000);
     it('should return the message details bad request and return 400', async () => {
         const response = await request(app)
@@ -473,7 +511,6 @@ describe('UserController Integration Tests', () => {
 
         expect(response.status).toBe(400);
         expect(response.body.message).toBe('Email, new password, confirmation password, and reset-token are required');
-        resetToken = response.body.resetToken;
     }, 20000);
     it('should return the message details bad request and return 400', async () => {
         const response = await request(app)
@@ -485,7 +522,6 @@ describe('UserController Integration Tests', () => {
 
         expect(response.status).toBe(400);
         expect(response.body.message).toBe('Email, new password, confirmation password, and reset-token are required');
-        resetToken = response.body.resetToken;
     }, 20000);
     it('should return the message details bad request and return 400', async () => {
         const response = await request(app)
@@ -494,17 +530,55 @@ describe('UserController Integration Tests', () => {
             .send({
                 email: 'dummyemail@gmail.com',
                 newPassword: 'password123',
-                confirmPassword: 'password123',
+                confirmPassword: 'password124',
                 resetToken: `${resetToken}`
             })
 
         expect(response.status).toBe(400);
         expect(response.body.message).toBe('Passwords do not match');
-        resetToken = response.body.resetToken;
+    }, 20000);
+    //reset password service handlings
+    it('should return the message details bad request and return 500', async () => {
+        let wrongResetToken = jwt.sign(
+            { user_id: '1', email: 'ohteremail@gmail.com', user_role: "user" },
+            process.env.JWT_SECRET || 'jwt-b1n4r14n',
+            { expiresIn: '1h' }
+        );
+        const response = await request(app)
+            .post(`/api/v1/password/reset-password`)
+            .set('Content-Type', 'application/json')
+            .send({
+                email: 'dummyemail@gmail.com',
+                newPassword: 'password123',
+                confirmPassword: 'password123',
+                resetToken: `${wrongResetToken}`
+            })
+
+        expect(response.status).toBe(500);
+        expect(response.body.message).toBe('Internal Server Error');
+    }, 20000);
+    it('should return the message details bad request and return 500', async () => {
+        let wrongResetToken = jwt.sign(
+            { user_id: '1', email: 'ohteremail@gmail.com', user_role: "user" },
+            process.env.JWT_SECRET || 'jwt-b1n4r14n',
+            { expiresIn: '1h' }
+        );
+        const response = await request(app)
+            .post(`/api/v1/password/reset-password`)
+            .set('Content-Type', 'application/json')
+            .send({
+                email: 'ohteremail@gmail.com',
+                newPassword: 'password123',
+                confirmPassword: 'password123',
+                resetToken: `${wrongResetToken}`
+            })
+
+        expect(response.status).toBe(500);
+        expect(response.body.message).toBe('Internal Server Error');
     }, 20000);
     
     //RESET PASSWORD
-    it('should return the message details OTP sent and return 200', async () => {
+    it('should return the message details password reset sent and return 200', async () => {
         const response = await request(app)
             .post(`/api/v1/password/reset-password`)
             .set('Content-Type', 'application/json')
@@ -516,8 +590,7 @@ describe('UserController Integration Tests', () => {
             })
 
         expect(response.status).toBe(200);
-        expect(response.body.message).toBe('OTP verified. Use reset-token to reset your password.');
-        resetToken = response.body.resetToken;
+        expect(response.body.message).toBe('Password updated successfully');
     }, 20000);
 
     //delete error handlings

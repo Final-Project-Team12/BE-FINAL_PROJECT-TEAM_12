@@ -4,7 +4,8 @@ function errorHandler(err, req, res, next) {
     status: 'fail',
     statusCode: 500,
     message: 'Internal Server Error', 
-    error: err.message });
+    error: err.message 
+  });
 }
 
 module.exports = errorHandler;

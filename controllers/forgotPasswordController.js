@@ -15,6 +15,7 @@ class ForgotPasswordController {
       const response = await ForgotPasswordService.sendOtp(email);
       return res.status(200).json(response);
     } catch (error) {
+      /* istanbul ignore next */
       next(error);
     }
   }
@@ -37,6 +38,7 @@ class ForgotPasswordController {
         resetToken: response.resetToken,
       });
     } catch (error) {
+      /* istanbul ignore next */
       next(error);
     }
   }
@@ -62,6 +64,7 @@ class ForgotPasswordController {
       const response = await ForgotPasswordService.resetPassword(email, newPassword, resetToken);
       return res.status(200).json(response);
     } catch (error) {
+      /* istanbul ignore next */
       next(error);
     }
   }

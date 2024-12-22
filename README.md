@@ -1,25 +1,69 @@
-# Flight Booking API Documentation
+# Flight Booking System Documentation
 
-## Overview
-This is the documentation for the Flight Booking API, which provides endpoints for managing flight bookings, user accounts, transactions, and related functionalities.
+## Table of Contents
+- [Backend Team](#Backend-team)
+- [Project Setup](#project-setup)
+- [API Documentation](#api-documentation)
+  - [Overview](#overview)
+  - [Authentication](#authentication)
+  - [Base URL](#base-url)
+  - [API Endpoints](#api-endpoints)
 
-## Base URL
-```
-{{url}}/api/v1
-```
+## Backend Team
 
-## Authentication
-Most endpoints require authentication using JWT tokens. Include the token in the Authorization header:
+### **Backend Team Documentation**
+
+| **Name**                 |
+|-------------------------|
+| **Zefanya Diego Forlandicco** |
+| **Wahyu Pinanda Ginting**    |
+| **Cornellius Barros Kangga**      |
+| **Alif Naufal Taufiqi**|
+
+For tasks and progress, visit our ClickUp workspace: [ClickUp Tasks](https://app.clickup.com/9018681465/v/b/8crwa3t-458)
+
+## Project Setup
+Follow these steps to run the frontend project locally:
+
+1. Clone the repository from GitHub:
+   ```bash
+   git clone https://github.com/Final-Project-Team12/BE-FINAL_PROJECT-TEAM_12
+   ```
+
+2. Navigate to the project directory:
+   ```bash
+   cd BE-FINAL_PROJECT-TEAM_12
+   ```
+
+3. Install dependencies:
+   ```bash
+   npm install
+   ```
+
+## API Documentation
+
+### Overview
+
+This API provides functionality for a flight booking system, including user management, flight search, booking, payments, and administrative functions.
+
+### Authentication
+
+The API uses Bearer token authentication. Include the token in the Authorization header:
 ```
 Authorization: Bearer <your_token>
 ```
 
-## API Endpoints
+### Base URL
+```
+{{url}}/api/v1
+```
 
-### User Management
+### API Endpoints
+
+#### User Management
 
 | Endpoint | Method | Description | Authentication Required |
-|----------|---------|-------------|----------------------|
+|----------|---------|-------------|------------------------|
 | `/user` | POST | Register new user | No |
 | `/user/verify` | POST | Verify user account | No |
 | `/user/resend` | POST | Resend OTP | No |
@@ -28,124 +72,150 @@ Authorization: Bearer <your_token>
 | `/user/:id` | GET | Get user details | Yes |
 | `/user/:id` | DELETE | Delete user account | Yes |
 
-### Password Management
-
+#### Password Management
 | Endpoint | Method | Description | Authentication Required |
-|----------|---------|-------------|----------------------|
+|----------|---------|-------------|------------------------|
 | `/password/forgot-password` | POST | Request password reset | No |
 | `/password/confirm-otp` | POST | Confirm OTP for password reset | No |
 | `/password/reset-password` | POST | Reset password | No |
 
-### Flights
+#### Flight Management
 
 | Endpoint | Method | Description | Authentication Required |
-|----------|---------|-------------|----------------------|
+|----------|---------|-------------|------------------------|
 | `/flights` | GET | Get all flights | No |
 | `/flights/search` | GET | Search flights with filters | No |
 
-#### Search Parameters
-- `from`: Departure airport code
-- `to`: Arrival airport code
-- `departureDate`: Date of departure
-- `returnDate`: Date of return (optional)
-- `seatClass`: Class of seat (Economy, Business, etc.)
-- `passengerAdult`: Number of adult passengers
-- `passengerChild`: Number of child passengers
-- `passengerInfant`: Number of infant passengers
-- `facilities`: Filter by facilities
-- `minPrice`: Minimum price
-- `maxPrice`: Maximum price
-- `priceSort`: Sort by price (Cheapest/Expensive)
-- `departureSort`: Sort by departure time (First/Last)
-- `arrivalSort`: Sort by arrival time (First/Last)
-- `durationSort`: Sort by duration (Shortest/Longest)
+##### Search Parameters
+| Parameter | Description | Example |
+|-----------|-------------|---------|
+| `from` | Departure airport code | `FRA` |
+| `to` | Arrival airport code | `NBO` |
+| `departureDate` | Departure date | `2024-12-08` |
+| `returnDate` | Return date (optional) | `2024-12-11` |
+| `seatClass` | Class type | `Economy` |
+| `passengerAdult` | Number of adult passengers | `2` |
+| `passengerChild` | Number of child passengers | `1` |
+| `passengerInfant` | Number of infant passengers | `1` |
 
-### Transactions
+##### Sorting Parameters
+| Parameter | Values | Description |
+|-----------|---------|-------------|
+| `priceSort` | `Cheapest`, `Expensive` | Sort by price |
+| `departureSort` | `First`, `Last` | Sort by departure time |
+| `arrivalSort` | `First`, `Last` | Sort by arrival time |
+| `durationSort` | `Shortest`, `Longest` | Sort by flight duration |
+
+#### Transaction Management
 
 | Endpoint | Method | Description | Authentication Required |
-|----------|---------|-------------|----------------------|
+|----------|---------|-------------|------------------------|
 | `/transaction` | POST | Create new transaction | Yes |
 | `/transaction/user/:id` | GET | Get user's transactions | Yes |
 
-### Payments
+#### Payment Management
 
 | Endpoint | Method | Description | Authentication Required |
-|----------|---------|-------------|----------------------|
+|----------|---------|-------------|------------------------|
 | `/payments` | POST | Create payment | Yes |
 | `/payments/:orderId/status` | GET | Check payment status | Yes |
 | `/payments/:orderId/cancel` | POST | Cancel payment | Yes |
 
-### Tickets
+#### Notification Management
 
 | Endpoint | Method | Description | Authentication Required |
-|----------|---------|-------------|----------------------|
-| `/ticket` | POST | Create ticket | Yes |
-
-### Notifications
-
-| Endpoint | Method | Description | Authentication Required |
-|----------|---------|-------------|----------------------|
+|----------|---------|-------------|------------------------|
 | `/notifications` | GET | Get all notifications | Yes |
 | `/notifications/:id` | GET | Get specific notification | Yes |
 | `/notifications/user/:id` | GET | Get user's notifications | Yes |
 | `/notifications` | POST | Create notification | Yes |
 | `/notifications/:id` | DELETE | Delete notification | Yes |
 
-### OAuth
+#### Airport Management (Admin)
 
 | Endpoint | Method | Description | Authentication Required |
-|----------|---------|-------------|----------------------|
-| `/auth/google` | GET | Google OAuth login | No |
-| `/auth/google/password` | PUT | Set password after OAuth | No |
-
-### Admin Only Endpoints
-
-#### Airport Management
-
-| Endpoint | Method | Description | Authentication Required |
-|----------|---------|-------------|----------------------|
+|----------|---------|-------------|------------------------|
 | `/airport` | GET | Get all airports | Yes (Admin) |
 | `/airport/:id` | GET | Get airport by ID | Yes (Admin) |
 | `/airport` | POST | Create new airport | Yes (Admin) |
 | `/airport/:id` | PUT | Update airport | Yes (Admin) |
 | `/airport/:id` | DELETE | Delete airport | Yes (Admin) |
 
-#### Airline Management
+#### Airline Management (Admin)
 
 | Endpoint | Method | Description | Authentication Required |
-|----------|---------|-------------|----------------------|
+|----------|---------|-------------|------------------------|
 | `/airline` | GET | Get all airlines | Yes (Admin) |
 | `/airline/:id` | GET | Get airline by ID | Yes (Admin) |
 | `/airline` | POST | Create new airline | Yes (Admin) |
 | `/airline/:id` | PUT | Update airline | Yes (Admin) |
 | `/airline/:id` | DELETE | Delete airline | Yes (Admin) |
 
-## Response Format
-All responses follow this general format:
+### OAuth Integration
+
+| Endpoint | Method | Description |
+|----------|---------|-------------|
+| `/auth/google` | GET | Initiate Google OAuth flow |
+| `/auth/google/password` | PUT | Set password after OAuth login |
+
+### Error Handling
+
+The API returns standard HTTP status codes:
+
+| Status Code | Description |
+|-------------|-------------|
+| 200 | Success |
+| 400 | Bad Request |
+| 401 | Unauthorized |
+| 403 | Forbidden |
+| 404 | Not Found |
+| 500 | Internal Server Error |
+
+### Sample Requests
+
+#### Create Transaction
 ```json
 {
-    "status": 200,
-    "message": "Success message",
-    "data": {
-        // Response data
-    }
+    "userData": {
+        "user_id": 11
+    },
+    "passengerData": [
+        {
+            "title": "Mr",
+            "full_name": "Harry Potter",
+            "family_name": "Potter",
+            "nationality": "Indonesia",
+            "id_number": "1234567890",
+            "id_issuer": "Indonesia",
+            "id_expiry": "2025-01-01",
+            "birth_date": "2000-01-01"
+        }
+    ],
+    "seatSelections": [
+        { "seat_id": 13 }
+    ],
+    "planeId": 7
 }
 ```
 
-## Error Handling
-Errors are returned in this format:
+#### Create Payment
 ```json
 {
-    "status": 400,
-    "message": "Error message",
-    "error": {
-        // Error details
-    }
+   "orderId": "8v05uu",
+   "amount": 1000000,
+   "customerDetails": {
+     "name": "John Doe",
+     "email": "john@example.com",
+     "mobile_number": "081122334455",
+     "address": "123 Main St"
+   },
+   "productDetails": [
+     {
+       "productId": "TICKET-11",
+       "productName": "Flight Ticket Australia-South Africa",
+       "quantity": 1,
+       "price": 1000000
+     }
+   ]
 }
 ```
-
-## Rate Limiting
-Please be mindful of rate limiting and implement appropriate caching strategies in your applications.
-
-## Support
-For any queries or support, please contact the development team.

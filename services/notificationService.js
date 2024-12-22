@@ -3,7 +3,10 @@ const prisma = new PrismaClient();
 
 async function createNotification(data) {
   return await prisma.notification.create({
-    data,
+    data: {
+      ...data,
+      is_read: false,
+    },
   });
 }
 

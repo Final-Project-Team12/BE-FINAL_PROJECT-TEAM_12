@@ -1,5 +1,5 @@
-const moment = require('moment-timezone');
-const NotificationService = require('../services/notificationService');
+const moment = require("moment-timezone");
+const NotificationService = require("../services/notificationService");
 
 class NotificationController {
   static async createNotification(req, res, next) {
@@ -13,7 +13,7 @@ class NotificationController {
         });
       }
 
-      const notification_date = moment().tz('Asia/Jakarta').toISOString();
+      const notification_date = moment().tz("Asia/Jakarta").toISOString();
 
       const notification = await NotificationService.createNotification({
         title,
@@ -54,7 +54,9 @@ class NotificationController {
   static async getNotificationById(req, res, next) {
     const { notification_id } = req.params;
     try {
-      const notification = await NotificationService.getNotificationById(notification_id);
+      const notification = await NotificationService.getNotificationById(
+        notification_id
+      );
       if (!notification) {
         return res.status(404).json({
           status: "not found",
@@ -74,7 +76,9 @@ class NotificationController {
   static async deleteNotification(req, res, next) {
     const { notification_id } = req.params;
     try {
-      const notification = await NotificationService.getNotificationById(notification_id);
+      const notification = await NotificationService.getNotificationById(
+        notification_id
+      );
       if (!notification) {
         return res.status(404).json({
           status: "not found",
@@ -95,7 +99,9 @@ class NotificationController {
   static async markNotificationAsRead(req, res, next) {
     const { notification_id } = req.params;
     try {
-      const notification = await NotificationService.getNotificationById(notification_id);
+      const notification = await NotificationService.getNotificationById(
+        notification_id
+      );
       if (!notification) {
         return res.status(404).json({
           status: "not found",
@@ -103,7 +109,8 @@ class NotificationController {
         });
       }
 
-      const updatedNotification = await NotificationService.markNotificationAsRead(notification_id);
+      const updatedNotification =
+        await NotificationService.markNotificationAsRead(notification_id);
       res.status(200).json({
         status: "success",
         message: "Notification marked as read",
@@ -117,7 +124,9 @@ class NotificationController {
   static async getNotificationByUserId(req, res, next) {
     const { user_id } = req.params;
     try {
-      const notifications = await NotificationService.getNotificationByUserId(user_id);
+      const notifications = await NotificationService.getNotificationByUserId(
+        user_id
+      );
       if (!notifications.length) {
         return res.status(404).json({
           status: "not found",

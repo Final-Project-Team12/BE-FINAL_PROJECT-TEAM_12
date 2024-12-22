@@ -39,6 +39,7 @@ For tasks and progress, visit our ClickUp workspace: [ClickUp Tasks](https://app
 - Node.js
 - Express.js
 - PostgreSQL
+- EC2
 - Sequelize ORM
 - JSON Web Tokens (JWT)
 - Nodemailer
@@ -300,4 +301,55 @@ The API returns standard HTTP status codes:
   },
   "class": "Economy|Business|First"
 }
+```
+
+## Table of Contents
+- [Team Overview](#team-overview)
+- [Project Overview](#project-overview)
+- [Technology Stack](#technology-stack)
+- [Project Setup](#project-setup)
+- [Database Schema](#database-schema)
+- [API Documentation](#api-documentation)
+- [Data Models](#data-models)
+- [Authentication](#authentication)
+- [Testing](#testing)
+- [Deployment](#deployment)
+- [Contributing](#contributing)
+
+### Key Features
+
+#### User Management
+- Email-based authentication
+- Google OAuth integration
+- JWT token-based sessions
+- Password recovery system
+- OTP verification
+
+#### Flight Management
+- Advanced flight search
+- Multi-city routing
+- Fare comparison
+- Seat selection
+- Real-time availability
+
+#### Booking System
+- Secure payment processing
+- Multiple payment methods
+- Booking confirmation
+- E-ticket generation
+- Booking modification
+
+## Testing
+
+### Running Tests
+
+```bash
+# Run all tests
+npm test
+
+# Run specific test file
+npm test -- users.test.js
+
+# Run with coverage report
+npm run test:coverage
 ```

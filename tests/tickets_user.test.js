@@ -121,4 +121,18 @@ describe('TicketsController Integration Tests', () => {
             message: 'Internal server error',
         });
     });
+
+    it('should return 400 if transaction ID is not provided when creating tickets', async () => {
+        const response = await request(app)
+            .post('/api/v1/ticket')
+            .set('Authorization', `Bearer ${jwtToken}`)
+            .send({});
+    
+        console.log('Create Tickets without Transaction ID Response:', response.status, response.body);
+        expect(response.status).toBe(400);
+        expect(response.body).toMatchObject({
+            status: 400,
+            message: 'Transaction ID is required',
+        });
+    });
 });

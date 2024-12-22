@@ -68,6 +68,126 @@ describe('UserController Integration Tests', () => {
         expect(response.status).toBe(200);
         expect(response.body.message).toBe('Available flights have been successfully retrieved.');
     }, 20000);
+    it('should return a filtered flight with status code 200', async () => {
+        const response = await request(app)
+            .get('/api/v1/flights/search')
+            .query({
+                from:'Uni2',
+                to:'Ger3',
+                departureDate:'2024-12-07',
+                seatClass:'Economy',
+                passengerAdult:'2',
+                minPrice:'50000',
+                maxPrice:'7100000',
+                facilities:'mealAvailable, wifiAvailable, powerOutlets',
+                passengerInfant:'1',
+                passengerChild:'1',
+                limit:'10',
+                page:'1',
+            })
+        expect(response.status).toBe(200);
+        expect(response.body.message).toBe('Available flights have been successfully retrieved.');
+    }, 20000);
+    it('should return a filtered flight with status code 200', async () => {
+        const response = await request(app)
+            .get('/api/v1/flights/search')
+            .query({
+                from:'Uni2',
+                to:'Ger3',
+                returnDate:'2024-12-11',
+                seatClass:'Economy',
+                passengerAdult:'2',
+                minPrice:'50000',
+                maxPrice:'7100000',
+                facilities:'mealAvailable, wifiAvailable, powerOutlets',
+                passengerInfant:'1',
+                passengerChild:'1',
+                limit:'10',
+                page:'1',
+            })
+        expect(response.status).toBe(200);
+        expect(response.body.message).toBe('Available flights have been successfully retrieved.');
+    }, 20000);
+    it('should return a message of no flights found with status code 404', async () => {
+        const response = await request(app)
+            .get('/api/v1/flights/search')
+            .query({
+                from:'Uni2',
+                to:'Ger3',
+                departureDate:'2023-12-07',
+                returnDate:'2023-12-11',
+                seatClass:'Economy',
+                passengerAdult:'2',
+                minPrice:'50000',
+                maxPrice:'7100000',
+                facilities:'mealAvailable, wifiAvailable, powerOutlets',
+                passengerInfant:'1',
+                passengerChild:'1',
+                limit:'10',
+                page:'1',
+            })
+        expect(response.status).toBe(404);
+        expect(response.body.message).toBe('No flights found for the specified filters.');
+    }, 20000);
+    it('should return a filtered flight with status code 200', async () => {
+        const response = await request(app)
+            .get('/api/v1/flights/search')
+            .query({
+                from:'Uni2',
+                to:'Ger3',
+                departureDate:'2024-12-07',
+                returnDate:'2024-12-11',
+                seatClass:'Economy',
+                passengerAdult:'2',
+                facilities:'mealAvailable, wifiAvailable, powerOutlets',
+                passengerInfant:'1',
+                passengerChild:'1',
+                limit:'10',
+                page:'1',
+            })
+        expect(response.status).toBe(200);
+        expect(response.body.message).toBe('Available flights have been successfully retrieved.');
+    }, 20000);
+    it('should return a filtered flight with status code 200 with no min price', async () => {
+        const response = await request(app)
+            .get('/api/v1/flights/search')
+            .query({
+                from:'Uni2',
+                to:'Ger3',
+                departureDate:'2024-12-07',
+                returnDate:'2024-12-11',
+                seatClass:'Economy',
+                passengerAdult:'2',
+                maxPrice:'7100000',
+                facilities:'mealAvailable, wifiAvailable, powerOutlets',
+                passengerInfant:'1',
+                passengerChild:'1',
+                limit:'10',
+                page:'1',
+            })
+        expect(response.status).toBe(200);
+        expect(response.body.message).toBe('Available flights have been successfully retrieved.');
+    }, 20000);
+    it('should return a filtered flight with status code 200 with no max price', async () => {
+        const response = await request(app)
+            .get('/api/v1/flights/search')
+            .query({
+                from:'Uni2',
+                to:'Ger3',
+                departureDate:'2024-12-07',
+                returnDate:'2024-12-11',
+                seatClass:'Economy',
+                passengerAdult:'2',
+                minPrice:'50000',
+                facilities:'mealAvailable, wifiAvailable, powerOutlets',
+                passengerInfant:'1',
+                passengerChild:'1',
+                limit:'10',
+                page:'1',
+            })
+        expect(response.status).toBe(200);
+        expect(response.body.message).toBe('Available flights have been successfully retrieved.');
+    }, 20000);
 
     //get sorted flights
     it('should return a sorted flight by cheapest with status code 200', async () => {

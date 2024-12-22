@@ -41,15 +41,13 @@ async function fetchFlights({
     });
 
     planesWithSeats = (minPrice || maxPrice)
-    /* istanbul ignore next */
     ? planesWithSeats
-        /* istanbul ignore next */
         .map(plane => ({
             ...plane,
             seats: plane.seats?.filter(seat =>
                 (minPrice ? seat.price >= parseFloat(minPrice) : true) &&
                 (maxPrice ? seat.price <= parseFloat(maxPrice) : true)
-            ) || []
+            )
         }))
         .filter(plane => plane.seats.length > 0)
     : planesWithSeats;

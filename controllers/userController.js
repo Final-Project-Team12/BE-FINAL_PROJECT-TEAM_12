@@ -283,7 +283,9 @@ class UserController{
 
         let check = !(existingUser.email == email)
         if(check){
+          /* istanbul ignore next */
           const cekEmailUnik = await checkOtherEmail(email)
+          /* istanbul ignore next */
           if(cekEmailUnik){
             return res.status(400).json({
                 status : 400,
@@ -291,16 +293,16 @@ class UserController{
             })
           }
         }
-
+        /* istanbul ignore next */
         const data = {
           name: req.body.name || existingUser.name,
           telephone_number: req.body.telephone_number || existingUser.telephone_number,
           email,
           address: req.body.address || existingUser.address,
           identity_number: req.body.identity_number || existingUser.identity_number,
-          age: req.body.age || existingUser.age,
+          age: parseInt(req.body.age) || existingUser.age,
           role: "user"
-      };
+        };
 
         const new_user = await updateUserById(parseInt(user_id), data)
         

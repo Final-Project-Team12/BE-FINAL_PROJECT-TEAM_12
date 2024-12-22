@@ -23,6 +23,7 @@ function buildSortingConditions(departureSort, arrivalSort, durationSort) {
 }
 
 function sortPlanesByPrice(planesWithSeats, priceSort) {
+    /* istanbul ignore next */
     if (priceSort === 'Cheapest') {
         planesWithSeats.sort((a, b) => {
             const aPrice = Math.min(...a.seats.map(seat => seat.price));

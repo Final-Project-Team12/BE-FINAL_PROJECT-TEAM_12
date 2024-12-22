@@ -301,14 +301,3 @@ The API returns standard HTTP status codes:
   "class": "Economy|Business|First"
 }
 ```
-## Table of Contents
-- [Teams](#teams)
-- [Project Overview](#project-overview)
-- [Technology Stack](#technology-stack)
-- [Getting Started](#getting-started)
-  - [Prerequisites](#prerequisites)
-  - [Installation](#installation)
-- [API Documentation](#api-documentation)
-- [Development Guidelines](#development-guidelines)
-- [Deployment](#deployment)
-## Getting Started

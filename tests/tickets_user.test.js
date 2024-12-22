@@ -7,7 +7,7 @@ require('dotenv').config({ path: '.env.test' });
 const prisma = new PrismaClient();
 
 const jwtToken = jwt.sign(
-    { user_id: 11, user_email: 'dummydata54@gmail.com', user_role: 'admin' },
+    { user_id: 13, user_email: 'anaufal274@gmail.com', user_role: 'admin' },
     process.env.JWT_SECRET || 'jwt-b1n4r14n',
     { expiresIn: '1h' }
 );
@@ -21,13 +21,13 @@ describe('TicketsController Integration Tests', () => {
         console.log('Database connected');
         const check = await prisma.users.findFirst({
             where: {
-                email: "dummyemail@gmail.com"
+                email: "anaufal274@gmail.com"
             }
         });
         if (check) {
             await prisma.users.delete({
                 where: {
-                    email: "dummyemail@gmail.com"
+                    email: "anaufal274@gmail.com"
                 }
             });
         }
@@ -38,11 +38,11 @@ describe('TicketsController Integration Tests', () => {
     afterAll(async () => {
         const check = await prisma.users.findFirst({
             where: {
-                email: "dummyemail@gmail.com"
+                email: "anaufal274@gmail.com"
             }
         });
         if (check) {
-            await prisma.users.delete({ where: { email: "dummyemail@gmail.com" } });
+            await prisma.users.delete({ where: { email: "anaufal274@gmail.com" } });
         }
         await prisma.$disconnect();
         console.log('Database disconnected');
@@ -50,7 +50,7 @@ describe('TicketsController Integration Tests', () => {
 
     it('should create tickets for a valid transaction and return 201', async () => {
         const response = await request(app)
-            .post('/api/v1/tickets')
+            .post('/api/v1/ticket')
             .set('Authorization', `Bearer ${jwtToken}`)
             .send({ transaction_id: transactionIdTest });
 
@@ -69,7 +69,7 @@ describe('TicketsController Integration Tests', () => {
 
     it('should return 500 if internal server error occurs during ticket creation', async () => {
         const response = await request(app)
-            .post('/api/v1/tickets')
+            .post('/api/v1/ticket')
             .set('Authorization', `Bearer ${jwtToken}`)
             .send({ transaction_id: 'invalid_id' });
 
@@ -83,7 +83,7 @@ describe('TicketsController Integration Tests', () => {
 
     it('should update a ticket and return 200', async () => {
         const response = await request(app)
-            .put(`/api/v1/tickets/${ticketIdTest}`)
+            .put(`/api/v1/ticket/${ticketIdTest}`)
             .set('Authorization', `Bearer ${jwtToken}`)
             .send({
                 seat_id: 2,
@@ -103,7 +103,7 @@ describe('TicketsController Integration Tests', () => {
 
     it('should return 500 if internal server error occurs during ticket update', async () => {
         const response = await request(app)
-            .put('/api/v1/tickets/invalid_id') 
+            .put('/api/v1/ticket/invalid_id') 
             .set('Authorization', `Bearer ${jwtToken}`)
             .send({ seat_id: 2 });
 
@@ -117,7 +117,7 @@ describe('TicketsController Integration Tests', () => {
 
     it('should delete a ticket and return 200', async () => {
         const response = await request(app)
-            .delete(`/api/v1/tickets/${ticketIdTest}`)
+            .delete(`/api/v1/ticket/${ticketIdTest}`)
             .set('Authorization', `Bearer ${jwtToken}`);
 
         console.log('Delete Ticket Response:', response.status, response.body);
@@ -130,7 +130,7 @@ describe('TicketsController Integration Tests', () => {
 
     it('should return 500 if internal server error occurs during ticket deletion', async () => {
         const response = await request(app)
-            .delete('/api/v1/tickets/invalid_id') 
+            .delete('/api/v1/ticket/invalid_id') 
             .set('Authorization', `Bearer ${jwtToken}`);
 
         console.log('Delete Ticket Internal Server Error Response:', response.status, response.body);
@@ -143,7 +143,7 @@ describe('TicketsController Integration Tests', () => {
 
     it('should retrieve a ticket by ID and return 200', async () => {
         const response = await request(app)
-            .get(`/api/v1/tickets/${ticketIdTest}`)
+            .get(`/api/v1/ticket/${ticketIdTest}`)
             .set('Authorization', `Bearer ${jwtToken}`);
 
         console.log('Get Ticket Response:', response.status, response.body);
@@ -159,7 +159,7 @@ describe('TicketsController Integration Tests', () => {
 
     it('should return 500 if internal server error occurs during ticket retrieval', async () => {
         const response = await request(app)
-            .get('/api/v1/tickets/invalid_id') 
+            .get('/api/v1/ticket/invalid_id') 
             .set('Authorization', `Bearer ${jwtToken}`);
 
         console.log('Get Ticket Internal Server Error Response:', response.status, response.body);

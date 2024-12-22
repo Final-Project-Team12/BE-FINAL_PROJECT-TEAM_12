@@ -1,15 +1,61 @@
 # Flight Booking System Documentation
+
 ## Table of Contents
-- [Backend Team](#Backend-team)
+- [Team Information](#team-information)
+  - [Backend Team](#backend-team)
+  - [Project Management](#project-management)
 - [Project Overview](#project-overview)
-- [Project Setup](#project-setup)
-- [API Documentation](#api-documentation)
+  - [Key Features](#key-features)
+    - [User Management](#user-management)
+    - [Flight Management](#flight-management)
+    - [Booking System](#booking-system)
 - [Technology Stack](#technology-stack)
-  - [Overview](#overview)
+  - [Backend Technologies](#backend-technologies)
+  - [Infrastructure](#infrastructure)
+  - [External Services](#external-services)
+- [Project Setup](#project-setup)
+  - [Prerequisites](#prerequisites)
+  - [Installation Steps](#installation-steps)
+  - [Environment Configuration](#environment-configuration)
+- [Database Schema](#database-schema)
+  - [Core Models](#core-models)
+  - [Transaction Models](#transaction-models)
+  - [Flight Models](#flight-models)
+  - [Entity Relationships](#entity-relationships)
+  - [Migration Guide](#migration-guide)
+- [API Documentation](#api-documentation)
   - [Authentication](#authentication)
   - [Base URL](#base-url)
-  - [API Endpoints](#api-endpoints)
+  - [Endpoints Overview](#endpoints-overview)
+    - [User Management API](#user-management-api)
+    - [Flight Management API](#flight-management-api)
+    - [Transaction Management API](#transaction-management-api)
+    - [Payment Management API](#payment-management-api)
+    - [Notification Management API](#notification-management-api)
+    - [Airport Management API](#airport-management-api)
+    - [Airline Management API](#airline-management-api)
+  - [API Parameters](#api-parameters)
+  - [Error Handling](#error-handling)
+  - [Sample Requests](#sample-requests)
+- [Testing](#testing)
+  - [Test Setup](#test-setup)
+  - [Running Tests](#running-tests)
+  - [Test Coverage](#test-coverage)
 
+## Team Information
+
+### Backend Team
+| Name | Role |
+|------|------|
+| Zefanya Diego Forlandicco | Backend Developer |
+| Wahyu Pinanda Ginting | Backend Developer |
+| Cornellius Barros Kangga | Backend Developer |
+| Alif Naufal Taufiqi | Backend Developer |
+
+### Project Management
+For tasks and progress tracking: [ClickUp Tasks](https://app.clickup.com/9018681465/v/b/8crwa3t-458)
+
+[Rest of the content follows the same structure as provided in your file...]
 
 ## Project Overview
 
@@ -333,4 +379,255 @@ npm test -- users.test.js
 
 # Run with coverage report
 npm run test:coverage
+```
+## Database Schema
+
+Our system uses PostgreSQL with Prisma as the ORM. Below are the detailed schema definitions for each model:
+
+### Core Models
+
+#### Users
+```prisma
+model Users {
+  user_id          Int            @id @default(autoincrement())
+  name             String
+  telephone_number String
+  email            String         @unique
+  password         String
+  address          String
+  gender           String
+  identity_number  String
+  age              Int
+  role             String
+  otp              String?
+  otp_expiry       String?
+  reset_token      String?
+  verified         Boolean        @default(false)
+  notifications    Notification[]
+  transactions     Transaction[]
+}
+```
+
+#### Notification
+```prisma
+model Notification {
+  notification_id   Int      @id @default(autoincrement())
+  title            String
+  description      String
+  notification_date DateTime
+  user_id          Int
+  user             Users    @relation(fields: [user_id], references: [user_id], onDelete: Cascade)
+  is_read          Boolean  @default(false)
+}
+```
+
+### Transaction Related Models
+
+#### Transaction
+```prisma
+model Transaction {
+  transaction_id   Int      @id @default(autoincrement())
+  status           String
+  redirect_url     String
+  transaction_date DateTime
+  token            String
+  message          String
+  base_amount      Float
+  tax_amount       Float
+  total_payment    Float
+  user_id          Int
+  user             Users    @relation(fields: [user_id], references: [user_id], onDelete: Cascade)
+  tickets          Ticket[]
+}
+```
+
+#### Ticket
+```prisma
+model Ticket {
+  ticket_id      Int         @id @default(autoincrement())
+  transaction_id Int
+  plane_id       Int
+  passenger_id   Int
+  seat_id        Int
+  transaction    Transaction @relation(fields: [transaction_id], references: [transaction_id], onDelete: Cascade)
+  passenger      Passenger   @relation(fields: [passenger_id], references: [passenger_id])
+  seat           Seat        @relation(fields: [seat_id], references: [seat_id])
+  plane          Plane       @relation(fields: [plane_id], references: [plane_id])
+  created_at     DateTime    @default(now())
+  updated_at     DateTime    @updatedAt
+}
+```
+
+### Flight Related Models
+
+#### Passenger
+```prisma
+model Passenger {
+  passenger_id Int       @id @default(autoincrement())
+  title        String
+  full_name    String
+  family_name  String?
+  birth_date   DateTime?
+  nationality  String
+  id_number    String?
+  id_issuer    String?
+  id_expiry    DateTime?
+  tickets      Ticket[]
+  created_at   DateTime  @default(now())
+  updated_at   DateTime  @updatedAt
+}
+```
+
+#### Seat
+```prisma
+model Seat {
+  seat_id      Int      @id @default(autoincrement())
+  seat_number  String
+  class        String
+  price        Int
+  plane_id     Int
+  is_available Boolean  @default(true)
+  version      Int      @default(0)
+  plane        Plane    @relation(fields: [plane_id], references: [plane_id])
+  tickets      Ticket[]
+  created_at   DateTime @default(now())
+  updated_at   DateTime @updatedAt
+}
+```
+
+#### Plane
+```prisma
+model Plane {
+  plane_id                Int      @id @default(autoincrement())
+  airline_id              Int
+  airport_id_origin       Int
+  airport_id_destination  Int
+  departure_time          DateTime
+  arrival_time           DateTime
+  departure_terminal      String
+  baggage_capacity        Float
+  plane_code              String
+  cabin_baggage_capacity  Float
+  meal_available          Boolean
+  wifi_available          Boolean
+  in_flight_entertainment Boolean
+  power_outlets           Boolean
+  offers                  String
+  duration                Int
+  airline                 Airline  @relation(fields: [airline_id], references: [airline_id])
+  origin_airport          Airport  @relation("OriginAirport", fields: [airport_id_origin], references: [airport_id])
+  destination_airport     Airport  @relation("DestinationAirport", fields: [airport_id_destination], references: [airport_id])
+  seats                   Seat[]
+  tickets                 Ticket[]
+}
+```
+
+### Airport and Airline Models
+
+#### Airline
+```prisma
+model Airline {
+  airline_id   Int     @id @default(autoincrement())
+  airline_name String
+  image_url    String
+  times_used   Int     @default(0)
+  file_id      String  @unique
+  planes       Plane[]
+}
+```
+
+#### Airport
+```prisma
+model Airport {
+  airport_id         Int       @id @default(autoincrement())
+  name               String
+  address            String
+  airport_code       String
+  image_url          String
+  file_id            String    @unique
+  times_visited      Int       @default(0)
+  continent_id       Int
+  continent          Continent @relation(fields: [continent_id], references: [continent_id])
+  origin_planes      Plane[]   @relation("OriginAirport")
+  destination_planes Plane[]   @relation("DestinationAirport")
+}
+```
+
+#### Continent
+```prisma
+model Continent {
+  continent_id Int       @id @default(autoincrement())
+  name         String
+  airports     Airport[]
+}
+```
+
+### Payment Model
+```prisma
+model Payment {
+  id              Int      @id @default(autoincrement())
+  orderId         String   @unique
+  status          String
+  transactionId   String?
+  amount          Float
+  snapToken       String?
+  customerName    String
+  customerEmail   String
+  customerPhone   String
+  customerAddress String
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+```
+
+### Entity Relationships
+
+1. **User Relationships**
+   - One User can have many Notifications
+   - One User can have many Transactions
+
+2. **Transaction Relationships**
+   - One Transaction belongs to one User
+   - One Transaction can have many Tickets
+
+3. **Ticket Relationships**
+   - Each Ticket belongs to one Transaction
+   - Each Ticket is associated with one Passenger
+   - Each Ticket is associated with one Seat
+   - Each Ticket is associated with one Plane
+
+4. **Plane Relationships**
+   - Each Plane belongs to one Airline
+   - Each Plane has one Origin Airport
+   - Each Plane has one Destination Airport
+   - Each Plane can have multiple Seats
+   - Each Plane can have multiple Tickets
+
+5. **Airport Relationships**
+   - Each Airport belongs to one Continent
+   - Each Airport can be the origin for multiple Planes
+   - Each Airport can be the destination for multiple Planes
+
+### Database Migration
+
+To apply this schema:
+
+1. Ensure your PostgreSQL database is running
+2. Update your `.env` file with the database connection URL:
+```env
+DATABASE_URL="postgresql://username:password@localhost:5432/Quickfly?schema=public"
+```
+
+3. Run Prisma migrations:
+```bash
+# Generate migration
+npx prisma migrate dev --name init
+
+# Apply migration
+npx prisma migrate deploy
+```
+
+4. Generate Prisma Client:
+```bash
+npx prisma generate
 ```

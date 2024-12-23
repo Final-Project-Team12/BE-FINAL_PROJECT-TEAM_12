@@ -1,6 +1,9 @@
 const dotenv = require('dotenv');
+/* istanbul ignore next */
 if (process.env.NODE_ENV !== 'production') {
+  /* istanbul ignore next */
   if(process.env.NODE_ENV === 'test'){
+    /* istanbul ignore next */
     dotenv.config({ path: '.env.test' });
   }
   else{

@@ -44,7 +44,7 @@ describe('RestrictJwt Integration Tests', () => {
             process.env.JWT_SECRET || 'jwt-b1n4r14n',
             { expiresIn: '1h' }
         );
-
+        
         adminToken = jwt.sign(
             { user_id: userAdmin.user_id, email: userAdmin.email, user_role: userAdmin.role },
             process.env.JWT_SECRET || 'jwt-b1n4r14n',
@@ -106,9 +106,18 @@ describe('RestrictJwt Integration Tests', () => {
     }, 20000);
 
     //DELETE SUCCESSFULLY
-    it('should return with not authorized and code 401', async () => {
+    it('should return with success and code 401', async () => {
+        let notification2 = await prisma.notification.create({
+            data:{
+                title: 'test notification',
+                description: 'test description',   
+                notification_date: new Date(),
+                user_id: user.user_id,
+                is_read: false
+            }
+        })
         const response = await request(app)
-            .delete(`/api/v1/notifications/${notification.notification_id}`)
+            .delete(`/api/v1/notifications/${notification2.notification_id}`)
             .set('Authorization', `Bearer ${adminToken}`)
         expect(response.status).toBe(200);
         expect(response.body.message).toBe('Notification deleted successfully');

@@ -33,7 +33,7 @@ class RestrictJwtAdmin{
                 });
             });
 
-            const userData = await getUserByEmail(decoded.email)
+            const userData = await getUserByEmail(decoded.user_email)
             /* istanbul ignore next */
             if (!userData) {
                 /* istanbul ignore next */

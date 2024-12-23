@@ -6,7 +6,7 @@ function generateToken(userData) {
     const payload = {
       user_id: userData.user_id,
       user_email: userData.email,
-      User_role: userData.role
+      user_role: userData.role
     };
 
     const options = {
@@ -15,6 +15,7 @@ function generateToken(userData) {
 
     return jwt.sign(payload, JWT_SECRET, options);
   } catch (error) {
+    /* istanbul ignore next */
     throw new Error('Error generating token: ' + error.message);
   }
 }

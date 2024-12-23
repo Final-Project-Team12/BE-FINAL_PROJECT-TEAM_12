@@ -261,6 +261,31 @@ describe('UserController Integration Tests', () => {
     }, 20000);
 
 
+    //AUTH TESTING
+    it('should return the message details of unauthorized and return 401', async () => {
+        const response = await request(app)
+            .put(`/api/v1//user/${user.user_id}`)
+            .set('Content-Type', 'application/json')
+            .send({
+                name:'dummmy edited',
+                telephone_number:"08123123761"
+            });
+        expect(response.status).toBe(401);
+        expect(response.body.message).toBe('You are not authorized');
+    }, 20000);
+    it('should return the message details of successful update and return 200', async () => {
+        const response = await request(app)
+            .put(`/api/v1//user/${user.user_id}`)
+            .set('Authorization', `Bearer 2abcd123968130813`)
+            .set('Content-Type', 'application/json')
+            .send({
+                name:'dummmy edited',
+                telephone_number:"08123123761"
+            });
+        expect(response.status).toBe(401);
+        expect(response.body.message).toBe('You are not authorized');
+    }, 20000);
+
     //UPDATE USER
     it('should return the message details of successful update and return 200', async () => {
         const response = await request(app)

@@ -49,8 +49,8 @@ model Transaction {
   transaction_date DateTime
   token            String
   message          String
-  base_amount      Float
-  tax_amount       Float
+  base_amount      Float?
+  tax_amount       Float?
   total_payment    Float
   user_id          Int
   user             Users    @relation(fields: [user_id], references: [user_id], onDelete: Cascade)

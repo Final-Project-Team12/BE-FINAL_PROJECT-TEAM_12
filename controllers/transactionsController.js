@@ -1,138 +1,199 @@
-const moment = require('moment-timezone');
-const NotificationService = require('../services/notificationService');
+const transactionsService = require("../services/transactionsService");
 
-class NotificationController {
-  static async createNotification(req, res, next) {
-    const { title, description, user_id } = req.body;
-
+const transactionsController = {
+  getTransactionsByUserId: async (req, res) => {
     try {
-      if (!title || !description || !user_id) {
+      const { user_id } = req.params;
+
+      const transactions = await transactionsService.getTransactionsByUserId(
+        parseInt(user_id)
+      );
+
+      return res.status(200).json({
+        message: "Transactions retrieved successfully",
+        status: 200,
+        data: transactions,
+      });
+    } catch (error) {
+      console.error("Get transactions by user ID error:", error);
+
+      if (error.message === "TRANSACTIONS_NOT_FOUND") {
+        return res.status(404).json({
+          message: "Transactions not found for this user",
+          status: 404,
+        });
+      }
+
+      return res.status(500).json({
+        message: "Internal server error",
+        status: 500,
+      });
+    }
+  },
+
+  createTransaction: async (req, res) => {
+    try {
+      const {
+        userData,
+        passengerData,
+        seatSelections,
+        planeId,
+        isRoundTrip,
+        returnPlaneId,
+        returnSeatSelections,
+      } = req.body;
+
+      if (isRoundTrip && (!returnPlaneId || !returnSeatSelections)) {
         return res.status(400).json({
-          status: "bad request",
-          message: "Title, description, and user_id are required",
+          message: "Return flight details are required for round trip",
+          status: 400,
         });
       }
 
-      const notification_date = moment().tz('Asia/Jakarta').toISOString();
+      let result;
 
-      const notification = await NotificationService.createNotification({
-        title,
-        description,
-        user_id: parseInt(user_id),
-        notification_date,
-      });
+      if (!isRoundTrip) {
+        result = await transactionsService.createTransaction(
+          userData,
+          passengerData,
+          seatSelections,
+          planeId
+        );
+      } else {
+        result = await transactionsService.createRoundTripTransaction(
+          userData,
+          passengerData,
+          seatSelections,
+          planeId,
+          returnSeatSelections,
+          returnPlaneId
+        );
+      }
 
-      res.status(201).json({
-        status: "success",
-        message: "Notification created successfully",
-        data: notification,
+      return res.status(201).json({
+        message: isRoundTrip
+          ? "Round trip transaction created successfully"
+          : "Transaction created successfully",
+        status: 201,
+        data: result,
       });
     } catch (error) {
-      next(error);
-    }
-  }
+      console.error("Create transaction error:", error);
 
-  static async getAllNotifications(req, res, next) {
-    try {
-      const notifications = await NotificationService.getAllNotifications();
-      if (!notifications.length) {
+      if (error.message === "INVALID_USER_DATA") {
+        return res.status(400).json({
+          message: "Invalid user data provided",
+          status: 400,
+        });
+      }
+
+      if (error.message === "INVALID_PASSENGER_DATA") {
+        return res.status(400).json({
+          message: "Invalid passenger data provided",
+          status: 400,
+        });
+      }
+
+      if (error.message === "INVALID_SEAT_SELECTIONS") {
+        return res.status(400).json({
+          message: "Invalid seat selections provided",
+          status: 400,
+        });
+      }
+
+      if (error.message === "INVALID_PLANE_ID") {
         return res.status(404).json({
-          status: "not found",
-          message: "No notifications found",
+          message: "Invalid plane ID provided",
+          status: 404,
         });
       }
 
-      res.status(200).json({
-        status: "success",
-        data: notifications,
-      });
-    } catch (error) {
-      next(error);
-    }
-  }
-
-  static async getNotificationById(req, res, next) {
-    const { notification_id } = req.params;
-    try {
-      const notification = await NotificationService.getNotificationById(notification_id);
-      if (!notification) {
+      if (error.message === "PLANE_NOT_FOUND") {
         return res.status(404).json({
-          status: "not found",
-          message: "Notification not found",
+          message: "Selected plane not found",
+          status: 404,
         });
       }
 
-      res.status(200).json({
-        status: "success",
-        data: notification,
-      });
-    } catch (error) {
-      next(error);
-    }
-  }
+      if (error.message === "SEATS_UNAVAILABLE") {
+        return res.status(409).json({
+          message: "One or more selected seats are no longer available",
+          status: 409,
+        });
+      }
 
-  static async deleteNotification(req, res, next) {
-    const { notification_id } = req.params;
+      if (error.message === "INVALID_RETURN_FLIGHT") {
+        return res.status(400).json({
+          message: "Invalid return flight details",
+          status: 400,
+        });
+      }
+
+      return res.status(500).json({
+        message: "Internal server error",
+        status: 500,
+      });
+    }
+  },
+
+  updateTransaction: async (req, res) => {
     try {
-      const notification = await NotificationService.getNotificationById(notification_id);
-      if (!notification) {
+      const { transaction_id } = req.params;
+      const updateData = req.body;
+
+      const updatedTransaction = await transactionsService.updateTransaction(
+        parseInt(transaction_id),
+        updateData
+      );
+
+      return res.status(200).json({
+        message: "Transaction updated successfully",
+        status: 200,
+        data: updatedTransaction,
+      });
+    } catch (error) {
+      console.error("Update transaction error:", error);
+
+      if (error.message === "TRANSACTION_NOT_FOUND") {
         return res.status(404).json({
-          status: "not found",
-          message: "Notification not found",
+          message: "Transaction not found",
+          status: 404,
         });
       }
 
-      await NotificationService.deleteNotification(notification_id);
-      res.status(200).json({
-        status: "success",
-        message: "Notification deleted successfully",
+      return res.status(500).json({
+        message: "Internal server error",
+        status: 500,
       });
-    } catch (error) {
-      next(error);
     }
-  }
+  },
 
-  static async markNotificationAsRead(req, res, next) {
-    const { notification_id } = req.params;
+  deleteTransaction: async (req, res) => {
     try {
-      const notification = await NotificationService.getNotificationById(notification_id);
-      if (!notification) {
+      const { transaction_id } = req.params;
+
+      await transactionsService.deleteTransaction(parseInt(transaction_id));
+
+      return res.status(200).json({
+        message: "Transaction deleted successfully",
+        status: 200,
+      });
+    } catch (error) {
+      console.error("Delete transaction error:", error);
+
+      if (error.message === "TRANSACTION_NOT_FOUND") {
         return res.status(404).json({
-          status: "not found",
-          message: "Notification not found",
+          message: "Transaction not found",
+          status: 404,
         });
       }
 
-      const updatedNotification = await NotificationService.markNotificationAsRead(notification_id);
-      res.status(200).json({
-        status: "success",
-        message: "Notification marked as read",
-        data: updatedNotification,
+      return res.status(500).json({
+        message: "Internal server error",
+        status: 500,
       });
-    } catch (error) {
-      next(error);
     }
-  }
+  },
+};
 
-  static async getNotificationByUserId(req, res, next) {
-    const { user_id } = req.params;
-    try {
-      const notifications = await NotificationService.getNotificationByUserId(user_id);
-      if (!notifications.length) {
-        return res.status(404).json({
-          status: "not found",
-          message: "No notifications found for the specified user",
-        });
-      }
-
-      res.status(200).json({
-        status: "success",
-        data: notifications,
-      });
-    } catch (error) {
-      next(error);
-    }
-  }
-}
-
-module.exports = NotificationController;
+module.exports = transactionsController;

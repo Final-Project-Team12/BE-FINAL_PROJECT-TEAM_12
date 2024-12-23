@@ -28,8 +28,7 @@ class RestrictJwt{
                     }
                 });
             });
-
-            const userData = await getUserByEmail(decoded.email)
+            const userData = await getUserByEmail(decoded.user_email)
 
             if (!userData) {
                 return res.status(401).json({

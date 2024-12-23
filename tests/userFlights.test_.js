@@ -6,7 +6,7 @@ require('dotenv').config({ path: '.env' });
 const prisma = new PrismaClient();
 const jwt = require('jsonwebtoken');
 
-describe('UserController Integration Tests', () => {
+describe('User on Flights Integration Tests', () => {
     beforeAll(async () => {
         await prisma.$connect();
         console.log('Database connected');

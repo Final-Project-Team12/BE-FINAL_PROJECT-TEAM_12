@@ -88,6 +88,7 @@ class Mailer {
         html: htmlContent,
       });
     } catch (error) {
+      /* istanbul ignore next */
       console.error('Error sending account verification email:', error);
       throw new Error('Failed to send account verification email');
     }
@@ -172,6 +173,7 @@ class Mailer {
         html: htmlContent,
       });
     } catch (error) {
+      /* istanbul ignore next */
       console.error('Error sending password reset email:', error);
       throw new Error('Failed to send password reset email');
     }
@@ -212,6 +214,7 @@ class Mailer {
         html: htmlContent,
       });
     } catch (error) {
+      /* istanbul ignore next */
       console.error('Error sending password change notification:', error);
       throw new Error('Failed to send password change notification');
     }

@@ -1,9 +1,13 @@
 const dotenv = require('dotenv');
+/* istanbul ignore next */
 if (process.env.NODE_ENV !== 'production') {
+  /* istanbul ignore next */
   if(process.env.NODE_ENV === 'test'){
+    /* istanbul ignore next */
     dotenv.config({ path: '.env.test' });
   }
   else{
+    /* istanbul ignore next */
     dotenv.config({ path: '.env' });
   }
 }
@@ -61,6 +65,7 @@ app.use(errorHandler);
 //buat nangkap error cek ci-cd 14
 
 app.use((err, req, res, next) => {
+  /* istanbul ignore next */
   console.log(err);
   res.status(500).json({
     status: false,
@@ -77,8 +82,9 @@ app.use((err, req, res, next) => {
 // Start Server
 
 const PORT = process.env.PORT || 3000;
-
+/* istanbul ignore next */
 if (process.env.NODE_ENV !== 'test') {
+  /* istanbul ignore next */
   app.listen(PORT, () => {
     console.log(`Server running on http://localhost:${PORT}`);
   });

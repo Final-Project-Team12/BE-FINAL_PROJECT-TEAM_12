@@ -16,10 +16,6 @@ router.use("/notifications", restrictJwt, restrictedRoutesUser);
 
 const restrictedRoutesAdmin = express.Router();
 
-// restrictedRoutesAdmin.post("", NotificationController.createNotification);
-restrictedRoutesAdmin.post("", (req, res) => {
-  console.log(req.body);
-});
 restrictedRoutesAdmin.delete(
   "/:notification_id",
   NotificationController.deleteNotification

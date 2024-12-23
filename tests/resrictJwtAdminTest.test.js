@@ -40,13 +40,13 @@ describe('RestrictJwt Integration Tests', () => {
         })
 
         userToken = jwt.sign(
-            { user_id: user.user_id, email: user.email, user_role: user.role },
+            { user_id: user.user_id, user_email: user.email, user_role: user.role },
             process.env.JWT_SECRET || 'jwt-b1n4r14n',
             { expiresIn: '1h' }
         );
         
         adminToken = jwt.sign(
-            { user_id: userAdmin.user_id, email: userAdmin.email, user_role: userAdmin.role },
+            { user_id: userAdmin.user_id, user_email: userAdmin.email, user_role: userAdmin.role },
             process.env.JWT_SECRET || 'jwt-b1n4r14n',
             { expiresIn: '1h' }
         );
@@ -86,7 +86,7 @@ describe('RestrictJwt Integration Tests', () => {
     }, 20000);
     it('should return with user not found and code 401', async () => {
         let wrongToken = jwt.sign(
-            { user_id: '1', email: 'ohteremail@gmail.com', user_role: "admin" },
+            { user_id: '1', user_email: 'ohteremail@gmail.com', user_role: "admin" },
             process.env.JWT_SECRET || 'jwt-b1n4r14n',
             { expiresIn: '1h' }
         );

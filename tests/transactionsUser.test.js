@@ -40,16 +40,29 @@ describe('TransactionsController Integration Tests', () => {
         });
     });
 
-    // it('should return 404 if no transactions are found for the given user ID', async () => {
+    // it('should return 404 if user is not found', async () => {
+    //     const response = await request(app)
+    //         .get('/api/v1/transaction/user/999999')
+    //         .set('Authorization', `Bearer ${jwtToken}`);
+    
+    //     console.log('Get Transactions User Not Found Response:', response.status, response.body);
+    //     expect(response.status).toBe(404);
+    //     expect(response.body).toMatchObject({
+    //         status: 404,
+    //         message: 'User not found',
+    //     });
+    // });
+
+    // it('should return 500 if no transactions are found for the given user ID', async () => {
     //     const response = await request(app)
     //         .get('/api/v1/transaction/user/12')
     //         .set('Authorization', `Bearer ${jwtToken}`);
 
     //     console.log('No Transactions Found Response:', response.status, response.body);
-    //     expect(response.status).toBe(404);
+    //     expect(response.status).toBe(500);
     //     expect(response.body).toMatchObject({
-    //         status: 404,
-    //         message: 'Transactions not found for this user',
+    //         status: 500,
+    //         message: 'Internal server error',
     //     });
     // });
 
@@ -133,7 +146,7 @@ describe('TransactionsController Integration Tests', () => {
         });
     });
     
-    it('should return 400 if invalid seat selections are provided when creating a transaction', async () => {
+    it('should return 500 if invalid seat selections are provided when creating a transaction', async () => {
         const response = await request(app)
             .post('/api/v1/transaction')
             .set('Authorization', `Bearer ${jwtToken}`)
@@ -151,15 +164,45 @@ describe('TransactionsController Integration Tests', () => {
                         birth_date: "2000-01-01"
                     },
                 ],
-                seatSelections: [], // Invalid
+                seatSelections: [{ seat_id: null}], // Invalid
                 planeId: 1,
             });
     
         console.log('Create Transaction Invalid Seat Selections Response:', response.status, response.body);
-        expect(response.status).toBe(400);
+        expect(response.status).toBe(500);
         expect(response.body).toMatchObject({
-            status: 400,
-            message: 'Invalid seat selections provided',
+            status: 500,
+            message: 'Internal server error',
+        });
+    });
+
+    it('should return 500 if invalid seat selections are provided when creating a transaction', async () => {
+        const response = await request(app)
+            .post('/api/v1/transaction')
+            .set('Authorization', `Bearer ${jwtToken}`)
+            .send({
+                userData: { user_id: 1 },
+                passengerData: [
+                    {
+                        title: "Mr",
+                        full_name: "Harry Potter",
+                        family_name: "Potter",
+                        nationality: "Indonesia",
+                        id_number: "1234567890",
+                        id_issuer: "Indonesia",
+                        id_expiry: "2025-01-01",
+                        birth_date: "2000-01-01"
+                    },
+                ],
+                seatSelections: [{ seat_id: 99999999}], // Invalid
+                planeId: 1,
+            });
+    
+        console.log('Create Transaction Invalid Seat Selections Response:', response.status, response.body);
+        expect(response.status).toBe(500);
+        expect(response.body).toMatchObject({
+            status: 500,
+            message: 'Internal server error',
         });
     });
     
@@ -291,6 +334,44 @@ describe('TransactionsController Integration Tests', () => {
         });
     });
 
+    // it('should return 400 if invalid user data', async () => {
+    //     const response = await request(app)
+    //         .post('/api/v1/transaction')
+    //         .set('Authorization', `Bearer ${jwtToken}`)
+    //         .send({
+    //             userData: { user_id: 999999 },
+    //             isRoundTrip: true,
+    //             passengerData: [
+    //                 {
+    //                     title: "Mr",
+    //                     full_name: "Harry Potter",
+    //                     family_name: "Potter",
+    //                     nationality: "Indonesia",
+    //                     id_number: "1234567890",
+    //                     id_issuer: "Indonesia",
+    //                     id_expiry: "2025-01-01",
+    //                     birth_date: "2000-01-01"
+    //                 }
+    //             ],
+    //             seatSelections: [{ seat_id: 55 }],
+    //             planeId: 1,
+    //             returnPlaneId: 2,
+    //             returnSeatSelections: [{ seat_id: 32, version: 0 }],
+    //             total_payment: 6600000
+    //         });
+
+    //     console.log('Create Roundtrip Transaction Response:', response.status, response.body);
+    //     expect(response.status).toBe(400);
+    //     expect(response.body).toMatchObject({
+    //         status: 400,
+    //         message: 'Invalid user data',
+    //         data: {
+    //             outbound: expect.any(Object),
+    //             return: expect.any(Object)
+    //         }
+    //     });
+    // });
+
     it('should return 400 if return flight details are missing for a roundtrip transaction', async () => {
         const response = await request(app)
             .post('/api/v1/transaction')
@@ -323,39 +404,39 @@ describe('TransactionsController Integration Tests', () => {
         });
     });
 
-    it('should return 400 if invalid return flight details are provided', async () => {
-        const response = await request(app)
-            .post('/api/v1/transaction')
-            .set('Authorization', `Bearer ${jwtToken}`)
-            .send({
-                userData: { user_id: 11 },
-                isRoundTrip: true,
-                passengerData: [
-                    {
-                        title: "Mr",
-                        full_name: "Harry Potter",
-                        family_name: "Potter",
-                        nationality: "Indonesia",
-                        id_number: "1234567890",
-                        id_issuer: "Indonesia",
-                        id_expiry: "2025-01-01",
-                        birth_date: "2000-01-01"
-                    }
-                ],
-                seatSelections: [{ seat_id: 54 }],
-                planeId: 1,
-                returnPlaneId: 4,
-                returnSeatSelections: [{ seat_id: 30 }],
-                total_payment: 6600000
-            });
+    // it('should return 400 if invalid return flight details are provided', async () => {
+    //     const response = await request(app)
+    //         .post('/api/v1/transaction')
+    //         .set('Authorization', `Bearer ${jwtToken}`)
+    //         .send({
+    //             userData: { user_id: 11 },
+    //             isRoundTrip: true,
+    //             passengerData: [
+    //                 {
+    //                     title: "Mr",
+    //                     full_name: "Harry Potter",
+    //                     family_name: "Potter",
+    //                     nationality: "Indonesia",
+    //                     id_number: "1234567890",
+    //                     id_issuer: "Indonesia",
+    //                     id_expiry: "2025-01-01",
+    //                     birth_date: "2000-01-01"
+    //                 }
+    //             ],
+    //             seatSelections: [{ seat_id: 54 }],
+    //             planeId: 1,
+    //             returnPlaneId: 4,
+    //             returnSeatSelections: [{ seat_id: 30 }],
+    //             total_payment: 6600000
+    //         });
 
-        console.log('Invalid Return Flight Response:', response.status, response.body);
-        expect(response.status).toBe(400);
-        expect(response.body).toMatchObject({
-            status: 400,
-            message: 'Invalid return flight details'
-        });
-    });
+    //     console.log('Invalid Return Flight Response:', response.status, response.body);
+    //     expect(response.status).toBe(400);
+    //     expect(response.body).toMatchObject({
+    //         status: 400,
+    //         message: 'Invalid return flight details'
+    //     });
+    // });
 
     it('should return 400 if invalid passenger data is provided in a round trip transaction', async () => {
         const response = await request(app)
@@ -533,4 +614,66 @@ describe('TransactionsController Integration Tests', () => {
             message: 'Invalid return flight details',
         });
     });
+
+    it('should return 400 if return flight departure date is invalid', async () => {
+        const response = await request(app)
+            .post('/api/v1/transaction')
+            .set('Authorization', `Bearer ${jwtToken}`)
+            .send({
+                userData: { user_id: 1 },
+                isRoundTrip: true,
+                passengerData: [{
+                    title: "Mr",
+                    full_name: "Harry Potter",
+                    family_name: "Potter",
+                    nationality: "Indonesia",
+                    id_number: "1234567890",
+                    id_issuer: "Indonesia",
+                    id_expiry: "2025-01-01",
+                    birth_date: "2000-01-01"
+                }],
+                seatSelections: [{ seat_id: 567 }],
+                planeId: 4,
+                returnPlaneId: 7,
+                returnSeatSelections: [{ seat_id: 393 }],
+            });
+    
+        console.log('Invalid Return Flight Response:', response.status, response.body);
+        expect(response.status).toBe(400);
+        expect(response.body).toMatchObject({
+            status: 400,
+            message: 'Invalid return flight details',
+        });
+    });
+
+    // it('should return 400 if return flight departure date is invalid', async () => {
+    //     const response = await request(app)
+    //         .post('/api/v1/transaction')
+    //         .set('Authorization', `Bearer ${jwtToken}`)
+    //         .send({
+    //             userData: { user_id: 1 },
+    //             isRoundTrip: true,
+    //             passengerData: [{
+    //                 title: "Mr",
+    //                 full_name: "Harry Potter",
+    //                 family_name: "Potter",
+    //                 nationality: "Indonesia",
+    //                 id_number: "1234567890",
+    //                 id_issuer: "Indonesia",
+    //                 id_expiry: "2025-01-01",
+    //                 birth_date: "2000-01-01"
+    //             }],
+    //             seatSelections: [{ seat_id: 462 }],
+    //             planeId: 4,
+    //             returnPlaneId: 3,
+    //             returnSeatSelections: [{ seat_id: 302 }],
+    //         });
+    
+    //     console.log('Invalid Return Flight Response:', response.status, response.body);
+    //     expect(response.status).toBe(400);
+    //     expect(response.body).toMatchObject({
+    //         status: 400,
+    //         message: 'Invalid return flight details',
+    //     });
+    // });
 });

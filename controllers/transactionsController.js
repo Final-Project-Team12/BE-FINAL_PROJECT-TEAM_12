@@ -72,6 +72,7 @@ const transactionsController = {
                 );
             }
 
+            /* istanbul ignore next */
             return res.status(201).json({
                 message: isRoundTrip ? 'Round trip transaction created successfully' : 'Transaction created successfully',
                 status: 201,

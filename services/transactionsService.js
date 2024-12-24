@@ -28,89 +28,154 @@ async function checkMidtransStatus(orderId) {
     const midtransStatus = await snap.transaction.status(orderId);
     return midtransStatus;
   } catch (error) {
-    if (error.httpStatusCode === "404") {
-      return null;
-    }
-
-    if (error.httpStatusCode !== "404") {
-      console.error(
-        `Midtrans API Error for OrderID ${orderId}: ${error.message}`
-      );
-    }
+    console.error(`Midtrans API Error for OrderID ${orderId}:`, error);
     return null;
   }
 }
 
+async function getMidtransStatusUpdates(midtransStatus, transaction) {
+  let newStatus = transaction.status;
+  let paymentStatus = PAYMENT_STATUS.PENDING;
+  let notificationData = {
+    title: "",
+    description: ""
+  };
+
+  switch (midtransStatus.transaction_status) {
+    case "settlement":
+    case "capture":
+      newStatus = TRANSACTION_STATUS.SUCCESS;
+      paymentStatus = PAYMENT_STATUS.SETTLEMENT;
+      notificationData = {
+        title: "Payment Successful",
+        description: `Your payment for Order ID ${transaction.token} has been completed successfully.`
+      };
+      break;
+    case "expire":
+      newStatus = TRANSACTION_STATUS.FAILED;
+      paymentStatus = PAYMENT_STATUS.EXPIRED;
+      notificationData = {
+        title: "Payment Expired",
+        description: `Your payment for Order ID ${transaction.token} has expired.`
+      };
+      break;
+    case "cancel":
+      newStatus = TRANSACTION_STATUS.CANCELLED;
+      paymentStatus = PAYMENT_STATUS.CANCELLED;
+      notificationData = {
+        title: "Payment Cancelled",
+        description: `Your payment for Order ID ${transaction.token} has been cancelled.`
+      };
+      break;
+    case "deny":
+    case "failure":
+      newStatus = TRANSACTION_STATUS.FAILED;
+      paymentStatus = PAYMENT_STATUS.FAILURE;
+      notificationData = {
+        title: "Payment Failed",
+        description: `Your payment for Order ID ${transaction.token} has failed.`
+      };
+      break;
+  }
+
+  return { newStatus, paymentStatus, notificationData };
+}
+
+async function createTransaction(userData, passengerData, seatSelections, planeId) {
+  try {
+    validateTransactionData(userData, passengerData, seatSelections, planeId);
+
+    const plane = await prisma.plane.findUnique({
+      where: { plane_id: parseInt(planeId) },
+      include: {
+        origin_airport: true,
+        destination_airport: true,
+      },
+    });
+
+    if (!plane) throw new Error("PLANE_NOT_FOUND");
+
+    return await prisma.$transaction(
+      async (tx) => {
+        return await createSingleTransaction(
+          tx,
+          userData,
+          passengerData,
+          seatSelections,
+          planeId,
+          "single"
+        );
+      },
+      {
+        isolationLevel: "Serializable",
+      }
+    );
+  } catch (error) {
+    console.error("[Error in createTransaction]:", error);
+    throw error;
+  }
+}
+
+async function validateTransactionData(userData, passengerData, seatSelections, planeId) {
+  if (!userData?.user_id) throw new Error("INVALID_USER_DATA");
+  if (!Array.isArray(passengerData) || passengerData.length === 0)
+    throw new Error("INVALID_PASSENGER_DATA");
+  if (!Array.isArray(seatSelections) || seatSelections.length === 0)
+    throw new Error("INVALID_SEAT_SELECTIONS");
+  if (!planeId) throw new Error("INVALID_PLANE_ID");
+}
+
 async function updateTransactionStatus(transaction, tx) {
   try {
-    if (
-      transaction.status === TRANSACTION_STATUS.PENDING &&
-      transaction.token
-    ) {
+    if (transaction.status === TRANSACTION_STATUS.PENDING && transaction.token) {
       const midtransStatus = await checkMidtransStatus(transaction.token);
-
       if (!midtransStatus) return transaction;
 
-      let newStatus = transaction.status;
-      let paymentStatus = PAYMENT_STATUS.PENDING;
-      let notificationTitle = "";
-      let notificationDescription = "";
-
-      switch (midtransStatus.transaction_status) {
-        case "settlement":
-        case "capture":
-          newStatus = TRANSACTION_STATUS.SUCCESS;
-          paymentStatus = PAYMENT_STATUS.SETTLEMENT;
-          notificationTitle = "Payment Successful";
-          notificationDescription = `Your payment with Order ID ${transaction.token} has been completed successfully.`;
-          break;
-        case "expire":
-          newStatus = TRANSACTION_STATUS.FAILED;
-          paymentStatus = PAYMENT_STATUS.EXPIRED;
-          notificationTitle = "Payment Expired";
-          notificationDescription = `Your payment with Order ID ${transaction.token} has expired.`;
-          break;
-        case "cancel":
-          newStatus = TRANSACTION_STATUS.CANCELLED;
-          paymentStatus = PAYMENT_STATUS.CANCELLED;
-          notificationTitle = "Payment Cancelled";
-          notificationDescription = `Your payment with Order ID ${transaction.token} has been cancelled.`;
-          break;
-        case "deny":
-        case "failure":
-          newStatus = TRANSACTION_STATUS.FAILED;
-          paymentStatus = PAYMENT_STATUS.FAILURE;
-          notificationTitle = "Payment Failed";
-          notificationDescription = `Your payment with Order ID ${transaction.token} has failed.`;
-          break;
-      }
+      const { newStatus, paymentStatus, notificationData } = 
+        getMidtransStatusUpdates(midtransStatus, transaction);
 
       if (newStatus !== transaction.status) {
-        const updatedTransaction = await tx.transaction.update({
-          where: { transaction_id: transaction.transaction_id },
-          data: {
-            status: newStatus,
-            message: notificationDescription,
-          },
-        });
-
-        await tx.payment.update({
-          where: { orderId: transaction.token },
-          data: {
-            status: paymentStatus,
-            transactionId: midtransStatus.transaction_id,
-          },
-        });
-
-        await tx.notification.create({
-          data: {
-            title: notificationTitle,
-            description: notificationDescription,
-            notification_date: new Date(),
-            user_id: transaction.user_id,
-            is_read: false,
-          },
-        });
+        const [updatedTransaction] = await Promise.all([
+          tx.transaction.update({
+            where: { transaction_id: transaction.transaction_id },
+            data: {
+              status: newStatus,
+              message: notificationData.description
+            },
+            include: {
+              tickets: {
+                include: {
+                  passenger: true,
+                  seat: true,
+                  plane: {
+                    include: {
+                      airline: true,
+                      origin_airport: true,
+                      destination_airport: true,
+                    },
+                  },
+                },
+              },
+              user: true,
+            },
+          }),
+          tx.payment.update({
+            where: { orderId: transaction.token },
+            data: {
+              status: paymentStatus,
+              transactionId: midtransStatus.transaction_id,
+            },
+          }),
+          tx.notification.create({
+            data: {
+              title: notificationData.title,
+              description: notificationData.description,
+              notification_date: new Date(),
+              user_id: transaction.user_id,
+              is_read: false,
+            },
+          }),
+        ]);
 
         return updatedTransaction;
       }
@@ -172,41 +237,6 @@ async function getTransactionsByUserId(userId) {
   }
 }
 
-async function createTransaction(
-  userData,
-  passengerData,
-  seatSelections,
-  planeId
-) {
-  try {
-    if (!userData?.user_id) throw new Error("INVALID_USER_DATA");
-    if (!Array.isArray(passengerData) || passengerData.length === 0)
-      throw new Error("INVALID_PASSENGER_DATA");
-    if (!Array.isArray(seatSelections) || seatSelections.length === 0)
-      throw new Error("INVALID_SEAT_SELECTIONS");
-    if (!planeId) throw new Error("INVALID_PLANE_ID");
-
-    return await prisma.$transaction(
-      async (tx) => {
-        return await createSingleTransaction(
-          tx,
-          userData,
-          passengerData,
-          seatSelections,
-          planeId,
-          "Single trip"
-        );
-      },
-      {
-        isolationLevel: "Serializable",
-      }
-    );
-  } catch (error) {
-    console.error("[Error in createTransaction]:", error);
-    throw error;
-  }
-}
-
 async function createRoundTripTransaction(
   userData,
   passengerData,
@@ -216,25 +246,14 @@ async function createRoundTripTransaction(
   returnPlaneId
 ) {
   try {
-    if (!userData?.user_id) throw new Error("INVALID_USER_DATA");
-    if (!Array.isArray(passengerData) || passengerData.length === 0)
-      throw new Error("INVALID_PASSENGER_DATA");
-    if (
-      !Array.isArray(outboundSeatSelections) ||
-      outboundSeatSelections.length === 0 ||
-      !Array.isArray(returnSeatSelections) ||
-      returnSeatSelections.length === 0
-    )
-      throw new Error("INVALID_SEAT_SELECTIONS");
-    if (!outboundPlaneId || !returnPlaneId) throw new Error("INVALID_PLANE_ID");
-
-    const user = await prisma.users.findUnique({
-      where: { user_id: parseInt(userData.user_id) },
-    });
-
-    if (!user) {
-      throw new Error("USER_NOT_FOUND");
-    }
+    validateRoundTripData(
+      userData,
+      passengerData,
+      outboundSeatSelections,
+      outboundPlaneId,
+      returnSeatSelections,
+      returnPlaneId
+    );
 
     const [outboundPlane, returnPlane] = await Promise.all([
       prisma.plane.findUnique({
@@ -253,23 +272,7 @@ async function createRoundTripTransaction(
       }),
     ]);
 
-    if (!outboundPlane || !returnPlane) {
-      throw new Error("PLANE_NOT_FOUND");
-    }
-
-    if (
-      new Date(returnPlane.departure_date) <=
-      new Date(outboundPlane.departure_date)
-    ) {
-      throw new Error("INVALID_RETURN_FLIGHT");
-    }
-
-    if (
-      outboundPlane.destination_airport.airport_id !==
-      returnPlane.origin_airport.airport_id
-    ) {
-      throw new Error("INVALID_RETURN_FLIGHT");
-    }
+    validatePlanes(outboundPlane, returnPlane);
 
     return await prisma.$transaction(
       async (tx) => {
@@ -279,7 +282,7 @@ async function createRoundTripTransaction(
           passengerData,
           outboundSeatSelections,
           outboundPlaneId,
-          "Outbound flight"
+          "outbound"
         );
 
         const returnTransaction = await createSingleTransaction(
@@ -288,22 +291,31 @@ async function createRoundTripTransaction(
           passengerData,
           returnSeatSelections,
           returnPlaneId,
-          "Return flight"
+          "return"
         );
 
-        await tx.notification.create({
-          data: {
-            title: "Round Trip Booking Confirmed",
-            description: `Your round trip booking has been confirmed. Outbound flight: ${outboundTransaction.transaction_id}, Return flight: ${returnTransaction.transaction_id}`,
-            notification_date: new Date(),
-            user_id: parseInt(userData.user_id),
-            is_read: false,
-          },
-        });
+        await Promise.all([
+          tx.transaction.update({
+            where: { transaction_id: outboundTransaction.transaction_id },
+            data: {
+              trip_type: "outbound",
+              related_transaction_id: returnTransaction.transaction_id
+            }
+          }),
+          tx.transaction.update({
+            where: { transaction_id: returnTransaction.transaction_id },
+            data: {
+              trip_type: "return",
+              related_transaction_id: outboundTransaction.transaction_id
+            }
+          })
+        ]);
+
+        await createRoundTripNotification(tx, userData.user_id, outboundTransaction, returnTransaction);
 
         return {
           outbound: outboundTransaction,
-          return: returnTransaction,
+          return: returnTransaction
         };
       },
       {
@@ -324,29 +336,59 @@ async function createSingleTransaction(
   planeId,
   transactionType
 ) {
+  const selectedSeats = await validateAndGetSeats(tx, seatSelections);
+  
+  try {
+    const { baseAmount, tax, totalPayment } = calculatePayments(selectedSeats);
+    await checkSeatAvailability(tx, selectedSeats, seatSelections);
+
+    const transaction = await tx.transaction.create({
+      data: {
+        status: TRANSACTION_STATUS.PENDING,
+        redirect_url: "",
+        transaction_date: new Date(),
+        token: generateToken(),
+        message: `${transactionType} transaction initiated`,
+        total_payment: totalPayment,
+        base_amount: baseAmount,
+        tax_amount: tax,
+        user_id: parseInt(userData.user_id),
+        trip_type: transactionType,
+      },
+    });
+
+    const passengers = await createPassengers(tx, passengerData);
+    await createTicketsAndUpdateSeats(tx, transaction, passengers, selectedSeats, planeId);
+
+    return await getCompleteTransactionData(tx, transaction.transaction_id);
+  } catch (error) {
+    if (error.code === 'P2002') {
+      throw new Error("CONCURRENCY_ERROR");
+    }
+    throw error;
+  }
+}
+
+// Helper functions remain the same
+async function validateAndGetSeats(tx, seatSelections) {
   const selectedSeats = await Promise.all(
     seatSelections.map(async (selection) => {
       const seat = await tx.seat.findUnique({
         where: { seat_id: parseInt(selection.seat_id) },
       });
 
-      if (!seat) {
-        throw new Error("INVALID_SEATS_SELECTED");
-      }
-
-      if (!seat.is_available) {
-        throw new Error("SEATS_UNAVAILABLE");
-      }
-
+      if (!seat) throw new Error("INVALID_SEATS_SELECTED");
+      if (!seat.is_available) throw new Error("SEATS_UNAVAILABLE");
+      
       return seat;
     })
   );
+  return selectedSeats;
+}
 
-  const baseAmount = selectedSeats.reduce((sum, seat) => sum + seat.price, 0);
-  const tax = Math.round(baseAmount * 0.1);
-  const totalPayment = baseAmount + tax;
+async function checkSeatAvailability(tx, selectedSeats, seatSelections) {
   const currentSeats = await Promise.all(
-    seatSelections.map((selection) =>
+    seatSelections.map(selection =>
       tx.seat.findUnique({
         where: { seat_id: parseInt(selection.seat_id) },
       })
@@ -361,22 +403,18 @@ async function createSingleTransaction(
   if (unavailableSeats.length > 0) {
     throw new Error("SEATS_UNAVAILABLE");
   }
+}
 
-  const transaction = await tx.transaction.create({
-    data: {
-      status: TRANSACTION_STATUS.PENDING,
-      redirect_url: "",
-      transaction_date: new Date(),
-      token: Math.random().toString(36).substring(7),
-      message: `${transactionType} transaction initiated`,
-      total_payment: totalPayment,
-      base_amount: baseAmount,
-      tax_amount: tax,
-      user_id: parseInt(userData.user_id),
-    },
-  });
-  const passengers = await Promise.all(
-    passengerData.map((passenger) =>
+function calculatePayments(selectedSeats) {
+  const baseAmount = selectedSeats.reduce((sum, seat) => sum + seat.price, 0);
+  const tax = Math.round(baseAmount * 0.1);
+  const totalPayment = baseAmount + tax;
+  return { baseAmount, tax, totalPayment };
+}
+
+async function createPassengers(tx, passengerData) {
+  return await Promise.all(
+    passengerData.map(passenger =>
       tx.passenger.create({
         data: {
           title: passenger.title,
@@ -386,39 +424,46 @@ async function createSingleTransaction(
           id_number: passenger.id_number || null,
           id_issuer: passenger.id_issuer || null,
           id_expiry: passenger.id_expiry ? new Date(passenger.id_expiry) : null,
-          birth_date: passenger.birth_date
-            ? new Date(passenger.birth_date)
-            : null,
+          birth_date: passenger.birth_date ? new Date(passenger.birth_date) : null,
         },
       })
     )
   );
-  await Promise.all(
-    seatSelections.map(async (selection, index) => {
-      const updatedSeat = await tx.seat.update({
-        where: {
-          seat_id: parseInt(selection.seat_id),
-          version: selectedSeats[index].version,
-        },
-        data: {
-          is_available: false,
-          version: { increment: 1 },
-        },
-      });
+}
 
-      return await tx.ticket.create({
-        data: {
-          transaction_id: transaction.transaction_id,
-          plane_id: parseInt(planeId),
-          passenger_id: passengers[index].passenger_id,
-          seat_id: parseInt(selection.seat_id),
-        },
-      });
-    })
-  );
+async function createTicketsAndUpdateSeats(tx, transaction, passengers, selectedSeats, planeId) {
+  const tickets = [];
+  for (let index = 0; index < selectedSeats.length; index++) {
+    const seat = selectedSeats[index];
+    await tx.seat.update({
+      where: {
+        seat_id: seat.seat_id,
+        version: seat.version,
+        is_available: true
+      },
+      data: {
+        is_available: false, 
+        version: { increment: 1 }
+      }
+    });
+    
+    tickets.push(await tx.ticket.create({
+      data: {
+        transaction_id: transaction.transaction_id,
+        plane_id: parseInt(planeId),
+        passenger_id: passengers[index].passenger_id,
+        seat_id: seat.seat_id
+      }
+    }));
+  }
+  return tickets;
+}
+
+async function getCompleteTransactionData(tx, transactionId) {
   return await tx.transaction.findUnique({
-    where: { transaction_id: transaction.transaction_id },
+    where: { transaction_id: transactionId },
     include: {
+      related_transaction: true,
       tickets: {
         include: {
           passenger: true,
@@ -437,57 +482,118 @@ async function createSingleTransaction(
   });
 }
 
-async function updateTransaction(transactionId, updateData) {
-  try {
-    const transaction = await prisma.transaction.update({
-      where: { transaction_id: transactionId },
-      data: updateData,
-      include: {
-        tickets: {
-          include: {
-            passenger: true,
-            seat: true,
-            plane: {
-              include: {
-                airline: true,
-                origin_airport: true,
-                destination_airport: true,
+function generateToken() {
+  return Math.random().toString(36).substring(7);
+}
+
+function validateRoundTripData(
+  userData,
+  passengerData,
+  outboundSeatSelections,
+  outboundPlaneId,
+  returnSeatSelections,
+  returnPlaneId
+) {
+  if (!userData?.user_id) throw new Error("INVALID_USER_DATA");
+  if (!Array.isArray(passengerData) || passengerData.length === 0)
+    throw new Error("INVALID_PASSENGER_DATA");
+  if (
+    !Array.isArray(outboundSeatSelections) ||
+    outboundSeatSelections.length === 0 ||
+    !Array.isArray(returnSeatSelections) ||
+    returnSeatSelections.length === 0
+  )
+    throw new Error("INVALID_SEAT_SELECTIONS");
+    if (!outboundPlaneId || !returnPlaneId) throw new Error("INVALID_PLANE_ID");
+  }
+  
+  function validatePlanes(outboundPlane, returnPlane) {
+    if (!outboundPlane || !returnPlane) {
+      throw new Error("PLANE_NOT_FOUND");
+    }
+  
+    if (
+      new Date(returnPlane.departure_date) <= new Date(outboundPlane.departure_date)
+    ) {
+      throw new Error("INVALID_RETURN_FLIGHT");
+    }
+  
+    if (
+      outboundPlane.destination_airport.airport_id !==
+      returnPlane.origin_airport.airport_id
+    ) {
+      throw new Error("INVALID_RETURN_FLIGHT");
+    }
+  }
+  
+  async function createRoundTripNotification(tx, userId, outboundTransaction, returnTransaction) {
+    await tx.notification.create({
+      data: {
+        title: "Round Trip Booking Confirmed",
+        description: `Your round trip booking has been confirmed. Outbound flight: ${outboundTransaction.transaction_id}, Return flight: ${returnTransaction.transaction_id}`,
+        notification_date: new Date(),
+        user_id: parseInt(userId),
+        is_read: false,
+      },
+    });
+  }
+  
+  async function updateTransaction(transactionId, updateData) {
+    try {
+      const transaction = await prisma.transaction.update({
+        where: { transaction_id: transactionId },
+        data: {
+          ...updateData,
+          version: { increment: 1 }
+        },
+        include: {
+          tickets: {
+            include: {
+              passenger: true,
+              seat: true,
+              plane: {
+                include: {
+                  airline: true,
+                  origin_airport: true,
+                  destination_airport: true,
+                },
               },
             },
           },
+          user: true,
         },
-        user: true,
-      },
-    });
-
-    return transaction;
-  } catch (error) {
-    console.error("[Error in updateTransaction]:", error);
-    if (error.code === "P2025") {
-      throw new Error("TRANSACTION_NOT_FOUND");
+      });
+  
+      return transaction;
+    } catch (error) {
+      console.error("[Error in updateTransaction]:", error);
+      if (error.code === "P2025") {
+        throw new Error("TRANSACTION_NOT_FOUND");
+      }
+      throw error;
     }
-    throw error;
   }
-}
-
-async function deleteTransaction(transactionId) {
-  try {
-    await prisma.transaction.delete({
-      where: { transaction_id: transactionId },
-    });
-  } catch (error) {
-    console.error("[Error in deleteTransaction]:", error);
-    if (error.code === "P2025") {
-      throw new Error("TRANSACTION_NOT_FOUND");
+  
+  async function deleteTransaction(transactionId) {
+    try {
+      await prisma.transaction.delete({
+        where: { transaction_id: transactionId },
+      });
+    } catch (error) {
+      console.error("[Error in deleteTransaction]:", error);
+      if (error.code === "P2025") {
+        throw new Error("TRANSACTION_NOT_FOUND");
+      }
+      throw error;
     }
-    throw error;
   }
-}
-
-module.exports = {
-  getTransactionsByUserId,
-  createTransaction,
-  createRoundTripTransaction,
-  updateTransaction,
-  deleteTransaction,
-};
+  
+  module.exports = {
+    getTransactionsByUserId,
+    createTransaction,
+    createRoundTripTransaction,
+    updateTransaction,
+    deleteTransaction,
+    PAYMENT_STATUS,
+    TRANSACTION_STATUS
+  };

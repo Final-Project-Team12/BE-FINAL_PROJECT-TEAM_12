@@ -52,6 +52,11 @@ model Transaction {
   base_amount      Float?
   tax_amount       Float?
   total_payment    Float
+  version          Int      @default(0)
+  trip_type        String   @default("single")
+  related_transaction_id Int?
+  related_transaction    Transaction? @relation("RelatedTrip", fields: [related_transaction_id], references: [transaction_id], onDelete: SetNull)
+  related_trips         Transaction[] @relation("RelatedTrip")
   user_id          Int
   user             Users    @relation(fields: [user_id], references: [user_id], onDelete: Cascade)
   tickets          Ticket[]

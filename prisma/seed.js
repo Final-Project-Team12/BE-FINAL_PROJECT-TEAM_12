@@ -116,150 +116,272 @@ async function main() {
     "https://ik.imagekit.io/72mu50jam/japan.jpg?updatedAt=1734886405616",
   ];
 
-  const airportIds = [];
-  const countries = [
-    { name: "Indonesia", continent: "Asia" },
-    { name: "Malaysia", continent: "Asia" },
-    { name: "United States", continent: "North America" },
-    { name: "Germany", continent: "Europe" },
-    { name: "Brazil", continent: "South America" },
-    { name: "Australia", continent: "Australia" },
-    { name: "South Africa", continent: "Africa" },
-    { name: "Canada", continent: "North America" },
-    { name: "United Kingdom", continent: "Europe" },
-    { name: "France", continent: "Europe" },
-    { name: "Argentina", continent: "South America" },
+  const airports = [
+    {
+      name: "John F. Kennedy International Airport",
+      code: "JFK",
+      country: "United States",
+      continent: "North America",
+      image: airportImages[3],
+    },
+    {
+      name: "Frankfurt Airport",
+      code: "FRA",
+      country: "Germany",
+      continent: "Europe",
+      image: airportImages[5],
+    },
+    {
+      name: "Tokyo Narita International Airport",
+      code: "NRT",
+      country: "Japan",
+      continent: "Asia",
+      image: airportImages[8],
+    },
+    {
+      name: "Dubai International Airport",
+      code: "DXB",
+      country: "United Arab Emirates",
+      continent: "Asia",
+      image: airportImages[3],
+    },
+    {
+      name: "London Heathrow Airport",
+      code: "LHR",
+      country: "United Kingdom",
+      continent: "Europe",
+      image: airportImages[1],
+    },
+    {
+      name: "Singapore Changi Airport",
+      code: "SIN",
+      country: "Singapore",
+      continent: "Asia",
+      image: airportImages[2],
+    },
+    {
+      name: "Sydney Airport",
+      code: "SYD",
+      country: "Australia",
+      continent: "Australia",
+      image: airportImages[6],
+    },
+    {
+      name: "Zurich Airport",
+      code: "ZRH",
+      country: "Switzerland",
+      continent: "Europe",
+      image: airportImages[7],
+    },
+    {
+      name: "Moscow Sheremetyevo Airport",
+      code: "SVO",
+      country: "Russia",
+      continent: "Europe",
+      image: airportImages[4],
+    },
   ];
 
-  for (let i = 1; i <= 22; i++) {
-    const country = countries[i % countries.length];
-    const airport = await prisma.airport.create({
+  const airportIds = [];
+  for (const airport of airports) {
+    const newAirport = await prisma.airport.create({
       data: {
-        name: `${country.name}`,
-        address: `Alamat ${country.name}`,
-        airport_code: `${country.name.slice(0, 3)}${i}`,
-        image_url: airportImages[i % airportImages.length],
-        file_id: `airport-file-id-${i}`,
-        continent_id: continentIds[continents.indexOf(country.continent)],
+        name: airport.name,
+        address: `${airport.name}, ${airport.country}`,
+        airport_code: airport.code,
+        image_url: airport.image,
+        file_id: `airport-file-id-${airport.code}`,
+        continent_id: continentIds[continents.indexOf(airport.continent)],
       },
     });
-    airportIds.push(airport.airport_id);
+    airportIds.push(newAirport.airport_id);
+  }
+
+  function createDateTime(year, month, day, hours, minutes) {
+    return new Date(year, month - 1, day, hours, minutes);
+  }
+
+  function getSeatClassAndPrice(seatId) {
+    if (seatId <= 18) {
+      return { seatClass: "First Class", price: 18000000 };
+    } else if (seatId <= 36) {
+      return { seatClass: "Business", price: 12000000 };
+    } else if (seatId <= 54) {
+      return { seatClass: "Premium Economy", price: 6000000 };
+    } else {
+      return { seatClass: "Economy", price: 3000000 };
+    }
+  }
+
+  function generateSeatNumber(seatId) {
+    const columns = ["A", "B", "C", "D", "E", "F"];
+    const row = Math.ceil(seatId / 6);
+    const colIndex = (seatId - 1) % 6;
+    return `${columns[colIndex]}${row}`;
+  }
+
+  function generateFlightDates(numberOfDays = 30) {
+    const dates = [];
+    const startDate = new Date();
+
+    for (let i = 0; i < numberOfDays; i++) {
+      const currentDate = new Date(startDate);
+      currentDate.setDate(startDate.getDate() + i);
+
+      dates.push({
+        date: currentDate.getDate(),
+        month: currentDate.getMonth() + 1,
+        year: currentDate.getFullYear(),
+      });
+    }
+
+    return dates;
+  }
+
+  function generateRandomDiscount() {
+    const discounts = [10, 15, 20, 25, 30, 35, 40, 45, 50];
+    return discounts[Math.floor(Math.random() * discounts.length)];
+  }
+
+  function generateOffer(route, discount) {
+    const offerTypes = [
+      `${discount}% OFF Today!`,
+      `Flash Sale ${discount}%`,
+      `Limited Time Offer ${discount}%`,
+      `Today's Deal: ${discount}% OFF`,
+      `Special ${discount}% Discount`,
+    ];
+    return offerTypes[Math.floor(Math.random() * offerTypes.length)];
   }
 
   const planeIds = [];
-  for (let i = 1; i <= 22; i++) {
-    const originIndex = i % airportIds.length;
-    const destinationIndex = (i + 1) % airportIds.length;
+  const flightSchedules = generateFlightDates(30);
 
-    const plane = await prisma.plane.create({
-      data: {
-        airline_id: airlineIds[i % airlineIds.length],
-        airport_id_origin: airportIds[originIndex],
-        airport_id_destination: airportIds[destinationIndex],
-        departure_time: new Date(2024, 11, 8),
-        arrival_time: new Date(2024, 11, 8),
-        departure_terminal: `Terminal ${i}`,
-        baggage_capacity: 200 + i * 10,
-        plane_code: `PLANE-${i}`,
-        cabin_baggage_capacity: 10 + i,
-        meal_available: i % 2 === 0,
-        wifi_available: i % 2 !== 0,
-        in_flight_entertainment: i % 2 === 0,
-        power_outlets: i % 2 !== 0,
-        offers: `Offer ${i}`,
-        duration: 120 + i * 5,
-      },
-    });
-    planeIds.push(plane.plane_id);
+  const routes = [
+    { origin: "JFK", destination: "FRA" }, // US to Germany
+    { origin: "JFK", destination: "NRT" }, // US to Japan
+    { origin: "DXB", destination: "LHR" }, // Dubai to London
+    { origin: "SIN", destination: "SYD" }, // Singapore to Sydney
+    { origin: "ZRH", destination: "SVO" }, // Zurich to Moscow
+    { origin: "SIN", destination: "NRT" }, // Singapore to Japan
+    { origin: "DXB", destination: "SIN" }, // Dubai to Singapore
+    { origin: "LHR", destination: "SYD" }, // London to Sydney
+    { origin: "FRA", destination: "SVO" }, // Frankfurt to Moscow
+    { origin: "NRT", destination: "SYD" }, // Tokyo to Sydney
+    { origin: "LHR", destination: "DXB" }, // London to Dubai
+    { origin: "SVO", destination: "NRT" }, // Moscow to Tokyo
+    { origin: "FRA", destination: "SIN" }, // Frankfurt to Singapore
+    { origin: "JFK", destination: "LHR" }, // New York to London
+    { origin: "SYD", destination: "SIN" }, // Sydney to Singapore
+  ];
 
-    // Create seats for each plane with different classes and prices
-    const seatRows = ["A", "B", "C", "D", "E", "F"];
-    const numRows = 24; // Increased rows to accommodate all classes
+  // Create flights for each schedule
+  for (let i = 0; i < flightSchedules.length; i++) {
+    const schedule = flightSchedules[i];
 
-    for (let row = 1; row <= numRows; row++) {
-      for (let col of seatRows) {
-        const seatNumber = `${col}${row}`;
-        let seatClass;
-        let price;
+    // Create flights for each route on this date
+    for (const route of routes) {
+      const originAirport = airports.find((a) => a.code === route.origin);
+      const destAirport = airports.find((a) => a.code === route.destination);
+      const originId = airportIds[airports.indexOf(originAirport)];
+      const destId = airportIds[airports.indexOf(destAirport)];
 
-        // Determine seat class and price based on row number
-        if (row <= 3) {
-          seatClass = "First Class";
-          price = 18000000; // 18 juta
-        } else if (row <= 8) {
-          seatClass = "Business";
-          price = 12000000; // 12 juta
-        } else if (row <= 14) {
-          seatClass = "Premium Economy";
-          price = 6000000; // 6 juta
-        } else {
-          seatClass = "Economy";
-          price = 3000000; // 3 juta
-        }
+      // Morning flight (outbound)
+      const discount = generateRandomDiscount();
+      const morningFlight = await prisma.plane.create({
+        data: {
+          airline_id: airlineIds[i % airlineIds.length],
+          airport_id_origin: originId,
+          airport_id_destination: destId,
+          departure_time: createDateTime(
+            schedule.year,
+            schedule.month,
+            schedule.date,
+            8,
+            0
+          ),
+          arrival_time: createDateTime(
+            schedule.year,
+            schedule.month,
+            schedule.date,
+            20,
+            0
+          ),
+          departure_terminal: `Terminal ${1 + (i % 3)}`,
+          baggage_capacity: 200,
+          plane_code: `${route.origin}-${route.destination}-${schedule.date}${schedule.month}-AM`,
+          cabin_baggage_capacity: 10,
+          meal_available: true,
+          wifi_available: true,
+          in_flight_entertainment: true,
+          power_outlets: true,
+          offers: generateOffer(route, discount),
+          duration: 720,
+        },
+      });
+      planeIds.push(morningFlight.plane_id);
 
+      // Create seats for morning flight
+      for (let seatId = 1; seatId <= 72; seatId++) {
+        const { seatClass, price } = getSeatClassAndPrice(seatId);
+        const seatNumber = generateSeatNumber(seatId);
         await prisma.seat.create({
           data: {
             seat_number: seatNumber,
             class: seatClass,
             price: price,
-            plane_id: plane.plane_id,
+            plane_id: morningFlight.plane_id,
             is_available: true,
             version: 0,
           },
         });
       }
-    }
 
-    // Create reverse flight
-    const reversePlane = await prisma.plane.create({
-      data: {
-        airline_id: airlineIds[i % airlineIds.length],
-        airport_id_origin: airportIds[destinationIndex],
-        airport_id_destination: airportIds[originIndex],
-        departure_time: new Date(2024, 11, 12),
-        arrival_time: new Date(2024, 11, 12),
-        departure_terminal: `Terminal ${i}`,
-        baggage_capacity: 200 + i * 10,
-        plane_code: `PLANE-${i}-REVERSE`,
-        cabin_baggage_capacity: 10 + i,
-        meal_available: i % 2 === 0,
-        wifi_available: i % 2 !== 0,
-        in_flight_entertainment: i % 2 === 0,
-        power_outlets: i % 2 !== 0,
-        offers: `Offer ${i}`,
-        duration: 120 + i * 5,
-      },
-    });
-    planeIds.push(reversePlane.plane_id);
+      // Evening flight (return)
+      const eveningDiscount = generateRandomDiscount();
+      const eveningFlight = await prisma.plane.create({
+        data: {
+          airline_id: airlineIds[i % airlineIds.length],
+          airport_id_origin: destId,
+          airport_id_destination: originId,
+          departure_time: createDateTime(
+            schedule.year,
+            schedule.month,
+            schedule.date,
+            21,
+            0
+          ),
+          arrival_time: createDateTime(
+            schedule.year,
+            schedule.month,
+            schedule.date + 1,
+            9,
+            0
+          ),
+          departure_terminal: `Terminal ${1 + (i % 3)}`,
+          baggage_capacity: 200,
+          plane_code: `${route.destination}-${route.origin}-${schedule.date}${schedule.month}-PM`,
+          cabin_baggage_capacity: 10,
+          meal_available: true,
+          wifi_available: true,
+          in_flight_entertainment: true,
+          power_outlets: true,
+          offers: generateOffer(route, eveningDiscount),
+          duration: 720,
+        },
+      });
+      planeIds.push(eveningFlight.plane_id);
 
-    // Create seats for reverse plane with different classes and prices
-    for (let row = 1; row <= numRows; row++) {
-      for (let col of seatRows) {
-        const seatNumber = `${col}${row}`;
-        let seatClass;
-        let price;
-
-        // Determine seat class and price based on row number
-        if (row <= 3) {
-          seatClass = "First Class";
-          price = 18000000;
-        } else if (row <= 8) {
-          seatClass = "Business";
-          price = 12000000;
-        } else if (row <= 14) {
-          seatClass = "Premium Economy";
-          price = 6000000;
-        } else {
-          seatClass = "Economy";
-          price = 3000000;
-        }
-
+      // Create seats for evening flight
+      for (let seatId = 1; seatId <= 72; seatId++) {
+        const { seatClass, price } = getSeatClassAndPrice(seatId);
+        const seatNumber = generateSeatNumber(seatId);
         await prisma.seat.create({
           data: {
             seat_number: seatNumber,
             class: seatClass,
             price: price,
-            plane_id: reversePlane.plane_id,
+            plane_id: eveningFlight.plane_id,
             is_available: true,
             version: 0,
           },
@@ -307,7 +429,6 @@ async function main() {
   }
 
   // Create tickets
-  console.log("Creating tickets...");
   for (let i = 1; i <= 10; i++) {
     const availableSeat = await prisma.seat.findFirst({
       where: {
@@ -338,7 +459,6 @@ async function main() {
   }
 
   // Create notifications
-  console.log("Creating notifications...");
   for (let i = 1; i <= 10; i++) {
     await prisma.notification.create({
       data: {
@@ -351,7 +471,6 @@ async function main() {
   }
 
   // Create payments
-  console.log("Creating payments...");
   for (let i = 1; i <= 10; i++) {
     await prisma.payment.create({
       data: {

@@ -1,4 +1,8 @@
 const transactionsService = require("../services/transactionsService");
+const ERROR_CODES = {
+  CONCURRENCY_ERROR: 'P2002'
+};
+
 const MAX_RETRIES = 3;
 const RETRY_DELAY = 1000;
 

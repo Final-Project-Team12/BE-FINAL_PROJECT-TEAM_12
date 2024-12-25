@@ -37,9 +37,13 @@ async function getMidtransStatusUpdates(midtransStatus, transaction) {
   let newStatus = transaction.status;
   let paymentStatus = PAYMENT_STATUS.PENDING;
   let notificationData = {
-    title: "",
-    description: ""
+    title: "Payment Status Update",
+    description: `Payment status updated for Order ID ${transaction.token}`
   };
+
+  if (!midtransStatus || !midtransStatus.transaction_status) {
+    return { newStatus, paymentStatus, notificationData };
+  }
 
   switch (midtransStatus.transaction_status) {
     case "settlement":
@@ -127,57 +131,66 @@ async function validateTransactionData(userData, passengerData, seatSelections, 
 
 async function updateTransactionStatus(transaction, tx) {
   try {
+    if (!transaction) {
+      console.error('Transaction object is undefined');
+      return null;
+    }
+
     if (transaction.status === TRANSACTION_STATUS.PENDING && transaction.token) {
       const midtransStatus = await checkMidtransStatus(transaction.token);
-      if (!midtransStatus) return transaction;
-
+      
       const { newStatus, paymentStatus, notificationData } = 
-        getMidtransStatusUpdates(midtransStatus, transaction);
+        await getMidtransStatusUpdates(midtransStatus, transaction);
 
       if (newStatus !== transaction.status) {
-        const [updatedTransaction] = await Promise.all([
-          tx.transaction.update({
-            where: { transaction_id: transaction.transaction_id },
-            data: {
-              status: newStatus,
-              message: notificationData.description
-            },
-            include: {
-              tickets: {
-                include: {
-                  passenger: true,
-                  seat: true,
-                  plane: {
-                    include: {
-                      airline: true,
-                      origin_airport: true,
-                      destination_airport: true,
+        try {
+          const [updatedTransaction] = await Promise.all([
+            tx.transaction.update({
+              where: { transaction_id: transaction.transaction_id },
+              data: {
+                status: newStatus,
+                message: notificationData.description
+              },
+              include: {
+                tickets: {
+                  include: {
+                    passenger: true,
+                    seat: true,
+                    plane: {
+                      include: {
+                        airline: true,
+                        origin_airport: true,
+                        destination_airport: true,
+                      },
                     },
                   },
                 },
+                user: true,
               },
-              user: true,
-            },
-          }),
-          tx.payment.update({
-            where: { orderId: transaction.token },
-            data: {
-              status: paymentStatus,
-              transactionId: midtransStatus.transaction_id,
-            },
-          }),
-          tx.notification.create({
-            data: {
-              title: notificationData.title,
-              description: notificationData.description,
-              notification_date: new Date(),
-              user_id: transaction.user_id,
-              is_read: false,
-            },
-          }),
-        ]);
+            }),
+            tx.payment.update({
+              where: { orderId: transaction.token },
+              data: {
+                status: paymentStatus,
+                transactionId: midtransStatus?.transaction_id || null,
+              },
+            }),
+            tx.notification.create({
+              data: {
+                title: notificationData.title,
+                description: notificationData.description,
+                notification_date: new Date(),
+                user_id: transaction.user_id,
+                is_read: false,
+              },
+            }),
+          ]);
 
-        return updatedTransaction;
+          return updatedTransaction;
+        } catch (error) {
+          console.error('Error updating transaction data:', error);
+          return transaction;
+        }
       }
     }
     return transaction;
@@ -339,9 +352,8 @@ async function createSingleTransaction(
   const selectedSeats = await validateAndGetSeats(tx, seatSelections);
   
   try {
-    const { baseAmount, tax, totalPayment } = calculatePayments(selectedSeats);
     await checkSeatAvailability(tx, selectedSeats, seatSelections);
-
+    const { baseAmount, tax, totalPayment } = calculatePayments(selectedSeats);
     const transaction = await tx.transaction.create({
       data: {
         status: TRANSACTION_STATUS.PENDING,
@@ -369,21 +381,40 @@ async function createSingleTransaction(
   }
 }
 
-// Helper functions remain the same
 async function validateAndGetSeats(tx, seatSelections) {
-  const selectedSeats = await Promise.all(
-    seatSelections.map(async (selection) => {
-      const seat = await tx.seat.findUnique({
-        where: { seat_id: parseInt(selection.seat_id) },
-      });
+  try {
+    const selectedSeats = await Promise.all(
+      seatSelections.map(async (selection) => {
+        const seat = await tx.seat.findUnique({
+          where: { 
+            seat_id: parseInt(selection.seat_id),
+            is_available: true
+          },
+          select: {
+            seat_id: true,
+            is_available: true,
+            version: true,
+            price: true
+          }
+        });
 
-      if (!seat) throw new Error("INVALID_SEATS_SELECTED");
-      if (!seat.is_available) throw new Error("SEATS_UNAVAILABLE");
-      
-      return seat;
-    })
-  );
-  return selectedSeats;
+        if (!seat) {
+          throw new Error("SEATS_UNAVAILABLE");
+        }
+
+        return seat;
+      })
+    );
+    const unavailableSeats = selectedSeats.filter(seat => !seat.is_available);
+    if (unavailableSeats.length > 0) {
+      throw new Error("SEATS_UNAVAILABLE");
+    }
+
+    return selectedSeats;
+  } catch (error) {
+    console.error("[Error in validateAndGetSeats]:", error);
+    throw error;
+  }
 }
 
 async function checkSeatAvailability(tx, selectedSeats, seatSelections) {

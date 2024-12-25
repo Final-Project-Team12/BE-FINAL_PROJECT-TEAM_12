@@ -55,13 +55,6 @@ async function handleGoogleUser(userProfile) {
         age: 0,
       },
     });
-    const resetToken = generateResetToken(user.email);
-    return { resetToken };
-  }
-
-  if (!user.password) {
-    const resetToken = generateResetToken(user.email);
-    return { resetToken };
   }
 
   const accessToken = generateToken(user);

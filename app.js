@@ -41,7 +41,8 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(bodyParser.json());
-
+app.set('view engine', 'ejs');
+app.set('views', path.join(__dirname, 'views')); // Tentukan lokasi folder views
 //routes
 const routers = [
   googleAuthRoutes,

@@ -197,11 +197,67 @@ async function main() {
     airportIds.push(newAirport.airport_id);
   }
 
-  function createDateTime(year, month, day, hours, minutes) {
-    return new Date(year, month - 1, day, hours, minutes);
+  // Updated flight time slots with more variation
+  const flightTimeSlots = [
+    { 
+      slot: "early_morning",
+      departures: [
+        { time: 5, duration: 240 },  // 5:00 AM, 4 hours
+        { time: 6, duration: 300 },  // 6:00 AM, 5 hours
+        { time: 7, duration: 360 }   // 7:00 AM, 6 hours
+      ]
+    },
+    {
+      slot: "morning",
+      departures: [
+        { time: 9, duration: 270 },   // 9:00 AM, 4.5 hours
+        { time: 10, duration: 330 },  // 10:00 AM, 5.5 hours
+        { time: 11, duration: 390 }   // 11:00 AM, 6.5 hours
+      ]
+    },
+    {
+      slot: "afternoon",
+      departures: [
+        { time: 13, duration: 280 },  // 1:00 PM, ~4.7 hours
+        { time: 14, duration: 340 },  // 2:00 PM, ~5.7 hours
+        { time: 15, duration: 400 }   // 3:00 PM, ~6.7 hours
+      ]
+    },
+    {
+      slot: "evening",
+      departures: [
+        { time: 18, duration: 260 },  // 6:00 PM, ~4.3 hours
+        { time: 19, duration: 320 },  // 7:00 PM, ~5.3 hours
+        { time: 20, duration: 380 }   // 8:00 PM, ~6.3 hours
+      ]
+    }
+  ];
+
+  function calculateArrivalTime(departureTime, duration) {
+    const arrivalHour = (departureTime + Math.floor(duration / 60)) % 24;
+    const arrivalMinutes = duration % 60;
+    return {
+      hour: arrivalHour,
+      minutes: arrivalMinutes,
+      isNextDay: (departureTime + Math.floor(duration / 60)) >= 24
+    };
   }
 
-  // Update fungsi untuk fasilitas sesuai kelas
+  function getRandomTimeSlot() {
+    const slot = flightTimeSlots[Math.floor(Math.random() * flightTimeSlots.length)];
+    const departure = slot.departures[Math.floor(Math.random() * slot.departures.length)];
+    const arrival = calculateArrivalTime(departure.time, departure.duration);
+    
+    return {
+      slot: slot.slot,
+      departure_time: departure.time,
+      arrival_time: arrival.hour,
+      arrival_minutes: arrival.minutes,
+      duration: departure.duration,
+      isNextDay: arrival.isNextDay
+    };
+  }
+
   function getFlightFacilities(seatClass) {
     switch (seatClass) {
       case "First Class":
@@ -240,19 +296,19 @@ async function main() {
     if (seatId <= 18) {
       return {
         seatClass: "First Class",
-        price: 18000000,
+        price: 14500000,
         ...getFlightFacilities("First Class")
       };
     } else if (seatId <= 36) {
       return {
         seatClass: "Business",
-        price: 12000000,
+        price: 9000000,
         ...getFlightFacilities("Business")
       };
     } else if (seatId <= 54) {
       return {
         seatClass: "Premium Economy",
-        price: 6000000,
+        price: 7500000,
         ...getFlightFacilities("Premium Economy")
       };
     } else {
@@ -262,6 +318,10 @@ async function main() {
         ...getFlightFacilities("Economy")
       };
     }
+  }
+
+  function createDateTime(year, month, day, hours, minutes = 0) {
+    return new Date(year, month - 1, day, hours, minutes);
   }
 
   function generateSeatNumber(seatId) {
@@ -302,8 +362,85 @@ async function main() {
     return offerTypes[Math.floor(Math.random() * offerTypes.length)];
   }
 
-  const planeIds = [];
-  const flightSchedules = generateFlightDates(30);
+  async function createFlights(date, route, prisma) {
+    const originAirport = airports.find((a) => a.code === route.origin);
+    const destAirport = airports.find((a) => a.code === route.destination);
+    const originId = airportIds[airports.indexOf(originAirport)];
+    const destId = airportIds[airports.indexOf(destAirport)];
+    
+    const outboundTime = getRandomTimeSlot();
+    const discount = generateRandomDiscount();
+    
+    let arrivalDay = date.date;
+    if (outboundTime.isNextDay) {
+      arrivalDay += 1;
+    }
+
+    const outboundFlight = await prisma.plane.create({
+      data: {
+        airline_id: airlineIds[Math.floor(Math.random() * airlineIds.length)],
+        airport_id_origin: originId,
+        airport_id_destination: destId,
+        departure_time: createDateTime(
+          date.year,
+          date.month,
+          date.date,
+          outboundTime.departure_time,
+          0
+        ),
+        arrival_time: createDateTime(
+          date.year,
+          date.month,
+          arrivalDay,
+          outboundTime.arrival_time,
+          outboundTime.arrival_minutes
+        ),
+        departure_terminal: `Terminal ${1 + Math.floor(Math.random() * 3)}`,
+        baggage_capacity: 200,
+        plane_code: `${route.origin}-${route.destination}-${date.date}${date.month}-${outboundTime.slot}`,
+        cabin_baggage_capacity: 10,
+        ...getFlightFacilities("Economy"),
+        offers: generateOffer(route, discount),
+        duration: outboundTime.duration,
+      },
+    });
+
+    // Calculate return flight time (3-4 hours after arrival)
+    const returnDelay = 180 + Math.floor(Math.random() * 60); // 3-4 hours in minutes
+    const returnTime = calculateArrivalTime(outboundTime.arrival_time, returnDelay);
+    const returnDuration = outboundTime.duration + Math.floor(Math.random() * 60 - 30); // Slightly different duration
+
+    const returnFlight = await prisma.plane.create({
+      data: {
+        airline_id: airlineIds[Math.floor(Math.random() * airlineIds.length)],
+        airport_id_origin: destId,
+        airport_id_destination: originId,
+        departure_time: createDateTime(
+          date.year,
+          date.month,
+          arrivalDay,
+          returnTime.hour,
+          returnTime.minutes
+        ),
+        arrival_time: createDateTime(
+          date.year,
+          date.month,
+          returnTime.isNextDay ? arrivalDay + 1 : arrivalDay,
+          (returnTime.hour + Math.floor(returnDuration / 60)) % 24,
+          returnTime.minutes + (returnDuration % 60)
+        ),
+        departure_terminal: `Terminal ${1 + Math.floor(Math.random() * 3)}`,
+        baggage_capacity: 200,
+        plane_code: `${route.destination}-${route.origin}-${date.date}${date.month}-${outboundTime.slot}-R`,
+        cabin_baggage_capacity: 10,
+        ...getFlightFacilities("Economy"),
+        offers: generateOffer(route, generateRandomDiscount()),
+        duration: returnDuration,
+      },
+    });
+
+    return [outboundFlight, returnFlight];
+  }
 
   const routes = [
     { origin: "JFK", destination: "FRA" },
@@ -323,104 +460,49 @@ async function main() {
     { origin: "SYD", destination: "SIN" },
   ];
 
-  // Create flights for each schedule
-  for (let i = 0; i < flightSchedules.length; i++) {
-    const schedule = flightSchedules[i];
+  const planeIds = [];
+  const dates = generateFlightDates(30);
 
+  // Create flights for each date and route
+  for (let i = 0; i < dates.length; i++) {
+    const date = dates[i];
+    
     for (const route of routes) {
-      const originAirport = airports.find((a) => a.code === route.origin);
-      const destAirport = airports.find((a) => a.code === route.destination);
-      const originId = airportIds[airports.indexOf(originAirport)];
-      const destId = airportIds[airports.indexOf(destAirport)];
+      // Create 2-3 flights per route per day
+      const numberOfFlights = 2 + Math.floor(Math.random() * 2);
+      
+      for (let j = 0; j < numberOfFlights; j++) {
+        const [outboundFlight, returnFlight] = await createFlights(date, route, prisma);
+        planeIds.push(outboundFlight.plane_id, returnFlight.plane_id);
+        
+        // Create seats for both flights
+        for (const flight of [outboundFlight, returnFlight]) {
+          for (let seatId = 1; seatId <= 72; seatId++) {
+            const seatInfo = getSeatClassAndPrice(seatId);
+            await prisma.seat.create({
+              data: {
+                seat_number: generateSeatNumber(seatId),
+                class: seatInfo.seatClass,
+                price: seatInfo.price,
+                plane_id: flight.plane_id,
+                is_available: true,
+                version: 0,
+              },
+            });
 
-      // Morning flight
-      const discount = generateRandomDiscount();
-      const morningFlight = await prisma.plane.create({
-        data: {
-          airline_id: airlineIds[i % airlineIds.length],
-          airport_id_origin: originId,
-          airport_id_destination: destId,
-          departure_time: createDateTime(schedule.year, schedule.month, schedule.date, 8, 0),
-          arrival_time: createDateTime(schedule.year, schedule.month, schedule.date, 20, 0),
-          departure_terminal: `Terminal ${1 + (i % 3)}`,
-          baggage_capacity: 200,
-          plane_code: `${route.origin}-${route.destination}-${schedule.date}${schedule.month}-AM`,
-          cabin_baggage_capacity: 10,
-          ...getFlightFacilities("Economy"), // Default ke Economy
-          offers: generateOffer(route, discount),
-          duration: 720,
-        },
-      });
-      planeIds.push(morningFlight.plane_id);
-
-      // Create seats for morning flight
-      for (let seatId = 1; seatId <= 72; seatId++) {
-        const seatInfo = getSeatClassAndPrice(seatId);
-        await prisma.seat.create({
-          data: {
-            seat_number: generateSeatNumber(seatId),
-            class: seatInfo.seatClass,
-            price: seatInfo.price,
-            plane_id: morningFlight.plane_id,
-            is_available: true,
-            version: 0,
-          },
-        });
-
-        // Update plane facilities based on seat class
-        if (seatId === 1) {
-          await prisma.plane.update({
-            where: { plane_id: morningFlight.plane_id },
-            data: getFlightFacilities(seatInfo.seatClass)
-          });
-        }
-      }
-
-      // Evening flight
-      const eveningDiscount = generateRandomDiscount();
-      const eveningFlight = await prisma.plane.create({
-        data: {
-          airline_id: airlineIds[i % airlineIds.length],
-          airport_id_origin: destId,
-          airport_id_destination: originId,
-          departure_time: createDateTime(schedule.year, schedule.month, schedule.date, 21, 0),
-          arrival_time: createDateTime(schedule.year, schedule.month, schedule.date + 1, 9, 0),
-          departure_terminal: `Terminal ${1 + (i % 3)}`,
-          baggage_capacity: 200,
-          plane_code: `${route.destination}-${route.origin}-${schedule.date}${schedule.month}-PM`,
-          cabin_baggage_capacity: 10,
-          ...getFlightFacilities("Economy"), // Default ke Economy
-          offers: generateOffer(route, eveningDiscount),
-          duration: 720,
-        },
-      });
-      planeIds.push(eveningFlight.plane_id);
-
-      // Create seats for evening flight
-      for (let seatId = 1; seatId <= 72; seatId++) {
-        const seatInfo = getSeatClassAndPrice(seatId);
-        await prisma.seat.create({
-          data: {
-            seat_number: generateSeatNumber(seatId),
-            class: seatInfo.seatClass,
-            price: seatInfo.price,
-            plane_id: eveningFlight.plane_id,
-            is_available: true,
-            version: 0,
-          },
-        });
-
-        // Update plane facilities based on seat class
-        if (seatId === 1) {
-          await prisma.plane.update({
-            where: { plane_id: eveningFlight.plane_id },
-            data: getFlightFacilities(seatInfo.seatClass)
-          });
+            if (seatId === 1) {
+              await prisma.plane.update({
+                where: { plane_id: flight.plane_id },
+                data: getFlightFacilities(seatInfo.seatClass)
+              });
+            }
+          }
         }
       }
     }
   }
 
+  // Create passengers
   const passengerIds = [];
   for (let i = 1; i <= 10; i++) {
     const passenger = await prisma.passenger.create({
@@ -437,6 +519,7 @@ async function main() {
     passengerIds.push(passenger.passenger_id);
   }
 
+  // Create transactions
   const transactionIds = [];
   for (let i = 1; i <= 10; i++) {
     const baseAmount = 1000000;

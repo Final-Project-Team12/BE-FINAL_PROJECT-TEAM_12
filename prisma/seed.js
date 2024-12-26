@@ -258,79 +258,89 @@ async function main() {
     };
   }
 
+  // Fungsi untuk menghasilkan nilai boolean secara acak
+function getRandomBoolean() {
+  return Math.random() < 0.5; // 50% kemungkinan true atau false
+}
+
+  // Memperbarui fungsi getFlightFacilities
   function getFlightFacilities(seatClass) {
     switch (seatClass) {
       case "First Class":
         return {
-          meal_available: true,
-          wifi_available: true,
-          power_outlets: true,
-          in_flight_entertainment: true
+          meal_available: getRandomBoolean(),
+          wifi_available: getRandomBoolean(),
+          power_outlets: getRandomBoolean(),
+          in_flight_entertainment: getRandomBoolean(),
         };
       case "Business":
         return {
-          meal_available: false,
-          wifi_available: true,
-          power_outlets: true,
-          in_flight_entertainment: false
+          meal_available: getRandomBoolean(),
+          wifi_available: getRandomBoolean(),
+          power_outlets: getRandomBoolean(),
+          in_flight_entertainment: getRandomBoolean(),
         };
       case "Premium Economy":
         return {
-          meal_available: true,
-          wifi_available: false,
-          power_outlets: false,
-          in_flight_entertainment: false
+          meal_available: getRandomBoolean(),
+          wifi_available: getRandomBoolean(),
+          power_outlets: getRandomBoolean(),
+          in_flight_entertainment: getRandomBoolean(),
         };
       case "Economy":
       default:
         return {
-          meal_available: false,
-          wifi_available: false,
-          power_outlets: false,
-          in_flight_entertainment: false
+          meal_available: getRandomBoolean(),
+          wifi_available: getRandomBoolean(),
+          power_outlets: getRandomBoolean(),
+          in_flight_entertainment: getRandomBoolean(),
         };
     }
   }
 
-  function getSeatClassAndPrice(seatId) {
+
+  function getSeatClassAndPrice(seatId, planeId) {
+    // Menghitung tambahan harga berdasarkan planeId
+    const priceIncrement = (planeId - 1) * 200000; 
+  
     if (seatId <= 18) {
       return {
         seatClass: "First Class",
-        price: 14500000,
-        ...getFlightFacilities("First Class")
+        price: 14500000 + priceIncrement,
+        ...getFlightFacilities("First Class"),
       };
     } else if (seatId <= 36) {
       return {
         seatClass: "Business",
-        price: 9000000,
-        ...getFlightFacilities("Business")
+        price: 9000000 + priceIncrement,
+        ...getFlightFacilities("Business"),
       };
     } else if (seatId <= 54) {
       return {
         seatClass: "Premium Economy",
-        price: 7500000,
-        ...getFlightFacilities("Premium Economy")
+        price: 7500000 + priceIncrement,
+        ...getFlightFacilities("Premium Economy"),
       };
     } else {
       return {
         seatClass: "Economy",
-        price: 3000000,
-        ...getFlightFacilities("Economy")
+        price: 3000000 + priceIncrement,
+        ...getFlightFacilities("Economy"),
       };
     }
   }
-
+  
   function createDateTime(year, month, day, hours, minutes = 0) {
     return new Date(year, month - 1, day, hours, minutes);
   }
-
+  
   function generateSeatNumber(seatId) {
     const columns = ["A", "B", "C", "D", "E", "F"];
     const row = Math.ceil(seatId / 6);
     const colIndex = (seatId - 1) % 6;
     return `${columns[colIndex]}${row}`;
   }
-
+  
   function generateFlightDates(numberOfDays = 30) {
     const dates = [];
     const startDate = new Date();
@@ -345,12 +355,12 @@ async function main() {
     }
     return dates;
   }
-
+  
   function generateRandomDiscount() {
     const discounts = [10, 15, 20, 25, 30, 35, 40, 45, 50];
     return discounts[Math.floor(Math.random() * discounts.length)];
   }
-
+  
   function generateOffer(route, discount) {
     const offerTypes = [
       `${discount}% OFF Today!`,
@@ -361,7 +371,7 @@ async function main() {
     ];
     return offerTypes[Math.floor(Math.random() * offerTypes.length)];
   }
-
+  
   async function createFlights(date, route, prisma) {
     const originAirport = airports.find((a) => a.code === route.origin);
     const destAirport = airports.find((a) => a.code === route.destination);
@@ -375,7 +385,7 @@ async function main() {
     if (outboundTime.isNextDay) {
       arrivalDay += 1;
     }
-
+  
     const outboundFlight = await prisma.plane.create({
       data: {
         airline_id: airlineIds[Math.floor(Math.random() * airlineIds.length)],
@@ -404,12 +414,11 @@ async function main() {
         duration: outboundTime.duration,
       },
     });
-
-    // Calculate return flight time (3-4 hours after arrival)
-    const returnDelay = 180 + Math.floor(Math.random() * 60); // 3-4 hours in minutes
+  
+    const returnDelay = 180 + Math.floor(Math.random() * 60); 
     const returnTime = calculateArrivalTime(outboundTime.arrival_time, returnDelay);
-    const returnDuration = outboundTime.duration + Math.floor(Math.random() * 60 - 30); // Slightly different duration
-
+    const returnDuration = outboundTime.duration + Math.floor(Math.random() * 60 - 30); 
+  
     const returnFlight = await prisma.plane.create({
       data: {
         airline_id: airlineIds[Math.floor(Math.random() * airlineIds.length)],
@@ -438,10 +447,10 @@ async function main() {
         duration: returnDuration,
       },
     });
-
+  
     return [outboundFlight, returnFlight];
   }
-
+  
   const routes = [
     { origin: "JFK", destination: "FRA" },
     { origin: "JFK", destination: "NRT" },
@@ -459,26 +468,23 @@ async function main() {
     { origin: "JFK", destination: "LHR" },
     { origin: "SYD", destination: "SIN" },
   ];
-
+  
   const planeIds = [];
   const dates = generateFlightDates(30);
-
-  // Create flights for each date and route
+  
   for (let i = 0; i < dates.length; i++) {
     const date = dates[i];
     
     for (const route of routes) {
-      // Create 2-3 flights per route per day
       const numberOfFlights = 2 + Math.floor(Math.random() * 2);
       
       for (let j = 0; j < numberOfFlights; j++) {
         const [outboundFlight, returnFlight] = await createFlights(date, route, prisma);
         planeIds.push(outboundFlight.plane_id, returnFlight.plane_id);
         
-        // Create seats for both flights
         for (const flight of [outboundFlight, returnFlight]) {
           for (let seatId = 1; seatId <= 72; seatId++) {
-            const seatInfo = getSeatClassAndPrice(seatId);
+            const seatInfo = getSeatClassAndPrice(seatId, flight.plane_id); 
             await prisma.seat.create({
               data: {
                 seat_number: generateSeatNumber(seatId),
@@ -489,11 +495,11 @@ async function main() {
                 version: 0,
               },
             });
-
+  
             if (seatId === 1) {
               await prisma.plane.update({
                 where: { plane_id: flight.plane_id },
-                data: getFlightFacilities(seatInfo.seatClass)
+                data: getFlightFacilities(seatInfo.seatClass),
               });
             }
           }
@@ -501,6 +507,7 @@ async function main() {
       }
     }
   }
+  
 
   // Create passengers
   const passengerIds = [];

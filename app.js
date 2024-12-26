@@ -36,6 +36,10 @@ const paymentRoutes = require('./routes/paymentRoutes');
 const notificationRoutes = require("./routes/notificationRoutes");
 const transactionRoutes = require('./routes/transactionsRoutes');
 const ticketRoutes = require('./routes/ticketsRoutes');
+const planeRoutes = require('./routes/planeRoutes');
+const seatRoutes = require('./routes/seatRoutes');
+
+
 
 app.use(cors());
 app.use(express.static(path.join(__dirname, 'public')));
@@ -43,7 +47,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 app.set('view engine', 'ejs');
-app.set('views', path.join(__dirname, 'views')); // Tentukan lokasi folder views
+app.set('views', path.join(__dirname, 'views')); 
 //routes
 const routers = [
   googleAuthRoutes,
@@ -53,6 +57,8 @@ const routers = [
   //gak semuanya kena auth
   userRoutes,
   airportRoutes,
+  planeRoutes,
+  seatRoutes,
   airlineRoutes,
   //auth semua
   paymentRoutes,
@@ -64,14 +70,14 @@ routers.forEach(router => app.use('/api/v1', router));
 app.use(errorHandler);
 //buat nangkap error cek ci-cd 14
 
-app.use((err, req, res, next) => {
-  /* istanbul ignore next */
-  console.log(err);
-  res.status(500).json({
-    status: false,
-    message : "Lihat error di console"
-  })
-})
+// app.use((err, req, res, next) => {
+//   /* istanbul ignore next */
+//   console.log(err);
+//   res.status(500).json({
+//     status: false,
+//     message : "Lihat error di console"
+//   })
+// })
 
 // Sample query
 // app.get("/users", async (req, res) => {

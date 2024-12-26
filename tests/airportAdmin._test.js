@@ -9,7 +9,7 @@ const prisma = new PrismaClient();
 const jwt = require('jsonwebtoken');
 
 const jwtToken = jwt.sign(
-    { user_id: 2, user_email: 'user2@example.com', user_role: 'admin' },
+    { user_id: 4, user_email: 'user4@example.com', user_role: 'admin' },
     process.env.JWT_SECRET || 'jwt-b1n4r14n',
     { expiresIn: '1h' }
 );
@@ -39,7 +39,7 @@ describe('AirportController Integration Tests', () => {
             .field('airport_code', 'TST')
             .field('continent_id', 1)
             .field('address', '123 Airport St, City, Country')
-            .attach('image', imageBuffer, 'sample.jpg'); 
+            .attach('image', imageBuffer, 'sample.png'); 
     
         expect(response.status).toBe(201);
         expect(response.body).toMatchObject({
@@ -48,6 +48,25 @@ describe('AirportController Integration Tests', () => {
         });
     
         airportIdTest = response.body.data.airport_id;
+    },30000);
+
+    it('should create a new airport and return 201', async () => {
+        const imagePath = path.join(__dirname, '../assets/express-svgrepo-com.svg');
+    
+        const imageBuffer = fs.readFileSync(imagePath);
+    
+        const response = await request(app)
+            .post('/api/v1/airport')
+            .set('Authorization', `Bearer ${jwtToken}`)
+            .set('Content-Type', 'multipart/form-data')
+            .field('name', 'Test Airport')
+            .field('airport_code', 'TST')
+            .field('continent_id', 1)
+            .field('address', '123 Airport St, City, Country')
+            .attach('image', imageBuffer, 'express-svgrepo-com.svg'); 
+    
+        expect(response.status).toBe(500);
+    
     },30000);
 
     it('should return 400 if required fields are missing', async () => {

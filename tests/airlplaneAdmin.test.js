@@ -9,7 +9,7 @@ const prisma = new PrismaClient();
 const jwt = require('jsonwebtoken');
 
 const jwtToken = jwt.sign(
-    { user_id: 2, user_email: 'user2@example.com', user_role: 'admin' },
+    { user_id: 4, user_email: 'user4@example.com', user_role: 'admin' },
     process.env.JWT_SECRET || 'jwt-b1n4r14n',
     { expiresIn: '1h' }
 );

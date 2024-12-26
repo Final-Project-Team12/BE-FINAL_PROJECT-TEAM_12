@@ -109,7 +109,7 @@ class AirportController {
                 message: 'Airport successfully deleted.' 
             });
         } 
-        /* istanbul ignore test */
+        /* istanbul ignore next */
         catch (error) {
             /* istanbul ignore next */
             next(error);

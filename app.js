@@ -35,6 +35,8 @@ const paymentRoutes = require('./routes/paymentRoutes');
 const notificationRoutes = require("./routes/notificationRoutes");
 const transactionRoutes = require('./routes/transactionsRoutes');
 const ticketRoutes = require('./routes/ticketsRoutes');
+const planeRoutes = require('./routes/planeRoutes');
+
 
 app.use(cors());
 app.use(express.static(path.join(__dirname, 'public')));
@@ -52,6 +54,7 @@ const routers = [
   //gak semuanya kena auth
   userRoutes,
   airportRoutes,
+  planeRoutes,
   airlineRoutes,
   //auth semua
   paymentRoutes,
@@ -65,14 +68,14 @@ routers.forEach(router => app.use('/api/v1', router));
 app.use(errorHandler);
 //buat nangkap error cek ci-cd 14
 
-app.use((err, req, res, next) => {
-  /* istanbul ignore next */
-  console.log(err);
-  res.status(500).json({
-    status: false,
-    message : "Lihat error di console"
-  })
-})
+// app.use((err, req, res, next) => {
+//   /* istanbul ignore next */
+//   console.log(err);
+//   res.status(500).json({
+//     status: false,
+//     message : "Lihat error di console"
+//   })
+// })
 
 // Sample query
 // app.get("/users", async (req, res) => {

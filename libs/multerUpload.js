@@ -14,8 +14,8 @@ const upload = multer({
         }
     },
     
-    onError: (err, next) => {
-        next(err);
+    onError: (error, next) => {
+        next(error);
     },
 });
 

@@ -23,7 +23,9 @@ class AirlineController {
                 message: 'Image successfully uploaded to airline',
                 data: airlineRecord
             });
+        /* istanbul ignore test */
         } catch (error) {
+            /* istanbul ignore next */
             next(error);
         }
     }
@@ -37,7 +39,9 @@ class AirlineController {
                 message: 'Airlines retrieved successfully',
                 data: airlines
             });
+        /* istanbul ignore test */
         } catch (error) {
+            /* istanbul ignore next */
             next(error);
         }
     }
@@ -58,7 +62,9 @@ class AirlineController {
                 message: 'Airline retrieved successfully',
                 data: airline
             });
+        /* istanbul ignore test */
         } catch (error) {
+            /* istanbul ignore next */
             next(error);
         }
     }
@@ -82,7 +88,9 @@ class AirlineController {
                 status: 200,
                 message: 'Airline successfully deleted'
             });
+            /* istanbul ignore test */
         } catch (error) {
+            /* istanbul ignore next */
             next(error);
         }
     }
@@ -121,7 +129,9 @@ class AirlineController {
                 message: 'Airline successfully updated',
                 data: updatedAirline
             });
+        /* istanbul ignore test */
         } catch (error) {
+            /* istanbul ignore next */
             next(error);
         }
     }

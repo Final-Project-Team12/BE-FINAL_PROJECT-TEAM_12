@@ -201,15 +201,66 @@ async function main() {
     return new Date(year, month - 1, day, hours, minutes);
   }
 
+  // Update fungsi untuk fasilitas sesuai kelas
+  function getFlightFacilities(seatClass) {
+    switch (seatClass) {
+      case "First Class":
+        return {
+          meal_available: true,
+          wifi_available: true,
+          power_outlets: true,
+          in_flight_entertainment: true
+        };
+      case "Business":
+        return {
+          meal_available: false,
+          wifi_available: true,
+          power_outlets: true,
+          in_flight_entertainment: false
+        };
+      case "Premium Economy":
+        return {
+          meal_available: true,
+          wifi_available: false,
+          power_outlets: false,
+          in_flight_entertainment: false
+        };
+      case "Economy":
+      default:
+        return {
+          meal_available: false,
+          wifi_available: false,
+          power_outlets: false,
+          in_flight_entertainment: false
+        };
+    }
+  }
+
   function getSeatClassAndPrice(seatId) {
     if (seatId <= 18) {
-      return { seatClass: "First Class", price: 18000000 };
+      return {
+        seatClass: "First Class",
+        price: 18000000,
+        ...getFlightFacilities("First Class")
+      };
     } else if (seatId <= 36) {
-      return { seatClass: "Business", price: 12000000 };
+      return {
+        seatClass: "Business",
+        price: 12000000,
+        ...getFlightFacilities("Business")
+      };
     } else if (seatId <= 54) {
-      return { seatClass: "Premium Economy", price: 6000000 };
+      return {
+        seatClass: "Premium Economy",
+        price: 6000000,
+        ...getFlightFacilities("Premium Economy")
+      };
     } else {
-      return { seatClass: "Economy", price: 3000000 };
+      return {
+        seatClass: "Economy",
+        price: 3000000,
+        ...getFlightFacilities("Economy")
+      };
     }
   }
 
@@ -223,18 +274,15 @@ async function main() {
   function generateFlightDates(numberOfDays = 30) {
     const dates = [];
     const startDate = new Date();
-
     for (let i = 0; i < numberOfDays; i++) {
       const currentDate = new Date(startDate);
       currentDate.setDate(startDate.getDate() + i);
-
       dates.push({
         date: currentDate.getDate(),
         month: currentDate.getMonth() + 1,
         year: currentDate.getFullYear(),
       });
     }
-
     return dates;
   }
 
@@ -258,63 +306,47 @@ async function main() {
   const flightSchedules = generateFlightDates(30);
 
   const routes = [
-    { origin: "JFK", destination: "FRA" }, // US to Germany
-    { origin: "JFK", destination: "NRT" }, // US to Japan
-    { origin: "DXB", destination: "LHR" }, // Dubai to London
-    { origin: "SIN", destination: "SYD" }, // Singapore to Sydney
-    { origin: "ZRH", destination: "SVO" }, // Zurich to Moscow
-    { origin: "SIN", destination: "NRT" }, // Singapore to Japan
-    { origin: "DXB", destination: "SIN" }, // Dubai to Singapore
-    { origin: "LHR", destination: "SYD" }, // London to Sydney
-    { origin: "FRA", destination: "SVO" }, // Frankfurt to Moscow
-    { origin: "NRT", destination: "SYD" }, // Tokyo to Sydney
-    { origin: "LHR", destination: "DXB" }, // London to Dubai
-    { origin: "SVO", destination: "NRT" }, // Moscow to Tokyo
-    { origin: "FRA", destination: "SIN" }, // Frankfurt to Singapore
-    { origin: "JFK", destination: "LHR" }, // New York to London
-    { origin: "SYD", destination: "SIN" }, // Sydney to Singapore
+    { origin: "JFK", destination: "FRA" },
+    { origin: "JFK", destination: "NRT" },
+    { origin: "DXB", destination: "LHR" },
+    { origin: "SIN", destination: "SYD" },
+    { origin: "ZRH", destination: "SVO" },
+    { origin: "SIN", destination: "NRT" },
+    { origin: "DXB", destination: "SIN" },
+    { origin: "LHR", destination: "SYD" },
+    { origin: "FRA", destination: "SVO" },
+    { origin: "NRT", destination: "SYD" },
+    { origin: "LHR", destination: "DXB" },
+    { origin: "SVO", destination: "NRT" },
+    { origin: "FRA", destination: "SIN" },
+    { origin: "JFK", destination: "LHR" },
+    { origin: "SYD", destination: "SIN" },
   ];
 
   // Create flights for each schedule
   for (let i = 0; i < flightSchedules.length; i++) {
     const schedule = flightSchedules[i];
 
-    // Create flights for each route on this date
     for (const route of routes) {
       const originAirport = airports.find((a) => a.code === route.origin);
       const destAirport = airports.find((a) => a.code === route.destination);
       const originId = airportIds[airports.indexOf(originAirport)];
       const destId = airportIds[airports.indexOf(destAirport)];
 
-      // Morning flight (outbound)
+      // Morning flight
       const discount = generateRandomDiscount();
       const morningFlight = await prisma.plane.create({
         data: {
           airline_id: airlineIds[i % airlineIds.length],
           airport_id_origin: originId,
           airport_id_destination: destId,
-          departure_time: createDateTime(
-            schedule.year,
-            schedule.month,
-            schedule.date,
-            8,
-            0
-          ),
-          arrival_time: createDateTime(
-            schedule.year,
-            schedule.month,
-            schedule.date,
-            20,
-            0
-          ),
+          departure_time: createDateTime(schedule.year, schedule.month, schedule.date, 8, 0),
+          arrival_time: createDateTime(schedule.year, schedule.month, schedule.date, 20, 0),
           departure_terminal: `Terminal ${1 + (i % 3)}`,
           baggage_capacity: 200,
           plane_code: `${route.origin}-${route.destination}-${schedule.date}${schedule.month}-AM`,
           cabin_baggage_capacity: 10,
-          meal_available: true,
-          wifi_available: true,
-          in_flight_entertainment: true,
-          power_outlets: true,
+          ...getFlightFacilities("Economy"), // Default ke Economy
           offers: generateOffer(route, discount),
           duration: 720,
         },
@@ -323,49 +355,41 @@ async function main() {
 
       // Create seats for morning flight
       for (let seatId = 1; seatId <= 72; seatId++) {
-        const { seatClass, price } = getSeatClassAndPrice(seatId);
-        const seatNumber = generateSeatNumber(seatId);
+        const seatInfo = getSeatClassAndPrice(seatId);
         await prisma.seat.create({
           data: {
-            seat_number: seatNumber,
-            class: seatClass,
-            price: price,
+            seat_number: generateSeatNumber(seatId),
+            class: seatInfo.seatClass,
+            price: seatInfo.price,
             plane_id: morningFlight.plane_id,
             is_available: true,
             version: 0,
           },
         });
+
+        // Update plane facilities based on seat class
+        if (seatId === 1) {
+          await prisma.plane.update({
+            where: { plane_id: morningFlight.plane_id },
+            data: getFlightFacilities(seatInfo.seatClass)
+          });
+        }
       }
 
-      // Evening flight (return)
+      // Evening flight
       const eveningDiscount = generateRandomDiscount();
       const eveningFlight = await prisma.plane.create({
         data: {
           airline_id: airlineIds[i % airlineIds.length],
           airport_id_origin: destId,
           airport_id_destination: originId,
-          departure_time: createDateTime(
-            schedule.year,
-            schedule.month,
-            schedule.date,
-            21,
-            0
-          ),
-          arrival_time: createDateTime(
-            schedule.year,
-            schedule.month,
-            schedule.date + 1,
-            9,
-            0
-          ),
+          departure_time: createDateTime(schedule.year, schedule.month, schedule.date, 21, 0),
+          arrival_time: createDateTime(schedule.year, schedule.month, schedule.date + 1, 9, 0),
           departure_terminal: `Terminal ${1 + (i % 3)}`,
           baggage_capacity: 200,
           plane_code: `${route.destination}-${route.origin}-${schedule.date}${schedule.month}-PM`,
           cabin_baggage_capacity: 10,
-          meal_available: true,
-          wifi_available: true,
-          in_flight_entertainment: true,
-          power_outlets: true,
+          ...getFlightFacilities("Economy"), // Default ke Economy
           offers: generateOffer(route, eveningDiscount),
           duration: 720,
         },
@@ -374,18 +398,25 @@ async function main() {
 
       // Create seats for evening flight
       for (let seatId = 1; seatId <= 72; seatId++) {
-        const { seatClass, price } = getSeatClassAndPrice(seatId);
-        const seatNumber = generateSeatNumber(seatId);
+        const seatInfo = getSeatClassAndPrice(seatId);
         await prisma.seat.create({
           data: {
-            seat_number: seatNumber,
-            class: seatClass,
-            price: price,
+            seat_number: generateSeatNumber(seatId),
+            class: seatInfo.seatClass,
+            price: seatInfo.price,
             plane_id: eveningFlight.plane_id,
             is_available: true,
             version: 0,
           },
         });
+
+        // Update plane facilities based on seat class
+        if (seatId === 1) {
+          await prisma.plane.update({
+            where: { plane_id: eveningFlight.plane_id },
+            data: getFlightFacilities(seatInfo.seatClass)
+          });
+        }
       }
     }
   }

@@ -21,7 +21,8 @@ const path = require('path');
 const app = express();
 const prisma = new PrismaClient();
 
-//middlewares 
+//middlewares
+const docsRouter = require("./routes/doucmentationRouter"); 
 const restrictJwt = require('./middlewares/restrictJwt');
 const errorHandler = require('./middlewares/errorHandler');
 
@@ -60,8 +61,6 @@ const routers = [
 ];
 
 routers.forEach(router => app.use('/api/v1', router));
-
-
 app.use(errorHandler);
 //buat nangkap error cek ci-cd 14
 
@@ -81,7 +80,7 @@ app.use((err, req, res, next) => {
 // });
 
 // Start Server
-
+app.use("/api-docs", docsRouter);
 const PORT = process.env.PORT || 3000;
 /* istanbul ignore next */
 if (process.env.NODE_ENV !== 'test') {

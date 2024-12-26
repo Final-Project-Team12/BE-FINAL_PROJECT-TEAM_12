@@ -1,0 +1,4479 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Final Project QuickFly",
+    "contact": {},
+    "version": "1.0"
+  },
+  "servers": [
+    {
+      "url": "http://example.com",
+      "variables": {}
+    },
+    {
+      "url": "http://localhost:3000/auth/google",
+      "variables": {}
+    }
+  ],
+  "paths": {
+    "/api/v1/password/forgot-password": {
+      "post": {
+        "tags": [
+          "Forgot-password"
+        ],
+        "summary": "Forgot-Password",
+        "operationId": "Forgot-Password",
+        "parameters": [],
+        "requestBody": {
+          "content": {
+            "application/x-www-form-urlencoded": {
+              "encoding": {},
+              "schema": {
+                "required": [
+                  "email"
+                ],
+                "type": "object",
+                "properties": {
+                  "email": {
+                    "type": "string",
+                    "example": "zefanyadiegoforlandi@mail.ugm.ac.id"
+                  }
+                }
+              }
+            }
+          },
+          "required": false
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "headers": {}
+          }
+        },
+        "deprecated": false,
+        "servers": [
+          {
+            "url": "http://example.com",
+            "variables": {}
+          }
+        ]
+      }
+    },
+    "/api/v1/password/confirm-otp": {
+      "post": {
+        "tags": [
+          "Forgot-password"
+        ],
+        "summary": "Confirm-OTP",
+        "operationId": "Confirm-OTP",
+        "parameters": [],
+        "requestBody": {
+          "content": {
+            "application/x-www-form-urlencoded": {
+              "encoding": {},
+              "schema": {
+                "required": [
+                  "email",
+                  "otp"
+                ],
+                "type": "object",
+                "properties": {
+                  "email": {
+                    "type": "string",
+                    "example": "zefanyadiegoforlandi@mail.ugm.ac.id"
+                  },
+                  "otp": {
+                    "type": "integer",
+                    "format": "int32",
+                    "example": 219712
+                  }
+                }
+              }
+            }
+          },
+          "required": false
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "headers": {}
+          }
+        },
+        "deprecated": false,
+        "servers": [
+          {
+            "url": "http://example.com",
+            "variables": {}
+          }
+        ]
+      }
+    },
+    "/api/v1/password/reset-password": {
+      "post": {
+        "tags": [
+          "Forgot-password"
+        ],
+        "summary": "Reset-Password",
+        "operationId": "Reset-Password",
+        "parameters": [],
+        "requestBody": {
+          "content": {
+            "application/x-www-form-urlencoded": {
+              "encoding": {},
+              "schema": {
+                "required": [
+                  "email",
+                  "newPassword",
+                  "confirmPassword",
+                  "resetToken"
+                ],
+                "type": "object",
+                "properties": {
+                  "email": {
+                    "type": "string",
+                    "example": "zefanyadiegoforlandi@mail.ugm.ac.id"
+                  },
+                  "newPassword": {
+                    "type": "string",
+                    "example": "1q2w3e4r5t"
+                  },
+                  "confirmPassword": {
+                    "type": "string",
+                    "example": "1q2w3e4r5t"
+                  },
+                  "resetToken": {
+                    "type": "string",
+                    "example": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6InplZmFueWFkaWVnb2ZvcmxhbmRpQG1haWwudWdtLmFjLmlkIiwiaWF0IjoxNzMzOTQzMzEwLCJleHAiOjE3MzM5NDQyMTB9.mrep4ged4hIaguSE_zW_RP0AmV6xhIN9zdfFaYhNhl0"
+                  }
+                }
+              }
+            }
+          },
+          "required": false
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "headers": {}
+          }
+        },
+        "deprecated": false,
+        "servers": [
+          {
+            "url": "http://example.com",
+            "variables": {}
+          }
+        ]
+      }
+    },
+    "/api/v1/user": {
+      "post": {
+        "tags": [
+          "User"
+        ],
+        "summary": "Register User",
+        "operationId": "RegisterUser",
+        "parameters": [],
+        "requestBody": {
+          "description": "",
+          "content": {
+            "application/json": {
+              "schema": {
+                "allOf": [
+                  {
+                    "$ref": "#/components/schemas/RegisterUserRequest"
+                  },
+                  {
+                    "example": {
+                      "name": "Rafly Aziz Abdillah",
+                      "telephone_number": "081122334455",
+                      "email": "keiwahyu19@gmail.com",
+                      "password": "admin123",
+                      "address": "jl.kenangan",
+                      "gender": "male",
+                      "identity_number": "123456789",
+                      "age": "19"
+                    }
+                  }
+                ]
+              },
+              "example": {
+                "name": "Rafly Aziz Abdillah",
+                "telephone_number": "081122334455",
+                "email": "keiwahyu19@gmail.com",
+                "password": "admin123",
+                "address": "jl.kenangan",
+                "gender": "male",
+                "identity_number": "123456789",
+                "age": "19"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "headers": {}
+          }
+        },
+        "deprecated": false,
+        "servers": [
+          {
+            "url": "http://example.com",
+            "variables": {}
+          }
+        ]
+      }
+    },
+    "/api/v1/user/resend": {
+      "post": {
+        "tags": [
+          "User"
+        ],
+        "summary": "Resend OTP",
+        "operationId": "ResendOTP",
+        "parameters": [],
+        "requestBody": {
+          "content": {
+            "application/x-www-form-urlencoded": {
+              "encoding": {},
+              "schema": {
+                "required": [
+                  "email",
+                  "password"
+                ],
+                "type": "object",
+                "properties": {
+                  "email": {
+                    "type": "string",
+                    "example": "cornelliuskangga@gmail.com"
+                  },
+                  "password": {
+                    "type": "string",
+                    "example": "password"
+                  }
+                }
+              }
+            }
+          },
+          "required": false
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "headers": {}
+          }
+        },
+        "deprecated": false,
+        "servers": [
+          {
+            "url": "http://example.com",
+            "variables": {}
+          }
+        ]
+      }
+    },
+    "/api/v1/user/verify": {
+      "post": {
+        "tags": [
+          "User"
+        ],
+        "summary": "Verify Account",
+        "operationId": "VerifyAccount",
+        "parameters": [],
+        "requestBody": {
+          "content": {
+            "application/x-www-form-urlencoded": {
+              "encoding": {},
+              "schema": {
+                "required": [
+                  "email",
+                  "otp"
+                ],
+                "type": "object",
+                "properties": {
+                  "email": {
+                    "type": "string",
+                    "example": "zefanyadiegoforlandi@mail.ugm.ac.id"
+                  },
+                  "otp": {
+                    "type": "integer",
+                    "format": "int32",
+                    "example": 314048
+                  }
+                }
+              }
+            }
+          },
+          "required": false
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "headers": {}
+          }
+        },
+        "deprecated": false,
+        "servers": [
+          {
+            "url": "http://example.com",
+            "variables": {}
+          }
+        ]
+      }
+    },
+    "/api/v1/user/login": {
+      "post": {
+        "tags": [
+          "User"
+        ],
+        "summary": "Login",
+        "operationId": "Login",
+        "parameters": [],
+        "requestBody": {
+          "content": {
+            "application/x-www-form-urlencoded": {
+              "encoding": {},
+              "schema": {
+                "required": [
+                  "email",
+                  "password"
+                ],
+                "type": "object",
+                "properties": {
+                  "email": {
+                    "type": "string",
+                    "example": "@gmail.com"
+                  },
+                  "password": {
+                    "type": "integer",
+                    "format": "int32",
+                    "example": 11111111
+                  }
+                }
+              }
+            }
+          },
+          "required": false
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "headers": {}
+          }
+        },
+        "deprecated": false,
+        "servers": [
+          {
+            "url": "http://example.com",
+            "variables": {}
+          }
+        ]
+      }
+    },
+    "/user/11": {
+      "put": {
+        "tags": [
+          "User"
+        ],
+        "summary": "Update User",
+        "operationId": "UpdateUser",
+        "parameters": [],
+        "requestBody": {
+          "content": {
+            "application/x-www-form-urlencoded": {
+              "encoding": {},
+              "schema": {
+                "required": [
+                  "name"
+                ],
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "example": "zefanya"
+                  }
+                }
+              }
+            }
+          },
+          "required": false
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "headers": {}
+          }
+        },
+        "deprecated": false,
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "servers": [
+          {
+            "url": "http://example.com",
+            "variables": {}
+          }
+        ]
+      }
+    },
+    "/api/v1/user/1": {
+      "get": {
+        "tags": [
+          "User"
+        ],
+        "summary": "Read User",
+        "operationId": "ReadUser",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "headers": {}
+          }
+        },
+        "deprecated": false,
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "servers": [
+          {
+            "url": "http://example.com",
+            "variables": {}
+          }
+        ]
+      }
+    },
+    "/api/v1/user/20": {
+      "delete": {
+        "tags": [
+          "User"
+        ],
+        "summary": "Delete User",
+        "operationId": "DeleteUser",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "headers": {}
+          }
+        },
+        "deprecated": false,
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "servers": [
+          {
+            "url": "http://example.com",
+            "variables": {}
+          }
+        ]
+      }
+    },
+    "/api/v1/transaction": {
+      "post": {
+        "tags": [
+          "Transaction"
+        ],
+        "summary": "Create Multiple Transaction",
+        "operationId": "CreateMultipleTransaction",
+        "parameters": [],
+        "requestBody": {
+          "description": "",
+          "content": {
+            "application/json": {
+              "schema": {
+                "allOf": [
+                  {
+                    "$ref": "#/components/schemas/CreateMultipleTransactionRequest"
+                  },
+                  {
+                    "example": {
+                      "userData": {
+                        "user_id": 11
+                      },
+                      "passengerData": [
+                        {
+                          "title": "Mr",
+                          "full_name": "Harry Potter",
+                          "family_name": "Potter",
+                          "nationality": "Indonesia",
+                          "id_number": "1234567890",
+                          "id_issuer": "Indonesia",
+                          "id_expiry": "2025-01-01T00:00:00.000Z",
+                          "birth_date": "2000-01-01T00:00:00.000Z"
+                        },
+                        {
+                          "title": "Mrs",
+                          "full_name": "Hermione Granger",
+                          "family_name": "Granger",
+                          "nationality": "Indonesia",
+                          "id_number": "0987654321",
+                          "id_issuer": "Indonesia",
+                          "id_expiry": "2025-01-01T00:00:00.000Z",
+                          "birth_date": "2000-01-01T00:00:00.000Z"
+                        }
+                      ],
+                      "seatSelections": [
+                        {
+                          "seat_id": 13
+                        },
+                        {
+                          "seat_id": 14
+                        }
+                      ],
+                      "planeId": 7
+                    }
+                  }
+                ]
+              },
+              "example": {
+                "userData": {
+                  "user_id": 11
+                },
+                "passengerData": [
+                  {
+                    "title": "Mr",
+                    "full_name": "Harry Potter",
+                    "family_name": "Potter",
+                    "nationality": "Indonesia",
+                    "id_number": "1234567890",
+                    "id_issuer": "Indonesia",
+                    "id_expiry": "2025-01-01T00:00:00.000Z",
+                    "birth_date": "2000-01-01T00:00:00.000Z"
+                  },
+                  {
+                    "title": "Mrs",
+                    "full_name": "Hermione Granger",
+                    "family_name": "Granger",
+                    "nationality": "Indonesia",
+                    "id_number": "0987654321",
+                    "id_issuer": "Indonesia",
+                    "id_expiry": "2025-01-01T00:00:00.000Z",
+                    "birth_date": "2000-01-01T00:00:00.000Z"
+                  }
+                ],
+                "seatSelections": [
+                  {
+                    "seat_id": 13
+                  },
+                  {
+                    "seat_id": 14
+                  }
+                ],
+                "planeId": 7
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "headers": {}
+          }
+        },
+        "deprecated": false,
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "servers": [
+          {
+            "url": "http://example.com",
+            "variables": {}
+          }
+        ]
+      }
+    },
+    "/api/v1/transaction/user/11": {
+      "get": {
+        "tags": [
+          "Transaction"
+        ],
+        "summary": "Get Transaction Detail With Id",
+        "operationId": "GetTransactionDetailWithId",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "headers": {}
+          }
+        },
+        "deprecated": false,
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "servers": [
+          {
+            "url": "http://example.com",
+            "variables": {}
+          }
+        ]
+      }
+    },
+    "/api/v1/payments": {
+      "post": {
+        "tags": [
+          "Payment Midtrans"
+        ],
+        "summary": "payment",
+        "operationId": "payment",
+        "parameters": [],
+        "requestBody": {
+          "description": "",
+          "content": {
+            "text/plain": {
+              "schema": {
+                "type": "string",
+                "example": "{\r\n   \"orderId\": \"8v05uu\",  // Harus sama dengan token dari response create transaction\r\n   \"amount\": 1000000,   \r\n     \"name\": \"wahyu\",    // Menggunakan data user dari transaction\r\n     \"email\": \"keiwahyu19@gmail.com\",\r\n     \"mobile_number\": \"081122334455\",\r\n     \"address\": \"jl.kenangan\"\r\n   },\r\n   \"productDetails\": [\r\n     {\r\n       \"productId\": \"TICKET-11\", // Bisa menggunakan ticket_id dari response\r\n       \"productName\": \"Flight Ticket Australia-South Africa\", // Detail dari plane ticket\r\n       \"quantity\": 1,\r\n       \"price\": 1000000\r\n     }\r\n   ]\r\n}"
+              },
+              "example": "{\r\n   \"orderId\": \"8v05uu\",  // Harus sama dengan token dari response create transaction\r\n   \"amount\": 1000000,   \r\n     \"name\": \"wahyu\",    // Menggunakan data user dari transaction\r\n     \"email\": \"keiwahyu19@gmail.com\",\r\n     \"mobile_number\": \"081122334455\",\r\n     \"address\": \"jl.kenangan\"\r\n   },\r\n   \"productDetails\": [\r\n     {\r\n       \"productId\": \"TICKET-11\", // Bisa menggunakan ticket_id dari response\r\n       \"productName\": \"Flight Ticket Australia-South Africa\", // Detail dari plane ticket\r\n       \"quantity\": 1,\r\n       \"price\": 1000000\r\n     }\r\n   ]\r\n}"
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "headers": {}
+          }
+        },
+        "deprecated": false,
+        "servers": [
+          {
+            "url": "http://example.com",
+            "variables": {}
+          }
+        ]
+      }
+    },
+    "/api/v1/payments/212345/status": {
+      "get": {
+        "tags": [
+          "Payment Midtrans"
+        ],
+        "summary": "Check Status Payment",
+        "operationId": "CheckStatusPayment",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "headers": {
+              "Server": {
+                "content": {
+                  "text/plain": {
+                    "schema": {
+                      "type": "string"
+                    },
+                    "example": "nginx/1.24.0 (Ubuntu)"
+                  }
+                }
+              },
+              "Date": {
+                "content": {
+                  "text/plain": {
+                    "schema": {
+                      "type": "string"
+                    },
+                    "example": "Thu, 19 Dec 2024 17:57:08 GMT"
+                  }
+                }
+              },
+              "Content-Length": {
+                "content": {
+                  "text/plain": {
+                    "schema": {
+                      "type": "string"
+                    },
+                    "example": "1096"
+                  }
+                }
+              },
+              "Connection": {
+                "content": {
+                  "text/plain": {
+                    "schema": {
+                      "type": "string"
+                    },
+                    "example": "keep-alive"
+                  }
+                }
+              },
+              "X-Powered-By": {
+                "content": {
+                  "text/plain": {
+                    "schema": {
+                      "type": "string"
+                    },
+                    "example": "Express"
+                  }
+                }
+              },
+              "Access-Control-Allow-Origin": {
+                "content": {
+                  "text/plain": {
+                    "schema": {
+                      "type": "string"
+                    },
+                    "example": "*"
+                  }
+                }
+              },
+              "ETag": {
+                "content": {
+                  "text/plain": {
+                    "schema": {
+                      "type": "string"
+                    },
+                    "example": "W/\"448-e8tqsD8LWfmDurS6al9ecIcLBds\""
+                  }
+                }
+              }
+            },
+            "content": {
+              "application/json; charset=utf-8": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/CheckStatusPayment"
+                    },
+                    {
+                      "example": {
+                        "message": "Payment status retrieved successfully",
+                        "status": 200,
+                        "data": {
+                          "payment": {
+                            "id": 30,
+                            "orderId": "order_1734628702936_2w7goymr",
+                            "status": "CANCELLED",
+                            "transactionId": "981491e5-d66d-4940-b292-3c2fce337680",
+                            "amount": 100000,
+                            "snapToken": "881d71ce-547e-457a-9593-d91c09442bcc",
+                            "customerName": "wadadadadad",
+                            "customerEmail": "awdadadadad@gmail.com",
+                            "customerPhone": "129312312213",
+                            "customerAddress": "wqdqdqdqdqd",
+                            "createdAt": "2024-12-19T17:18:24.687Z",
+                            "updatedAt": "2024-12-19T17:23:21.894Z"
+                          },
+                          "midtransStatus": {
+                            "status_code": "200",
+                            "transaction_id": "981491e5-d66d-4940-b292-3c2fce337680",
+                            "gross_amount": "100000.00",
+                            "currency": "IDR",
+                            "order_id": "order_1734628702936_2w7goymr",
+                            "payment_type": "cstore",
+                            "signature_key": "cc5a4ec768d3a681d845d21296edac00c0868843d7ce95e6aa1bc5818efe0ae90c97a7d4811f813a38146939d7d12e2e0c89577d1fc03eb76d4ce0ed19520919",
+                            "transaction_status": "cancel",
+                            "fraud_status": "accept",
+                            "status_message": "Success, transaction is found",
+                            "merchant_id": "G881859652",
+                            "payment_code": "679312312213",
+                            "store": "indomaret",
+                            "transaction_time": "2024-12-20T00:20:59.000Z",
+                            "expiry_time": "2024-12-20T00:28:24.000Z"
+                          }
+                        }
+                      }
+                    }
+                  ]
+                },
+                "example": {
+                  "message": "Payment status retrieved successfully",
+                  "status": 200,
+                  "data": {
+                    "payment": {
+                      "id": 30,
+                      "orderId": "order_1734628702936_2w7goymr",
+                      "status": "CANCELLED",
+                      "transactionId": "981491e5-d66d-4940-b292-3c2fce337680",
+                      "amount": 100000,
+                      "snapToken": "881d71ce-547e-457a-9593-d91c09442bcc",
+                      "customerName": "wadadadadad",
+                      "customerEmail": "awdadadadad@gmail.com",
+                      "customerPhone": "129312312213",
+                      "customerAddress": "wqdqdqdqdqd",
+                      "createdAt": "2024-12-19T17:18:24.687Z",
+                      "updatedAt": "2024-12-19T17:23:21.894Z"
+                    },
+                    "midtransStatus": {
+                      "status_code": "200",
+                      "transaction_id": "981491e5-d66d-4940-b292-3c2fce337680",
+                      "gross_amount": "100000.00",
+                      "currency": "IDR",
+                      "order_id": "order_1734628702936_2w7goymr",
+                      "payment_type": "cstore",
+                      "signature_key": "cc5a4ec768d3a681d845d21296edac00c0868843d7ce95e6aa1bc5818efe0ae90c97a7d4811f813a38146939d7d12e2e0c89577d1fc03eb76d4ce0ed19520919",
+                      "transaction_status": "cancel",
+                      "fraud_status": "accept",
+                      "status_message": "Success, transaction is found",
+                      "merchant_id": "G881859652",
+                      "payment_code": "679312312213",
+                      "store": "indomaret",
+                      "transaction_time": "2024-12-20T00:20:59.000Z",
+                      "expiry_time": "2024-12-20T00:28:24.000Z"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "deprecated": false,
+        "servers": [
+          {
+            "url": "http://example.com",
+            "variables": {}
+          }
+        ]
+      }
+    },
+    "/api/v1/payments/payments/212345/cancel": {
+      "post": {
+        "tags": [
+          "Payment Midtrans"
+        ],
+        "summary": "Cancel Payment",
+        "operationId": "CancelPayment",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "headers": {}
+          }
+        },
+        "deprecated": false,
+        "servers": [
+          {
+            "url": "http://example.com",
+            "variables": {}
+          }
+        ]
+      }
+    },
+    "/api/v1/ticket": {
+      "post": {
+        "tags": [
+          "Ticket"
+        ],
+        "summary": "Create Ticket",
+        "operationId": "CreateTicket",
+        "parameters": [],
+        "requestBody": {
+          "description": "",
+          "content": {
+            "application/json": {
+              "schema": {
+                "allOf": [
+                  {
+                    "$ref": "#/components/schemas/CreateTicketRequest"
+                  },
+                  {
+                    "example": {
+                      "transaction_id": 13
+                    }
+                  }
+                ]
+              },
+              "example": {
+                "transaction_id": 13
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "headers": {}
+          }
+        },
+        "deprecated": false,
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "servers": [
+          {
+            "url": "http://example.com",
+            "variables": {}
+          }
+        ]
+      }
+    },
+    "/api/v1/flights": {
+      "get": {
+        "tags": [
+          "Get filter-search"
+        ],
+        "summary": "Get All Flights",
+        "operationId": "GetAllFlights",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "headers": {}
+          }
+        },
+        "deprecated": false,
+        "servers": [
+          {
+            "url": "http://example.com",
+            "variables": {}
+          }
+        ]
+      }
+    },
+    "/api/v1/flights/search": {
+      "get": {
+        "tags": [
+          "Get filter-search"
+        ],
+        "summary": "Get Flights Search-Departure",
+        "operationId": "GetFlightsSearch-Departure",
+        "parameters": [
+          {
+            "name": "from",
+            "in": "query",
+            "description": "",
+            "required": true,
+            "style": "form",
+            "explode": true,
+            "schema": {
+              "type": "string",
+              "example": "Ind1"
+            }
+          },
+          {
+            "name": "to",
+            "in": "query",
+            "description": "",
+            "required": true,
+            "style": "form",
+            "explode": true,
+            "schema": {
+              "type": "string",
+              "example": "Mal2"
+            }
+          },
+          {
+            "name": "departureDate",
+            "in": "query",
+            "description": "",
+            "required": true,
+            "style": "form",
+            "explode": true,
+            "schema": {
+              "type": "string",
+              "example": "2024-12-08T00:00:00.000Z"
+            }
+          },
+          {
+            "name": "returnDate",
+            "in": "query",
+            "description": "",
+            "required": true,
+            "style": "form",
+            "explode": true,
+            "schema": {
+              "type": "string",
+              "example": "2024-12-11T00:00:00.000Z"
+            }
+          },
+          {
+            "name": "seatClass",
+            "in": "query",
+            "description": "",
+            "required": true,
+            "style": "form",
+            "explode": true,
+            "schema": {
+              "type": "string",
+              "example": "Economy"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "headers": {
+              "X-Powered-By": {
+                "content": {
+                  "text/plain": {
+                    "schema": {
+                      "type": "string"
+                    },
+                    "example": "Express"
+                  }
+                }
+              },
+              "Access-Control-Allow-Origin": {
+                "content": {
+                  "text/plain": {
+                    "schema": {
+                      "type": "string"
+                    },
+                    "example": "*"
+                  }
+                }
+              },
+              "Content-Length": {
+                "content": {
+                  "text/plain": {
+                    "schema": {
+                      "type": "string"
+                    },
+                    "example": "1629"
+                  }
+                }
+              },
+              "ETag": {
+                "content": {
+                  "text/plain": {
+                    "schema": {
+                      "type": "string"
+                    },
+                    "example": "W/\"65d-pN/r76AmcCLI8RlLYttxucTjxTI\""
+                  }
+                }
+              },
+              "Date": {
+                "content": {
+                  "text/plain": {
+                    "schema": {
+                      "type": "string"
+                    },
+                    "example": "Mon, 23 Dec 2024 02:11:59 GMT"
+                  }
+                }
+              },
+              "Connection": {
+                "content": {
+                  "text/plain": {
+                    "schema": {
+                      "type": "string"
+                    },
+                    "example": "keep-alive"
+                  }
+                }
+              },
+              "Keep-Alive": {
+                "content": {
+                  "text/plain": {
+                    "schema": {
+                      "type": "string"
+                    },
+                    "example": "timeout=5"
+                  }
+                }
+              }
+            },
+            "content": {
+              "application/json; charset=utf-8": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/GetFlightsSearch"
+                    },
+                    {
+                      "example": {
+                        "status": 200,
+                        "message": "Available flights have been successfully retrieved.",
+                        "data": {
+                          "outbound_flights": [
+                            {
+                              "plane_id": 1,
+                              "airline_id": 2,
+                              "airport_id_origin": 2,
+                              "airport_id_destination": 3,
+                              "departure_time": "2024-12-07T17:00:00.000Z",
+                              "arrival_time": "2024-12-07T17:00:00.000Z",
+                              "departure_terminal": "Terminal 1",
+                              "baggage_capacity": 210,
+                              "plane_code": "PLANE-1",
+                              "cabin_baggage_capacity": 11,
+                              "meal_available": false,
+                              "wifi_available": true,
+                              "in_flight_entertainment": false,
+                              "power_outlets": true,
+                              "offers": "Offer 1",
+                              "duration": 125,
+                              "airline": {
+                                "airline_id": 2,
+                                "airline_name": "Garuda Indonesia",
+                                "image_url": "https://ik.imagekit.io/72mu50jam/garuda-indonesia-logo-8A90F09D68-seeklogo.com.png?updatedAt=1733325174717",
+                                "times_used": 20,
+                                "file_id": "file-id-2"
+                              },
+                              "origin_airport": {
+                                "airport_id": 2,
+                                "name": "United States",
+                                "address": "Alamat United States",
+                                "airport_code": "Uni2",
+                                "image_url": "https://ik.imagekit.io/72mu50jam/Dubai-United-Arab-Emirates-Burj-Khalifa-top.jpg?updatedAt=1733324845922",
+                                "file_id": "airport-file-id-2",
+                                "times_visited": 0,
+                                "continent_id": 4,
+                                "continent": {
+                                  "continent_id": 4,
+                                  "name": "North America"
+                                }
+                              },
+                              "destination_airport": {
+                                "airport_id": 3,
+                                "name": "Germany",
+                                "address": "Alamat Germany",
+                                "airport_code": "Ger3",
+                                "image_url": "https://ik.imagekit.io/72mu50jam/Dubai-United-Arab-Emirates-Burj-Khalifa-top.jpg?updatedAt=1733324845922",
+                                "file_id": "airport-file-id-3",
+                                "times_visited": 0,
+                                "continent_id": 3,
+                                "continent": {
+                                  "continent_id": 3,
+                                  "name": "Europe"
+                                }
+                              },
+                              "seats_detail": [
+                                {
+                                  "class": "Economy",
+                                  "price": 1000000,
+                                  "available_seats": 52
+                                }
+                              ]
+                            }
+                          ],
+                          "return_flights": []
+                        },
+                        "pagination": {
+                          "currentPage": 1,
+                          "totalPages": 1,
+                          "totalItems": 1,
+                          "limit": 10,
+                          "hasNextPage": false,
+                          "hasPreviousPage": false
+                        }
+                      }
+                    }
+                  ]
+                },
+                "example": {
+                  "status": 200,
+                  "message": "Available flights have been successfully retrieved.",
+                  "data": {
+                    "outbound_flights": [
+                      {
+                        "plane_id": 1,
+                        "airline_id": 2,
+                        "airport_id_origin": 2,
+                        "airport_id_destination": 3,
+                        "departure_time": "2024-12-07T17:00:00.000Z",
+                        "arrival_time": "2024-12-07T17:00:00.000Z",
+                        "departure_terminal": "Terminal 1",
+                        "baggage_capacity": 210,
+                        "plane_code": "PLANE-1",
+                        "cabin_baggage_capacity": 11,
+                        "meal_available": false,
+                        "wifi_available": true,
+                        "in_flight_entertainment": false,
+                        "power_outlets": true,
+                        "offers": "Offer 1",
+                        "duration": 125,
+                        "airline": {
+                          "airline_id": 2,
+                          "airline_name": "Garuda Indonesia",
+                          "image_url": "https://ik.imagekit.io/72mu50jam/garuda-indonesia-logo-8A90F09D68-seeklogo.com.png?updatedAt=1733325174717",
+                          "times_used": 20,
+                          "file_id": "file-id-2"
+                        },
+                        "origin_airport": {
+                          "airport_id": 2,
+                          "name": "United States",
+                          "address": "Alamat United States",
+                          "airport_code": "Uni2",
+                          "image_url": "https://ik.imagekit.io/72mu50jam/Dubai-United-Arab-Emirates-Burj-Khalifa-top.jpg?updatedAt=1733324845922",
+                          "file_id": "airport-file-id-2",
+                          "times_visited": 0,
+                          "continent_id": 4,
+                          "continent": {
+                            "continent_id": 4,
+                            "name": "North America"
+                          }
+                        },
+                        "destination_airport": {
+                          "airport_id": 3,
+                          "name": "Germany",
+                          "address": "Alamat Germany",
+                          "airport_code": "Ger3",
+                          "image_url": "https://ik.imagekit.io/72mu50jam/Dubai-United-Arab-Emirates-Burj-Khalifa-top.jpg?updatedAt=1733324845922",
+                          "file_id": "airport-file-id-3",
+                          "times_visited": 0,
+                          "continent_id": 3,
+                          "continent": {
+                            "continent_id": 3,
+                            "name": "Europe"
+                          }
+                        },
+                        "seats_detail": [
+                          {
+                            "class": "Economy",
+                            "price": 1000000,
+                            "available_seats": 52
+                          }
+                        ]
+                      }
+                    ],
+                    "return_flights": []
+                  },
+                  "pagination": {
+                    "currentPage": 1,
+                    "totalPages": 1,
+                    "totalItems": 1,
+                    "limit": 10,
+                    "hasNextPage": false,
+                    "hasPreviousPage": false
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "headers": {
+              "X-Powered-By": {
+                "content": {
+                  "text/plain": {
+                    "schema": {
+                      "type": "string"
+                    },
+                    "example": "Express"
+                  }
+                }
+              },
+              "Access-Control-Allow-Origin": {
+                "content": {
+                  "text/plain": {
+                    "schema": {
+                      "type": "string"
+                    },
+                    "example": "*"
+                  }
+                }
+              },
+              "Content-Length": {
+                "content": {
+                  "text/plain": {
+                    "schema": {
+                      "type": "string"
+                    },
+                    "example": "237"
+                  }
+                }
+              },
+              "ETag": {
+                "content": {
+                  "text/plain": {
+                    "schema": {
+                      "type": "string"
+                    },
+                    "example": "W/\"ed-H/Fo9LYe51EedQ+OcXAcm0jlBtA\""
+                  }
+                }
+              },
+              "Date": {
+                "content": {
+                  "text/plain": {
+                    "schema": {
+                      "type": "string"
+                    },
+                    "example": "Mon, 23 Dec 2024 02:11:03 GMT"
+                  }
+                }
+              },
+              "Connection": {
+                "content": {
+                  "text/plain": {
+                    "schema": {
+                      "type": "string"
+                    },
+                    "example": "keep-alive"
+                  }
+                }
+              },
+              "Keep-Alive": {
+                "content": {
+                  "text/plain": {
+                    "schema": {
+                      "type": "string"
+                    },
+                    "example": "timeout=5"
+                  }
+                }
+              }
+            },
+            "content": {
+              "application/json; charset=utf-8": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/GetFlightsSearch2"
+                    },
+                    {
+                      "example": {
+                        "status": 404,
+                        "message": "No flights found for the specified filters.",
+                        "data": {
+                          "outbound_flights": [],
+                          "return_flights": []
+                        },
+                        "pagination": {
+                          "currentPage": 1,
+                          "totalPages": 0,
+                          "totalItems": 0,
+                          "limit": 10,
+                          "hasNextPage": false,
+                          "hasPreviousPage": false
+                        }
+                      }
+                    }
+                  ]
+                },
+                "example": {
+                  "status": 404,
+                  "message": "No flights found for the specified filters.",
+                  "data": {
+                    "outbound_flights": [],
+                    "return_flights": []
+                  },
+                  "pagination": {
+                    "currentPage": 1,
+                    "totalPages": 0,
+                    "totalItems": 0,
+                    "limit": 10,
+                    "hasNextPage": false,
+                    "hasPreviousPage": false
+                  }
+                }
+              }
+            }
+          }
+        },
+        "deprecated": false,
+        "servers": [
+          {
+            "url": "http://example.com",
+            "variables": {}
+          }
+        ]
+      }
+    },
+    "/api/v1/notifications/user/1": {
+      "get": {
+        "tags": [
+          "Notification"
+        ],
+        "summary": "Get all notifications for a user",
+        "operationId": "Getallnotificationsforauser",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "headers": {}
+          }
+        },
+        "deprecated": false,
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "servers": [
+          {
+            "url": "http://example.com",
+            "variables": {}
+          }
+        ]
+      }
+    },
+    "/api/v1/notifications/1": {
+      "get": {
+        "tags": [
+          "Notification"
+        ],
+        "summary": "Get notifications",
+        "operationId": "Getnotifications",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "headers": {}
+          }
+        },
+        "deprecated": false,
+        "servers": [
+          {
+            "url": "http://example.com",
+            "variables": {}
+          }
+        ]
+      }
+    },
+    "/api/v1/notifications": {
+      "get": {
+        "tags": [
+          "Notification"
+        ],
+        "summary": "Get all notifications",
+        "operationId": "Getallnotifications",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "headers": {}
+          }
+        },
+        "deprecated": false,
+        "servers": [
+          {
+            "url": "http://example.com",
+            "variables": {}
+          }
+        ]
+      },
+      "post": {
+        "tags": [
+          "Notification"
+        ],
+        "summary": "Create notifications",
+        "operationId": "Createnotifications",
+        "parameters": [],
+        "requestBody": {
+          "content": {
+            "application/x-www-form-urlencoded": {
+              "encoding": {},
+              "schema": {
+                "required": [
+                  "title",
+                  "description",
+                  "user_id"
+                ],
+                "type": "object",
+                "properties": {
+                  "title": {
+                    "type": "string",
+                    "example": "Flight Ticket Payment Successful"
+                  },
+                  "description": {
+                    "type": "string",
+                    "example": "Your payment has been successfully processed. Your flight ticket is now confirmed."
+                  },
+                  "user_id": {
+                    "type": "integer",
+                    "format": "int32",
+                    "example": 1
+                  }
+                }
+              }
+            }
+          },
+          "required": false
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "headers": {}
+          }
+        },
+        "deprecated": false,
+        "servers": [
+          {
+            "url": "http://example.com",
+            "variables": {}
+          }
+        ]
+      }
+    },
+    "/api/v1/notifications/11": {
+      "delete": {
+        "tags": [
+          "Notification"
+        ],
+        "summary": "Delete notifications",
+        "operationId": "Deletenotifications",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "headers": {}
+          }
+        },
+        "deprecated": false,
+        "servers": [
+          {
+            "url": "http://example.com",
+            "variables": {}
+          }
+        ]
+      }
+    },
+    "/auth/google": {
+      "get": {
+        "tags": [
+          "Oauth-setpassword"
+        ],
+        "summary": "Get Oauth( endpoint hit di browser)",
+        "operationId": "GetOauth(endpointhitdibrowser)",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "headers": {}
+          }
+        },
+        "deprecated": false,
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "servers": [
+          {
+            "url": "http://example.com",
+            "variables": {}
+          }
+        ]
+      }
+    },
+    "/password": {
+      "put": {
+        "tags": [
+          "Oauth-setpassword"
+        ],
+        "summary": "set-password oauth",
+        "operationId": "set-passwordoauth",
+        "parameters": [],
+        "requestBody": {
+          "content": {
+            "application/x-www-form-urlencoded": {
+              "encoding": {},
+              "schema": {
+                "required": [
+                  "password",
+                  "email",
+                  "resetToken"
+                ],
+                "type": "object",
+                "properties": {
+                  "password": {
+                    "type": "string",
+                    "example": "1q2w3e4"
+                  },
+                  "email": {
+                    "type": "string",
+                    "example": "zefanyadiegoforlandi@mail.ugm.ac.id"
+                  },
+                  "resetToken": {
+                    "type": "string",
+                    "example": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6InplZmFueWFkaWVnb2ZvcmxhbmRpQG1haWwudWdtLmFjLmlkIiwiaWF0IjoxNzM0NDMyNTMxLCJleHAiOjE3MzQ0MzM0MzF9.-0sz7iGsmIg2eX0jAH93VWUBizORgf7wgfNgKPKKzIw"
+                  }
+                }
+              }
+            }
+          },
+          "required": false
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "headers": {}
+          }
+        },
+        "deprecated": false,
+        "servers": [
+          {
+            "url": "http://localhost:3000/auth/google",
+            "variables": {}
+          }
+        ]
+      }
+    },
+    "/api/v1/airport": {
+      "get": {
+        "tags": [
+          "Airport(Admin)"
+        ],
+        "summary": "Get Airport",
+        "operationId": "GetAirport",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "headers": {}
+          }
+        },
+        "deprecated": false,
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "servers": [
+          {
+            "url": "http://example.com",
+            "variables": {}
+          }
+        ]
+      },
+      "post": {
+        "tags": [
+          "Airport(Admin)"
+        ],
+        "summary": "Post airport",
+        "operationId": "Postairport",
+        "parameters": [],
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "encoding": {},
+              "schema": {
+                "required": [
+                  "name",
+                  "address",
+                  "airport_code",
+                  "image",
+                  "continent_id"
+                ],
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "example": "cek1"
+                  },
+                  "address": {
+                    "type": "string",
+                    "example": "cengkareng1"
+                  },
+                  "airport_code": {
+                    "type": "string",
+                    "example": "CKRGK"
+                  },
+                  "image": {
+                    "type": "string",
+                    "format": "binary"
+                  },
+                  "continent_id": {
+                    "type": "integer",
+                    "format": "int32",
+                    "example": 2
+                  }
+                }
+              }
+            }
+          },
+          "required": false
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "headers": {}
+          }
+        },
+        "deprecated": false,
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "servers": [
+          {
+            "url": "http://example.com",
+            "variables": {}
+          }
+        ]
+      }
+    },
+    "/api/v1/airport/1": {
+      "get": {
+        "tags": [
+          "Airport(Admin)"
+        ],
+        "summary": "Get Airport By Id",
+        "operationId": "GetAirportById",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "headers": {}
+          }
+        },
+        "deprecated": false,
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "servers": [
+          {
+            "url": "http://example.com",
+            "variables": {}
+          }
+        ]
+      }
+    },
+    "/api/v1/airport/26": {
+      "put": {
+        "tags": [
+          "Airport(Admin)"
+        ],
+        "summary": "Put Airport",
+        "operationId": "PutAirport",
+        "parameters": [],
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "encoding": {},
+              "schema": {
+                "required": [
+                  "image"
+                ],
+                "type": "object",
+                "properties": {
+                  "image": {
+                    "type": "string",
+                    "format": "binary"
+                  }
+                }
+              }
+            }
+          },
+          "required": false
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "headers": {}
+          }
+        },
+        "deprecated": false,
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "servers": [
+          {
+            "url": "http://example.com",
+            "variables": {}
+          }
+        ]
+      },
+      "delete": {
+        "tags": [
+          "Airport(Admin)"
+        ],
+        "summary": "Delete Airport",
+        "operationId": "DeleteAirport",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "headers": {}
+          }
+        },
+        "deprecated": false,
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "servers": [
+          {
+            "url": "http://example.com",
+            "variables": {}
+          }
+        ]
+      }
+    },
+    "/api/v1/airline": {
+      "get": {
+        "tags": [
+          "Airline(Admin)"
+        ],
+        "summary": "Get airline",
+        "operationId": "Getairline",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "headers": {}
+          }
+        },
+        "deprecated": false,
+        "servers": [
+          {
+            "url": "http://example.com",
+            "variables": {}
+          }
+        ]
+      },
+      "post": {
+        "tags": [
+          "Airline(Admin)"
+        ],
+        "summary": "Post airline",
+        "operationId": "Postairline",
+        "parameters": [],
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "encoding": {},
+              "schema": {
+                "required": [
+                  "airline_name",
+                  "image"
+                ],
+                "type": "object",
+                "properties": {
+                  "airline_name": {
+                    "type": "string",
+                    "example": "Jaya Indo"
+                  },
+                  "image": {
+                    "type": "string",
+                    "format": "binary"
+                  }
+                }
+              }
+            }
+          },
+          "required": false
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "headers": {}
+          }
+        },
+        "deprecated": false,
+        "servers": [
+          {
+            "url": "http://example.com",
+            "variables": {}
+          }
+        ]
+      }
+    },
+    "/api/v1/airline/1": {
+      "get": {
+        "tags": [
+          "Airline(Admin)"
+        ],
+        "summary": "Get airline by id",
+        "operationId": "Getairlinebyid",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "headers": {}
+          }
+        },
+        "deprecated": false,
+        "servers": [
+          {
+            "url": "http://example.com",
+            "variables": {}
+          }
+        ]
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "RegisterUserRequest": {
+        "title": "RegisterUserRequest",
+        "required": [
+          "name",
+          "telephone_number",
+          "email",
+          "password",
+          "address",
+          "gender",
+          "identity_number",
+          "age"
+        ],
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "telephone_number": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string"
+          },
+          "password": {
+            "type": "string"
+          },
+          "address": {
+            "type": "string"
+          },
+          "gender": {
+            "type": "string"
+          },
+          "identity_number": {
+            "type": "string"
+          },
+          "age": {
+            "type": "string"
+          }
+        },
+        "example": {
+          "name": "Rafly Aziz Abdillah",
+          "telephone_number": "081122334455",
+          "email": "keiwahyu19@gmail.com",
+          "password": "admin123",
+          "address": "jl.kenangan",
+          "gender": "male",
+          "identity_number": "123456789",
+          "age": "19"
+        }
+      },
+      "CreateMultipleTransactionRequest": {
+        "title": "CreateMultipleTransactionRequest",
+        "required": [
+          "userData",
+          "passengerData",
+          "seatSelections",
+          "planeId"
+        ],
+        "type": "object",
+        "properties": {
+          "userData": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/UserData"
+              },
+              {}
+            ]
+          },
+          "passengerData": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PassengerDatum"
+            },
+            "description": ""
+          },
+          "seatSelections": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SeatSelection"
+            },
+            "description": ""
+          },
+          "planeId": {
+            "type": "integer",
+            "format": "int32"
+          }
+        },
+        "example": {
+          "userData": {
+            "user_id": 11
+          },
+          "passengerData": [
+            {
+              "title": "Mr",
+              "full_name": "Harry Potter",
+              "family_name": "Potter",
+              "nationality": "Indonesia",
+              "id_number": "1234567890",
+              "id_issuer": "Indonesia",
+              "id_expiry": "2025-01-01T00:00:00.000Z",
+              "birth_date": "2000-01-01T00:00:00.000Z"
+            },
+            {
+              "title": "Mrs",
+              "full_name": "Hermione Granger",
+              "family_name": "Granger",
+              "nationality": "Indonesia",
+              "id_number": "0987654321",
+              "id_issuer": "Indonesia",
+              "id_expiry": "2025-01-01T00:00:00.000Z",
+              "birth_date": "2000-01-01T00:00:00.000Z"
+            }
+          ],
+          "seatSelections": [
+            {
+              "seat_id": 13
+            },
+            {
+              "seat_id": 14
+            }
+          ],
+          "planeId": 7
+        }
+      },
+      "UserData": {
+        "title": "UserData",
+        "required": [
+          "user_id"
+        ],
+        "type": "object",
+        "properties": {
+          "user_id": {
+            "type": "integer",
+            "format": "int32"
+          }
+        },
+        "example": {
+          "user_id": 11
+        }
+      },
+      "PassengerDatum": {
+        "title": "PassengerDatum",
+        "required": [
+          "title",
+          "full_name",
+          "family_name",
+          "nationality",
+          "id_number",
+          "id_issuer",
+          "id_expiry",
+          "birth_date"
+        ],
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string"
+          },
+          "full_name": {
+            "type": "string"
+          },
+          "family_name": {
+            "type": "string"
+          },
+          "nationality": {
+            "type": "string"
+          },
+          "id_number": {
+            "type": "string"
+          },
+          "id_issuer": {
+            "type": "string"
+          },
+          "id_expiry": {
+            "type": "string"
+          },
+          "birth_date": {
+            "type": "string"
+          }
+        },
+        "example": {
+          "title": "Mr",
+          "full_name": "Harry Potter",
+          "family_name": "Potter",
+          "nationality": "Indonesia",
+          "id_number": "1234567890",
+          "id_issuer": "Indonesia",
+          "id_expiry": "2025-01-01T00:00:00.000Z",
+          "birth_date": "2000-01-01T00:00:00.000Z"
+        }
+      },
+      "SeatSelection": {
+        "title": "SeatSelection",
+        "required": [
+          "seat_id"
+        ],
+        "type": "object",
+        "properties": {
+          "seat_id": {
+            "type": "integer",
+            "format": "int32"
+          }
+        },
+        "example": {
+          "seat_id": 13
+        }
+      },
+      "CreateSingleTripTransactionRequest": {
+        "title": "CreateSingleTripTransactionRequest",
+        "required": [
+          "userData",
+          "passengerData",
+          "seatSelections",
+          "planeId",
+          "isRoundTrip"
+        ],
+        "type": "object",
+        "properties": {
+          "userData": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/UserData"
+              },
+              {}
+            ]
+          },
+          "passengerData": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PassengerDatum"
+            },
+            "description": ""
+          },
+          "seatSelections": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SeatSelection"
+            },
+            "description": ""
+          },
+          "planeId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "isRoundTrip": {
+            "type": "boolean"
+          }
+        },
+        "example": {
+          "userData": {
+            "user_id": 1
+          },
+          "passengerData": [
+            {
+              "title": "Mr",
+              "full_name": "John Doe",
+              "family_name": "Doe",
+              "nationality": "ID",
+              "id_number": "1234567890",
+              "id_issuer": "Indonesia",
+              "id_expiry": "2025-12-31T00:00:00.000Z",
+              "birth_date": "1990-01-01T00:00:00.000Z"
+            }
+          ],
+          "seatSelections": [
+            {
+              "seat_id": 1
+            }
+          ],
+          "planeId": 1,
+          "isRoundTrip": false
+        }
+      },
+      "CreateRoundtriptransactionRequest": {
+        "title": "CreateRoundtriptransactionRequest",
+        "required": [
+          "userData",
+          "passengerData",
+          "seatSelections",
+          "planeId",
+          "isRoundTrip",
+          "returnPlaneId",
+          "returnSeatSelections"
+        ],
+        "type": "object",
+        "properties": {
+          "userData": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/UserData"
+              },
+              {}
+            ]
+          },
+          "passengerData": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PassengerDatum"
+            },
+            "description": ""
+          },
+          "seatSelections": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SeatSelection"
+            },
+            "description": ""
+          },
+          "planeId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "isRoundTrip": {
+            "type": "boolean"
+          },
+          "returnPlaneId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "returnSeatSelections": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ReturnSeatSelection"
+            },
+            "description": ""
+          }
+        },
+        "example": {
+          "userData": {
+            "user_id": 1
+          },
+          "passengerData": [
+            {
+              "title": "Mr",
+              "full_name": "John Doe",
+              "family_name": "Doe",
+              "nationality": "ID",
+              "id_number": "1234567890",
+              "id_issuer": "Indonesia",
+              "id_expiry": "2025-12-31T00:00:00.000Z",
+              "birth_date": "1990-01-01T00:00:00.000Z"
+            }
+          ],
+          "seatSelections": [
+            {
+              "seat_id": 1
+            }
+          ],
+          "planeId": 1,
+          "isRoundTrip": true,
+          "returnPlaneId": 2,
+          "returnSeatSelections": [
+            {
+              "seat_id": 50
+            }
+          ]
+        }
+      },
+      "ReturnSeatSelection": {
+        "title": "ReturnSeatSelection",
+        "required": [
+          "seat_id"
+        ],
+        "type": "object",
+        "properties": {
+          "seat_id": {
+            "type": "integer",
+            "format": "int32"
+          }
+        },
+        "example": {
+          "seat_id": 50
+        }
+      },
+      "CheckStatusPayment": {
+        "title": "CheckStatusPayment",
+        "required": [
+          "message",
+          "status",
+          "data"
+        ],
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string"
+          },
+          "status": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "data": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/Data"
+              },
+              {}
+            ]
+          }
+        },
+        "example": {
+          "message": "Payment status retrieved successfully",
+          "status": 200,
+          "data": {
+            "payment": {
+              "id": 30,
+              "orderId": "order_1734628702936_2w7goymr",
+              "status": "CANCELLED",
+              "transactionId": "981491e5-d66d-4940-b292-3c2fce337680",
+              "amount": 100000,
+              "snapToken": "881d71ce-547e-457a-9593-d91c09442bcc",
+              "customerName": "wadadadadad",
+              "customerEmail": "awdadadadad@gmail.com",
+              "customerPhone": "129312312213",
+              "customerAddress": "wqdqdqdqdqd",
+              "createdAt": "2024-12-19T17:18:24.687Z",
+              "updatedAt": "2024-12-19T17:23:21.894Z"
+            },
+            "midtransStatus": {
+              "status_code": "200",
+              "transaction_id": "981491e5-d66d-4940-b292-3c2fce337680",
+              "gross_amount": "100000.00",
+              "currency": "IDR",
+              "order_id": "order_1734628702936_2w7goymr",
+              "payment_type": "cstore",
+              "signature_key": "cc5a4ec768d3a681d845d21296edac00c0868843d7ce95e6aa1bc5818efe0ae90c97a7d4811f813a38146939d7d12e2e0c89577d1fc03eb76d4ce0ed19520919",
+              "transaction_status": "cancel",
+              "fraud_status": "accept",
+              "status_message": "Success, transaction is found",
+              "merchant_id": "G881859652",
+              "payment_code": "679312312213",
+              "store": "indomaret",
+              "transaction_time": "2024-12-20T00:20:59.000Z",
+              "expiry_time": "2024-12-20T00:28:24.000Z"
+            }
+          }
+        }
+      },
+      "Data": {
+        "title": "Data",
+        "required": [
+          "payment",
+          "midtransStatus"
+        ],
+        "type": "object",
+        "properties": {
+          "payment": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/Payment"
+              },
+              {}
+            ]
+          },
+          "midtransStatus": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/MidtransStatus"
+              },
+              {}
+            ]
+          }
+        },
+        "example": {
+          "payment": {
+            "id": 30,
+            "orderId": "order_1734628702936_2w7goymr",
+            "status": "CANCELLED",
+            "transactionId": "981491e5-d66d-4940-b292-3c2fce337680",
+            "amount": 100000,
+            "snapToken": "881d71ce-547e-457a-9593-d91c09442bcc",
+            "customerName": "wadadadadad",
+            "customerEmail": "awdadadadad@gmail.com",
+            "customerPhone": "129312312213",
+            "customerAddress": "wqdqdqdqdqd",
+            "createdAt": "2024-12-19T17:18:24.687Z",
+            "updatedAt": "2024-12-19T17:23:21.894Z"
+          },
+          "midtransStatus": {
+            "status_code": "200",
+            "transaction_id": "981491e5-d66d-4940-b292-3c2fce337680",
+            "gross_amount": "100000.00",
+            "currency": "IDR",
+            "order_id": "order_1734628702936_2w7goymr",
+            "payment_type": "cstore",
+            "signature_key": "cc5a4ec768d3a681d845d21296edac00c0868843d7ce95e6aa1bc5818efe0ae90c97a7d4811f813a38146939d7d12e2e0c89577d1fc03eb76d4ce0ed19520919",
+            "transaction_status": "cancel",
+            "fraud_status": "accept",
+            "status_message": "Success, transaction is found",
+            "merchant_id": "G881859652",
+            "payment_code": "679312312213",
+            "store": "indomaret",
+            "transaction_time": "2024-12-20T00:20:59.000Z",
+            "expiry_time": "2024-12-20T00:28:24.000Z"
+          }
+        }
+      },
+      "Payment": {
+        "title": "Payment",
+        "required": [
+          "id",
+          "orderId",
+          "status",
+          "transactionId",
+          "amount",
+          "snapToken",
+          "customerName",
+          "customerEmail",
+          "customerPhone",
+          "customerAddress",
+          "createdAt",
+          "updatedAt"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "orderId": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string"
+          },
+          "transactionId": {
+            "type": "string"
+          },
+          "amount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "snapToken": {
+            "type": "string"
+          },
+          "customerName": {
+            "type": "string"
+          },
+          "customerEmail": {
+            "type": "string"
+          },
+          "customerPhone": {
+            "type": "string"
+          },
+          "customerAddress": {
+            "type": "string"
+          },
+          "createdAt": {
+            "type": "string"
+          },
+          "updatedAt": {
+            "type": "string"
+          }
+        },
+        "example": {
+          "id": 30,
+          "orderId": "order_1734628702936_2w7goymr",
+          "status": "CANCELLED",
+          "transactionId": "981491e5-d66d-4940-b292-3c2fce337680",
+          "amount": 100000,
+          "snapToken": "881d71ce-547e-457a-9593-d91c09442bcc",
+          "customerName": "wadadadadad",
+          "customerEmail": "awdadadadad@gmail.com",
+          "customerPhone": "129312312213",
+          "customerAddress": "wqdqdqdqdqd",
+          "createdAt": "2024-12-19T17:18:24.687Z",
+          "updatedAt": "2024-12-19T17:23:21.894Z"
+        }
+      },
+      "MidtransStatus": {
+        "title": "MidtransStatus",
+        "required": [
+          "status_code",
+          "transaction_id",
+          "gross_amount",
+          "currency",
+          "order_id",
+          "payment_type",
+          "signature_key",
+          "transaction_status",
+          "fraud_status",
+          "status_message",
+          "merchant_id",
+          "payment_code",
+          "store",
+          "transaction_time",
+          "expiry_time"
+        ],
+        "type": "object",
+        "properties": {
+          "status_code": {
+            "type": "string"
+          },
+          "transaction_id": {
+            "type": "string"
+          },
+          "gross_amount": {
+            "type": "string"
+          },
+          "currency": {
+            "type": "string"
+          },
+          "order_id": {
+            "type": "string"
+          },
+          "payment_type": {
+            "type": "string"
+          },
+          "signature_key": {
+            "type": "string"
+          },
+          "transaction_status": {
+            "type": "string"
+          },
+          "fraud_status": {
+            "type": "string"
+          },
+          "status_message": {
+            "type": "string"
+          },
+          "merchant_id": {
+            "type": "string"
+          },
+          "payment_code": {
+            "type": "string"
+          },
+          "store": {
+            "type": "string"
+          },
+          "transaction_time": {
+            "type": "string"
+          },
+          "expiry_time": {
+            "type": "string"
+          }
+        },
+        "example": {
+          "status_code": "200",
+          "transaction_id": "981491e5-d66d-4940-b292-3c2fce337680",
+          "gross_amount": "100000.00",
+          "currency": "IDR",
+          "order_id": "order_1734628702936_2w7goymr",
+          "payment_type": "cstore",
+          "signature_key": "cc5a4ec768d3a681d845d21296edac00c0868843d7ce95e6aa1bc5818efe0ae90c97a7d4811f813a38146939d7d12e2e0c89577d1fc03eb76d4ce0ed19520919",
+          "transaction_status": "cancel",
+          "fraud_status": "accept",
+          "status_message": "Success, transaction is found",
+          "merchant_id": "G881859652",
+          "payment_code": "679312312213",
+          "store": "indomaret",
+          "transaction_time": "2024-12-20T00:20:59.000Z",
+          "expiry_time": "2024-12-20T00:28:24.000Z"
+        }
+      },
+      "CreateTicketRequest": {
+        "title": "CreateTicketRequest",
+        "required": [
+          "transaction_id"
+        ],
+        "type": "object",
+        "properties": {
+          "transaction_id": {
+            "type": "integer",
+            "format": "int32"
+          }
+        },
+        "example": {
+          "transaction_id": 13
+        }
+      },
+      "GetFlightsContinent": {
+        "title": "GetFlightsContinent",
+        "required": [
+          "status",
+          "message",
+          "data",
+          "pagination"
+        ],
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "message": {
+            "type": "string"
+          },
+          "data": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/Data1"
+              },
+              {}
+            ]
+          },
+          "pagination": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/Pagination"
+              },
+              {}
+            ]
+          }
+        },
+        "example": {
+          "status": 200,
+          "message": "Outbound flights have been successfully retrieved.",
+          "data": {
+            "outbound_flights": [
+              {
+                "plane_id": 17,
+                "airline_id": 10,
+                "airport_id_origin": 10,
+                "airport_id_destination": 11,
+                "departure_time": "2024-12-07T17:00:00.000Z",
+                "arrival_time": "2024-12-07T17:00:00.000Z",
+                "departure_terminal": "Terminal 9",
+                "baggage_capacity": 290,
+                "plane_code": "PLANE-9",
+                "cabin_baggage_capacity": 19,
+                "meal_available": false,
+                "wifi_available": true,
+                "in_flight_entertainment": false,
+                "power_outlets": true,
+                "offers": "Offer 9",
+                "duration": 165,
+                "airline": {
+                  "airline_id": 10,
+                  "airline_name": "Garuda Indonesia",
+                  "image_url": "https://ik.imagekit.io/72mu50jam/garuda-indonesia-logo-8A90F09D68-seeklogo.com.png?updatedAt=1733325174717",
+                  "times_used": 100,
+                  "file_id": "file-id-10"
+                },
+                "origin_airport": {
+                  "airport_id": 10,
+                  "name": "Argentina",
+                  "address": "Alamat Argentina",
+                  "airport_code": "Arg10",
+                  "image_url": "https://ik.imagekit.io/72mu50jam/Dubai-United-Arab-Emirates-Burj-Khalifa-top.jpg?updatedAt=1733324845922",
+                  "file_id": "airport-file-id-10",
+                  "times_visited": 0,
+                  "continent_id": 5,
+                  "continent": {
+                    "continent_id": 5,
+                    "name": "South America"
+                  }
+                },
+                "destination_airport": {
+                  "airport_id": 11,
+                  "name": "Indonesia",
+                  "address": "Alamat Indonesia",
+                  "airport_code": "Ind11",
+                  "image_url": "https://ik.imagekit.io/72mu50jam/Dubai-United-Arab-Emirates-Burj-Khalifa-top.jpg?updatedAt=1733324845922",
+                  "file_id": "airport-file-id-11",
+                  "times_visited": 0,
+                  "continent_id": 2,
+                  "continent": {
+                    "continent_id": 2,
+                    "name": "Asia"
+                  }
+                },
+                "seats_detail": [
+                  {
+                    "class": "Business",
+                    "price": 1000000,
+                    "available_seats": 18
+                  },
+                  {
+                    "class": "Economy",
+                    "price": 1000000,
+                    "available_seats": 54
+                  }
+                ]
+              },
+              {
+                "plane_id": 19,
+                "airline_id": 1,
+                "airport_id_origin": 11,
+                "airport_id_destination": 12,
+                "departure_time": "2024-12-07T17:00:00.000Z",
+                "arrival_time": "2024-12-07T17:00:00.000Z",
+                "departure_terminal": "Terminal 10",
+                "baggage_capacity": 300,
+                "plane_code": "PLANE-10",
+                "cabin_baggage_capacity": 20,
+                "meal_available": true,
+                "wifi_available": false,
+                "in_flight_entertainment": true,
+                "power_outlets": false,
+                "offers": "Offer 10",
+                "duration": 170,
+                "airline": {
+                  "airline_id": 1,
+                  "airline_name": "Garuda Indonesia",
+                  "image_url": "https://ik.imagekit.io/72mu50jam/garuda-indonesia-logo-8A90F09D68-seeklogo.com.png?updatedAt=1733325174717",
+                  "times_used": 10,
+                  "file_id": "file-id-1"
+                },
+                "origin_airport": {
+                  "airport_id": 11,
+                  "name": "Indonesia",
+                  "address": "Alamat Indonesia",
+                  "airport_code": "Ind11",
+                  "image_url": "https://ik.imagekit.io/72mu50jam/Dubai-United-Arab-Emirates-Burj-Khalifa-top.jpg?updatedAt=1733324845922",
+                  "file_id": "airport-file-id-11",
+                  "times_visited": 0,
+                  "continent_id": 2,
+                  "continent": {
+                    "continent_id": 2,
+                    "name": "Asia"
+                  }
+                },
+                "destination_airport": {
+                  "airport_id": 12,
+                  "name": "Malaysia",
+                  "address": "Alamat Malaysia",
+                  "airport_code": "Mal12",
+                  "image_url": "https://ik.imagekit.io/72mu50jam/Dubai-United-Arab-Emirates-Burj-Khalifa-top.jpg?updatedAt=1733324845922",
+                  "file_id": "airport-file-id-12",
+                  "times_visited": 0,
+                  "continent_id": 2,
+                  "continent": {
+                    "continent_id": 2,
+                    "name": "Asia"
+                  }
+                },
+                "seats_detail": [
+                  {
+                    "class": "Business",
+                    "price": 1000000,
+                    "available_seats": 18
+                  },
+                  {
+                    "class": "Economy",
+                    "price": 1000000,
+                    "available_seats": 54
+                  }
+                ]
+              },
+              {
+                "plane_id": 20,
+                "airline_id": 1,
+                "airport_id_origin": 12,
+                "airport_id_destination": 11,
+                "departure_time": "2024-12-11T17:00:00.000Z",
+                "arrival_time": "2024-12-11T17:00:00.000Z",
+                "departure_terminal": "Terminal 10",
+                "baggage_capacity": 300,
+                "plane_code": "PLANE-10-REVERSE",
+                "cabin_baggage_capacity": 20,
+                "meal_available": true,
+                "wifi_available": false,
+                "in_flight_entertainment": true,
+                "power_outlets": false,
+                "offers": "Offer 10",
+                "duration": 170,
+                "airline": {
+                  "airline_id": 1,
+                  "airline_name": "Garuda Indonesia",
+                  "image_url": "https://ik.imagekit.io/72mu50jam/garuda-indonesia-logo-8A90F09D68-seeklogo.com.png?updatedAt=1733325174717",
+                  "times_used": 10,
+                  "file_id": "file-id-1"
+                },
+                "origin_airport": {
+                  "airport_id": 12,
+                  "name": "Malaysia",
+                  "address": "Alamat Malaysia",
+                  "airport_code": "Mal12",
+                  "image_url": "https://ik.imagekit.io/72mu50jam/Dubai-United-Arab-Emirates-Burj-Khalifa-top.jpg?updatedAt=1733324845922",
+                  "file_id": "airport-file-id-12",
+                  "times_visited": 0,
+                  "continent_id": 2,
+                  "continent": {
+                    "continent_id": 2,
+                    "name": "Asia"
+                  }
+                },
+                "destination_airport": {
+                  "airport_id": 11,
+                  "name": "Indonesia",
+                  "address": "Alamat Indonesia",
+                  "airport_code": "Ind11",
+                  "image_url": "https://ik.imagekit.io/72mu50jam/Dubai-United-Arab-Emirates-Burj-Khalifa-top.jpg?updatedAt=1733324845922",
+                  "file_id": "airport-file-id-11",
+                  "times_visited": 0,
+                  "continent_id": 2,
+                  "continent": {
+                    "continent_id": 2,
+                    "name": "Asia"
+                  }
+                },
+                "seats_detail": [
+                  {
+                    "class": "Business",
+                    "price": 100000,
+                    "available_seats": 18
+                  },
+                  {
+                    "class": "Economy",
+                    "price": 100000,
+                    "available_seats": 54
+                  }
+                ]
+              },
+              {
+                "plane_id": 22,
+                "airline_id": 2,
+                "airport_id_origin": 13,
+                "airport_id_destination": 12,
+                "departure_time": "2024-12-11T17:00:00.000Z",
+                "arrival_time": "2024-12-11T17:00:00.000Z",
+                "departure_terminal": "Terminal 11",
+                "baggage_capacity": 310,
+                "plane_code": "PLANE-11-REVERSE",
+                "cabin_baggage_capacity": 21,
+                "meal_available": false,
+                "wifi_available": true,
+                "in_flight_entertainment": false,
+                "power_outlets": true,
+                "offers": "Offer 11",
+                "duration": 175,
+                "airline": {
+                  "airline_id": 2,
+                  "airline_name": "Garuda Indonesia",
+                  "image_url": "https://ik.imagekit.io/72mu50jam/garuda-indonesia-logo-8A90F09D68-seeklogo.com.png?updatedAt=1733325174717",
+                  "times_used": 20,
+                  "file_id": "file-id-2"
+                },
+                "origin_airport": {
+                  "airport_id": 13,
+                  "name": "United States",
+                  "address": "Alamat United States",
+                  "airport_code": "Uni13",
+                  "image_url": "https://ik.imagekit.io/72mu50jam/Dubai-United-Arab-Emirates-Burj-Khalifa-top.jpg?updatedAt=1733324845922",
+                  "file_id": "airport-file-id-13",
+                  "times_visited": 0,
+                  "continent_id": 4,
+                  "continent": {
+                    "continent_id": 4,
+                    "name": "North America"
+                  }
+                },
+                "destination_airport": {
+                  "airport_id": 12,
+                  "name": "Malaysia",
+                  "address": "Alamat Malaysia",
+                  "airport_code": "Mal12",
+                  "image_url": "https://ik.imagekit.io/72mu50jam/Dubai-United-Arab-Emirates-Burj-Khalifa-top.jpg?updatedAt=1733324845922",
+                  "file_id": "airport-file-id-12",
+                  "times_visited": 0,
+                  "continent_id": 2,
+                  "continent": {
+                    "continent_id": 2,
+                    "name": "Asia"
+                  }
+                },
+                "seats_detail": [
+                  {
+                    "class": "Business",
+                    "price": 100000,
+                    "available_seats": 18
+                  },
+                  {
+                    "class": "Economy",
+                    "price": 100000,
+                    "available_seats": 54
+                  }
+                ]
+              },
+              {
+                "plane_id": 39,
+                "airline_id": 1,
+                "airport_id_origin": 21,
+                "airport_id_destination": 22,
+                "departure_time": "2024-12-07T17:00:00.000Z",
+                "arrival_time": "2024-12-07T17:00:00.000Z",
+                "departure_terminal": "Terminal 20",
+                "baggage_capacity": 400,
+                "plane_code": "PLANE-20",
+                "cabin_baggage_capacity": 30,
+                "meal_available": true,
+                "wifi_available": false,
+                "in_flight_entertainment": true,
+                "power_outlets": false,
+                "offers": "Offer 20",
+                "duration": 220,
+                "airline": {
+                  "airline_id": 1,
+                  "airline_name": "Garuda Indonesia",
+                  "image_url": "https://ik.imagekit.io/72mu50jam/garuda-indonesia-logo-8A90F09D68-seeklogo.com.png?updatedAt=1733325174717",
+                  "times_used": 10,
+                  "file_id": "file-id-1"
+                },
+                "origin_airport": {
+                  "airport_id": 21,
+                  "name": "Argentina",
+                  "address": "Alamat Argentina",
+                  "airport_code": "Arg21",
+                  "image_url": "https://ik.imagekit.io/72mu50jam/Dubai-United-Arab-Emirates-Burj-Khalifa-top.jpg?updatedAt=1733324845922",
+                  "file_id": "airport-file-id-21",
+                  "times_visited": 0,
+                  "continent_id": 5,
+                  "continent": {
+                    "continent_id": 5,
+                    "name": "South America"
+                  }
+                },
+                "destination_airport": {
+                  "airport_id": 22,
+                  "name": "Indonesia",
+                  "address": "Alamat Indonesia",
+                  "airport_code": "Ind22",
+                  "image_url": "https://ik.imagekit.io/72mu50jam/Dubai-United-Arab-Emirates-Burj-Khalifa-top.jpg?updatedAt=1733324845922",
+                  "file_id": "airport-file-id-22",
+                  "times_visited": 0,
+                  "continent_id": 2,
+                  "continent": {
+                    "continent_id": 2,
+                    "name": "Asia"
+                  }
+                },
+                "seats_detail": [
+                  {
+                    "class": "Business",
+                    "price": 1000000,
+                    "available_seats": 18
+                  },
+                  {
+                    "class": "Economy",
+                    "price": 1000000,
+                    "available_seats": 54
+                  }
+                ]
+              },
+              {
+                "plane_id": 41,
+                "airline_id": 2,
+                "airport_id_origin": 22,
+                "airport_id_destination": 1,
+                "departure_time": "2024-12-07T17:00:00.000Z",
+                "arrival_time": "2024-12-07T17:00:00.000Z",
+                "departure_terminal": "Terminal 21",
+                "baggage_capacity": 410,
+                "plane_code": "PLANE-21",
+                "cabin_baggage_capacity": 31,
+                "meal_available": false,
+                "wifi_available": true,
+                "in_flight_entertainment": false,
+                "power_outlets": true,
+                "offers": "Offer 21",
+                "duration": 225,
+                "airline": {
+                  "airline_id": 2,
+                  "airline_name": "Garuda Indonesia",
+                  "image_url": "https://ik.imagekit.io/72mu50jam/garuda-indonesia-logo-8A90F09D68-seeklogo.com.png?updatedAt=1733325174717",
+                  "times_used": 20,
+                  "file_id": "file-id-2"
+                },
+                "origin_airport": {
+                  "airport_id": 22,
+                  "name": "Indonesia",
+                  "address": "Alamat Indonesia",
+                  "airport_code": "Ind22",
+                  "image_url": "https://ik.imagekit.io/72mu50jam/Dubai-United-Arab-Emirates-Burj-Khalifa-top.jpg?updatedAt=1733324845922",
+                  "file_id": "airport-file-id-22",
+                  "times_visited": 0,
+                  "continent_id": 2,
+                  "continent": {
+                    "continent_id": 2,
+                    "name": "Asia"
+                  }
+                },
+                "destination_airport": {
+                  "airport_id": 1,
+                  "name": "Malaysia",
+                  "address": "Alamat Malaysia",
+                  "airport_code": "Mal1",
+                  "image_url": "https://ik.imagekit.io/72mu50jam/Dubai-United-Arab-Emirates-Burj-Khalifa-top.jpg?updatedAt=1733324845922",
+                  "file_id": "airport-file-id-1",
+                  "times_visited": 0,
+                  "continent_id": 2,
+                  "continent": {
+                    "continent_id": 2,
+                    "name": "Asia"
+                  }
+                },
+                "seats_detail": [
+                  {
+                    "class": "Business",
+                    "price": 1000000,
+                    "available_seats": 18
+                  },
+                  {
+                    "class": "Economy",
+                    "price": 1000000,
+                    "available_seats": 54
+                  }
+                ]
+              },
+              {
+                "plane_id": 42,
+                "airline_id": 2,
+                "airport_id_origin": 1,
+                "airport_id_destination": 22,
+                "departure_time": "2024-12-11T17:00:00.000Z",
+                "arrival_time": "2024-12-11T17:00:00.000Z",
+                "departure_terminal": "Terminal 21",
+                "baggage_capacity": 410,
+                "plane_code": "PLANE-21-REVERSE",
+                "cabin_baggage_capacity": 31,
+                "meal_available": false,
+                "wifi_available": true,
+                "in_flight_entertainment": false,
+                "power_outlets": true,
+                "offers": "Offer 21",
+                "duration": 225,
+                "airline": {
+                  "airline_id": 2,
+                  "airline_name": "Garuda Indonesia",
+                  "image_url": "https://ik.imagekit.io/72mu50jam/garuda-indonesia-logo-8A90F09D68-seeklogo.com.png?updatedAt=1733325174717",
+                  "times_used": 20,
+                  "file_id": "file-id-2"
+                },
+                "origin_airport": {
+                  "airport_id": 1,
+                  "name": "Malaysia",
+                  "address": "Alamat Malaysia",
+                  "airport_code": "Mal1",
+                  "image_url": "https://ik.imagekit.io/72mu50jam/Dubai-United-Arab-Emirates-Burj-Khalifa-top.jpg?updatedAt=1733324845922",
+                  "file_id": "airport-file-id-1",
+                  "times_visited": 0,
+                  "continent_id": 2,
+                  "continent": {
+                    "continent_id": 2,
+                    "name": "Asia"
+                  }
+                },
+                "destination_airport": {
+                  "airport_id": 22,
+                  "name": "Indonesia",
+                  "address": "Alamat Indonesia",
+                  "airport_code": "Ind22",
+                  "image_url": "https://ik.imagekit.io/72mu50jam/Dubai-United-Arab-Emirates-Burj-Khalifa-top.jpg?updatedAt=1733324845922",
+                  "file_id": "airport-file-id-22",
+                  "times_visited": 0,
+                  "continent_id": 2,
+                  "continent": {
+                    "continent_id": 2,
+                    "name": "Asia"
+                  }
+                },
+                "seats_detail": [
+                  {
+                    "class": "Business",
+                    "price": 100000,
+                    "available_seats": 18
+                  },
+                  {
+                    "class": "Economy",
+                    "price": 100000,
+                    "available_seats": 54
+                  }
+                ]
+              },
+              {
+                "plane_id": 44,
+                "airline_id": 3,
+                "airport_id_origin": 2,
+                "airport_id_destination": 1,
+                "departure_time": "2024-12-11T17:00:00.000Z",
+                "arrival_time": "2024-12-11T17:00:00.000Z",
+                "departure_terminal": "Terminal 22",
+                "baggage_capacity": 420,
+                "plane_code": "PLANE-22-REVERSE",
+                "cabin_baggage_capacity": 32,
+                "meal_available": true,
+                "wifi_available": false,
+                "in_flight_entertainment": true,
+                "power_outlets": false,
+                "offers": "Offer 22",
+                "duration": 230,
+                "airline": {
+                  "airline_id": 3,
+                  "airline_name": "Garuda Indonesia",
+                  "image_url": "https://ik.imagekit.io/72mu50jam/garuda-indonesia-logo-8A90F09D68-seeklogo.com.png?updatedAt=1733325174717",
+                  "times_used": 30,
+                  "file_id": "file-id-3"
+                },
+                "origin_airport": {
+                  "airport_id": 2,
+                  "name": "United States",
+                  "address": "Alamat United States",
+                  "airport_code": "Uni2",
+                  "image_url": "https://ik.imagekit.io/72mu50jam/Dubai-United-Arab-Emirates-Burj-Khalifa-top.jpg?updatedAt=1733324845922",
+                  "file_id": "airport-file-id-2",
+                  "times_visited": 0,
+                  "continent_id": 4,
+                  "continent": {
+                    "continent_id": 4,
+                    "name": "North America"
+                  }
+                },
+                "destination_airport": {
+                  "airport_id": 1,
+                  "name": "Malaysia",
+                  "address": "Alamat Malaysia",
+                  "airport_code": "Mal1",
+                  "image_url": "https://ik.imagekit.io/72mu50jam/Dubai-United-Arab-Emirates-Burj-Khalifa-top.jpg?updatedAt=1733324845922",
+                  "file_id": "airport-file-id-1",
+                  "times_visited": 0,
+                  "continent_id": 2,
+                  "continent": {
+                    "continent_id": 2,
+                    "name": "Asia"
+                  }
+                },
+                "seats_detail": [
+                  {
+                    "class": "Business",
+                    "price": 100000,
+                    "available_seats": 18
+                  },
+                  {
+                    "class": "Economy",
+                    "price": 100000,
+                    "available_seats": 54
+                  }
+                ]
+              }
+            ]
+          },
+          "pagination": {
+            "currentPage": 1,
+            "totalPages": 1,
+            "totalItems": 8,
+            "limit": 10,
+            "hasNextPage": false,
+            "hasPreviousPage": false
+          }
+        }
+      },
+      "Data1": {
+        "title": "Data1",
+        "required": [
+          "outbound_flights"
+        ],
+        "type": "object",
+        "properties": {
+          "outbound_flights": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/OutboundFlight"
+            },
+            "description": ""
+          }
+        },
+        "example": {
+          "outbound_flights": [
+            {
+              "plane_id": 17,
+              "airline_id": 10,
+              "airport_id_origin": 10,
+              "airport_id_destination": 11,
+              "departure_time": "2024-12-07T17:00:00.000Z",
+              "arrival_time": "2024-12-07T17:00:00.000Z",
+              "departure_terminal": "Terminal 9",
+              "baggage_capacity": 290,
+              "plane_code": "PLANE-9",
+              "cabin_baggage_capacity": 19,
+              "meal_available": false,
+              "wifi_available": true,
+              "in_flight_entertainment": false,
+              "power_outlets": true,
+              "offers": "Offer 9",
+              "duration": 165,
+              "airline": {
+                "airline_id": 10,
+                "airline_name": "Garuda Indonesia",
+                "image_url": "https://ik.imagekit.io/72mu50jam/garuda-indonesia-logo-8A90F09D68-seeklogo.com.png?updatedAt=1733325174717",
+                "times_used": 100,
+                "file_id": "file-id-10"
+              },
+              "origin_airport": {
+                "airport_id": 10,
+                "name": "Argentina",
+                "address": "Alamat Argentina",
+                "airport_code": "Arg10",
+                "image_url": "https://ik.imagekit.io/72mu50jam/Dubai-United-Arab-Emirates-Burj-Khalifa-top.jpg?updatedAt=1733324845922",
+                "file_id": "airport-file-id-10",
+                "times_visited": 0,
+                "continent_id": 5,
+                "continent": {
+                  "continent_id": 5,
+                  "name": "South America"
+                }
+              },
+              "destination_airport": {
+                "airport_id": 11,
+                "name": "Indonesia",
+                "address": "Alamat Indonesia",
+                "airport_code": "Ind11",
+                "image_url": "https://ik.imagekit.io/72mu50jam/Dubai-United-Arab-Emirates-Burj-Khalifa-top.jpg?updatedAt=1733324845922",
+                "file_id": "airport-file-id-11",
+                "times_visited": 0,
+                "continent_id": 2,
+                "continent": {
+                  "continent_id": 2,
+                  "name": "Asia"
+                }
+              },
+              "seats_detail": [
+                {
+                  "class": "Business",
+                  "price": 1000000,
+                  "available_seats": 18
+                },
+                {
+                  "class": "Economy",
+                  "price": 1000000,
+                  "available_seats": 54
+                }
+              ]
+            },
+            {
+              "plane_id": 19,
+              "airline_id": 1,
+              "airport_id_origin": 11,
+              "airport_id_destination": 12,
+              "departure_time": "2024-12-07T17:00:00.000Z",
+              "arrival_time": "2024-12-07T17:00:00.000Z",
+              "departure_terminal": "Terminal 10",
+              "baggage_capacity": 300,
+              "plane_code": "PLANE-10",
+              "cabin_baggage_capacity": 20,
+              "meal_available": true,
+              "wifi_available": false,
+              "in_flight_entertainment": true,
+              "power_outlets": false,
+              "offers": "Offer 10",
+              "duration": 170,
+              "airline": {
+                "airline_id": 1,
+                "airline_name": "Garuda Indonesia",
+                "image_url": "https://ik.imagekit.io/72mu50jam/garuda-indonesia-logo-8A90F09D68-seeklogo.com.png?updatedAt=1733325174717",
+                "times_used": 10,
+                "file_id": "file-id-1"
+              },
+              "origin_airport": {
+                "airport_id": 11,
+                "name": "Indonesia",
+                "address": "Alamat Indonesia",
+                "airport_code": "Ind11",
+                "image_url": "https://ik.imagekit.io/72mu50jam/Dubai-United-Arab-Emirates-Burj-Khalifa-top.jpg?updatedAt=1733324845922",
+                "file_id": "airport-file-id-11",
+                "times_visited": 0,
+                "continent_id": 2,
+                "continent": {
+                  "continent_id": 2,
+                  "name": "Asia"
+                }
+              },
+              "destination_airport": {
+                "airport_id": 12,
+                "name": "Malaysia",
+                "address": "Alamat Malaysia",
+                "airport_code": "Mal12",
+                "image_url": "https://ik.imagekit.io/72mu50jam/Dubai-United-Arab-Emirates-Burj-Khalifa-top.jpg?updatedAt=1733324845922",
+                "file_id": "airport-file-id-12",
+                "times_visited": 0,
+                "continent_id": 2,
+                "continent": {
+                  "continent_id": 2,
+                  "name": "Asia"
+                }
+              },
+              "seats_detail": [
+                {
+                  "class": "Business",
+                  "price": 1000000,
+                  "available_seats": 18
+                },
+                {
+                  "class": "Economy",
+                  "price": 1000000,
+                  "available_seats": 54
+                }
+              ]
+            },
+            {
+              "plane_id": 20,
+              "airline_id": 1,
+              "airport_id_origin": 12,
+              "airport_id_destination": 11,
+              "departure_time": "2024-12-11T17:00:00.000Z",
+              "arrival_time": "2024-12-11T17:00:00.000Z",
+              "departure_terminal": "Terminal 10",
+              "baggage_capacity": 300,
+              "plane_code": "PLANE-10-REVERSE",
+              "cabin_baggage_capacity": 20,
+              "meal_available": true,
+              "wifi_available": false,
+              "in_flight_entertainment": true,
+              "power_outlets": false,
+              "offers": "Offer 10",
+              "duration": 170,
+              "airline": {
+                "airline_id": 1,
+                "airline_name": "Garuda Indonesia",
+                "image_url": "https://ik.imagekit.io/72mu50jam/garuda-indonesia-logo-8A90F09D68-seeklogo.com.png?updatedAt=1733325174717",
+                "times_used": 10,
+                "file_id": "file-id-1"
+              },
+              "origin_airport": {
+                "airport_id": 12,
+                "name": "Malaysia",
+                "address": "Alamat Malaysia",
+                "airport_code": "Mal12",
+                "image_url": "https://ik.imagekit.io/72mu50jam/Dubai-United-Arab-Emirates-Burj-Khalifa-top.jpg?updatedAt=1733324845922",
+                "file_id": "airport-file-id-12",
+                "times_visited": 0,
+                "continent_id": 2,
+                "continent": {
+                  "continent_id": 2,
+                  "name": "Asia"
+                }
+              },
+              "destination_airport": {
+                "airport_id": 11,
+                "name": "Indonesia",
+                "address": "Alamat Indonesia",
+                "airport_code": "Ind11",
+                "image_url": "https://ik.imagekit.io/72mu50jam/Dubai-United-Arab-Emirates-Burj-Khalifa-top.jpg?updatedAt=1733324845922",
+                "file_id": "airport-file-id-11",
+                "times_visited": 0,
+                "continent_id": 2,
+                "continent": {
+                  "continent_id": 2,
+                  "name": "Asia"
+                }
+              },
+              "seats_detail": [
+                {
+                  "class": "Business",
+                  "price": 100000,
+                  "available_seats": 18
+                },
+                {
+                  "class": "Economy",
+                  "price": 100000,
+                  "available_seats": 54
+                }
+              ]
+            },
+            {
+              "plane_id": 22,
+              "airline_id": 2,
+              "airport_id_origin": 13,
+              "airport_id_destination": 12,
+              "departure_time": "2024-12-11T17:00:00.000Z",
+              "arrival_time": "2024-12-11T17:00:00.000Z",
+              "departure_terminal": "Terminal 11",
+              "baggage_capacity": 310,
+              "plane_code": "PLANE-11-REVERSE",
+              "cabin_baggage_capacity": 21,
+              "meal_available": false,
+              "wifi_available": true,
+              "in_flight_entertainment": false,
+              "power_outlets": true,
+              "offers": "Offer 11",
+              "duration": 175,
+              "airline": {
+                "airline_id": 2,
+                "airline_name": "Garuda Indonesia",
+                "image_url": "https://ik.imagekit.io/72mu50jam/garuda-indonesia-logo-8A90F09D68-seeklogo.com.png?updatedAt=1733325174717",
+                "times_used": 20,
+                "file_id": "file-id-2"
+              },
+              "origin_airport": {
+                "airport_id": 13,
+                "name": "United States",
+                "address": "Alamat United States",
+                "airport_code": "Uni13",
+                "image_url": "https://ik.imagekit.io/72mu50jam/Dubai-United-Arab-Emirates-Burj-Khalifa-top.jpg?updatedAt=1733324845922",
+                "file_id": "airport-file-id-13",
+                "times_visited": 0,
+                "continent_id": 4,
+                "continent": {
+                  "continent_id": 4,
+                  "name": "North America"
+                }
+              },
+              "destination_airport": {
+                "airport_id": 12,
+                "name": "Malaysia",
+                "address": "Alamat Malaysia",
+                "airport_code": "Mal12",
+                "image_url": "https://ik.imagekit.io/72mu50jam/Dubai-United-Arab-Emirates-Burj-Khalifa-top.jpg?updatedAt=1733324845922",
+                "file_id": "airport-file-id-12",
+                "times_visited": 0,
+                "continent_id": 2,
+                "continent": {
+                  "continent_id": 2,
+                  "name": "Asia"
+                }
+              },
+              "seats_detail": [
+                {
+                  "class": "Business",
+                  "price": 100000,
+                  "available_seats": 18
+                },
+                {
+                  "class": "Economy",
+                  "price": 100000,
+                  "available_seats": 54
+                }
+              ]
+            },
+            {
+              "plane_id": 39,
+              "airline_id": 1,
+              "airport_id_origin": 21,
+              "airport_id_destination": 22,
+              "departure_time": "2024-12-07T17:00:00.000Z",
+              "arrival_time": "2024-12-07T17:00:00.000Z",
+              "departure_terminal": "Terminal 20",
+              "baggage_capacity": 400,
+              "plane_code": "PLANE-20",
+              "cabin_baggage_capacity": 30,
+              "meal_available": true,
+              "wifi_available": false,
+              "in_flight_entertainment": true,
+              "power_outlets": false,
+              "offers": "Offer 20",
+              "duration": 220,
+              "airline": {
+                "airline_id": 1,
+                "airline_name": "Garuda Indonesia",
+                "image_url": "https://ik.imagekit.io/72mu50jam/garuda-indonesia-logo-8A90F09D68-seeklogo.com.png?updatedAt=1733325174717",
+                "times_used": 10,
+                "file_id": "file-id-1"
+              },
+              "origin_airport": {
+                "airport_id": 21,
+                "name": "Argentina",
+                "address": "Alamat Argentina",
+                "airport_code": "Arg21",
+                "image_url": "https://ik.imagekit.io/72mu50jam/Dubai-United-Arab-Emirates-Burj-Khalifa-top.jpg?updatedAt=1733324845922",
+                "file_id": "airport-file-id-21",
+                "times_visited": 0,
+                "continent_id": 5,
+                "continent": {
+                  "continent_id": 5,
+                  "name": "South America"
+                }
+              },
+              "destination_airport": {
+                "airport_id": 22,
+                "name": "Indonesia",
+                "address": "Alamat Indonesia",
+                "airport_code": "Ind22",
+                "image_url": "https://ik.imagekit.io/72mu50jam/Dubai-United-Arab-Emirates-Burj-Khalifa-top.jpg?updatedAt=1733324845922",
+                "file_id": "airport-file-id-22",
+                "times_visited": 0,
+                "continent_id": 2,
+                "continent": {
+                  "continent_id": 2,
+                  "name": "Asia"
+                }
+              },
+              "seats_detail": [
+                {
+                  "class": "Business",
+                  "price": 1000000,
+                  "available_seats": 18
+                },
+                {
+                  "class": "Economy",
+                  "price": 1000000,
+                  "available_seats": 54
+                }
+              ]
+            },
+            {
+              "plane_id": 41,
+              "airline_id": 2,
+              "airport_id_origin": 22,
+              "airport_id_destination": 1,
+              "departure_time": "2024-12-07T17:00:00.000Z",
+              "arrival_time": "2024-12-07T17:00:00.000Z",
+              "departure_terminal": "Terminal 21",
+              "baggage_capacity": 410,
+              "plane_code": "PLANE-21",
+              "cabin_baggage_capacity": 31,
+              "meal_available": false,
+              "wifi_available": true,
+              "in_flight_entertainment": false,
+              "power_outlets": true,
+              "offers": "Offer 21",
+              "duration": 225,
+              "airline": {
+                "airline_id": 2,
+                "airline_name": "Garuda Indonesia",
+                "image_url": "https://ik.imagekit.io/72mu50jam/garuda-indonesia-logo-8A90F09D68-seeklogo.com.png?updatedAt=1733325174717",
+                "times_used": 20,
+                "file_id": "file-id-2"
+              },
+              "origin_airport": {
+                "airport_id": 22,
+                "name": "Indonesia",
+                "address": "Alamat Indonesia",
+                "airport_code": "Ind22",
+                "image_url": "https://ik.imagekit.io/72mu50jam/Dubai-United-Arab-Emirates-Burj-Khalifa-top.jpg?updatedAt=1733324845922",
+                "file_id": "airport-file-id-22",
+                "times_visited": 0,
+                "continent_id": 2,
+                "continent": {
+                  "continent_id": 2,
+                  "name": "Asia"
+                }
+              },
+              "destination_airport": {
+                "airport_id": 1,
+                "name": "Malaysia",
+                "address": "Alamat Malaysia",
+                "airport_code": "Mal1",
+                "image_url": "https://ik.imagekit.io/72mu50jam/Dubai-United-Arab-Emirates-Burj-Khalifa-top.jpg?updatedAt=1733324845922",
+                "file_id": "airport-file-id-1",
+                "times_visited": 0,
+                "continent_id": 2,
+                "continent": {
+                  "continent_id": 2,
+                  "name": "Asia"
+                }
+              },
+              "seats_detail": [
+                {
+                  "class": "Business",
+                  "price": 1000000,
+                  "available_seats": 18
+                },
+                {
+                  "class": "Economy",
+                  "price": 1000000,
+                  "available_seats": 54
+                }
+              ]
+            },
+            {
+              "plane_id": 42,
+              "airline_id": 2,
+              "airport_id_origin": 1,
+              "airport_id_destination": 22,
+              "departure_time": "2024-12-11T17:00:00.000Z",
+              "arrival_time": "2024-12-11T17:00:00.000Z",
+              "departure_terminal": "Terminal 21",
+              "baggage_capacity": 410,
+              "plane_code": "PLANE-21-REVERSE",
+              "cabin_baggage_capacity": 31,
+              "meal_available": false,
+              "wifi_available": true,
+              "in_flight_entertainment": false,
+              "power_outlets": true,
+              "offers": "Offer 21",
+              "duration": 225,
+              "airline": {
+                "airline_id": 2,
+                "airline_name": "Garuda Indonesia",
+                "image_url": "https://ik.imagekit.io/72mu50jam/garuda-indonesia-logo-8A90F09D68-seeklogo.com.png?updatedAt=1733325174717",
+                "times_used": 20,
+                "file_id": "file-id-2"
+              },
+              "origin_airport": {
+                "airport_id": 1,
+                "name": "Malaysia",
+                "address": "Alamat Malaysia",
+                "airport_code": "Mal1",
+                "image_url": "https://ik.imagekit.io/72mu50jam/Dubai-United-Arab-Emirates-Burj-Khalifa-top.jpg?updatedAt=1733324845922",
+                "file_id": "airport-file-id-1",
+                "times_visited": 0,
+                "continent_id": 2,
+                "continent": {
+                  "continent_id": 2,
+                  "name": "Asia"
+                }
+              },
+              "destination_airport": {
+                "airport_id": 22,
+                "name": "Indonesia",
+                "address": "Alamat Indonesia",
+                "airport_code": "Ind22",
+                "image_url": "https://ik.imagekit.io/72mu50jam/Dubai-United-Arab-Emirates-Burj-Khalifa-top.jpg?updatedAt=1733324845922",
+                "file_id": "airport-file-id-22",
+                "times_visited": 0,
+                "continent_id": 2,
+                "continent": {
+                  "continent_id": 2,
+                  "name": "Asia"
+                }
+              },
+              "seats_detail": [
+                {
+                  "class": "Business",
+                  "price": 100000,
+                  "available_seats": 18
+                },
+                {
+                  "class": "Economy",
+                  "price": 100000,
+                  "available_seats": 54
+                }
+              ]
+            },
+            {
+              "plane_id": 44,
+              "airline_id": 3,
+              "airport_id_origin": 2,
+              "airport_id_destination": 1,
+              "departure_time": "2024-12-11T17:00:00.000Z",
+              "arrival_time": "2024-12-11T17:00:00.000Z",
+              "departure_terminal": "Terminal 22",
+              "baggage_capacity": 420,
+              "plane_code": "PLANE-22-REVERSE",
+              "cabin_baggage_capacity": 32,
+              "meal_available": true,
+              "wifi_available": false,
+              "in_flight_entertainment": true,
+              "power_outlets": false,
+              "offers": "Offer 22",
+              "duration": 230,
+              "airline": {
+                "airline_id": 3,
+                "airline_name": "Garuda Indonesia",
+                "image_url": "https://ik.imagekit.io/72mu50jam/garuda-indonesia-logo-8A90F09D68-seeklogo.com.png?updatedAt=1733325174717",
+                "times_used": 30,
+                "file_id": "file-id-3"
+              },
+              "origin_airport": {
+                "airport_id": 2,
+                "name": "United States",
+                "address": "Alamat United States",
+                "airport_code": "Uni2",
+                "image_url": "https://ik.imagekit.io/72mu50jam/Dubai-United-Arab-Emirates-Burj-Khalifa-top.jpg?updatedAt=1733324845922",
+                "file_id": "airport-file-id-2",
+                "times_visited": 0,
+                "continent_id": 4,
+                "continent": {
+                  "continent_id": 4,
+                  "name": "North America"
+                }
+              },
+              "destination_airport": {
+                "airport_id": 1,
+                "name": "Malaysia",
+                "address": "Alamat Malaysia",
+                "airport_code": "Mal1",
+                "image_url": "https://ik.imagekit.io/72mu50jam/Dubai-United-Arab-Emirates-Burj-Khalifa-top.jpg?updatedAt=1733324845922",
+                "file_id": "airport-file-id-1",
+                "times_visited": 0,
+                "continent_id": 2,
+                "continent": {
+                  "continent_id": 2,
+                  "name": "Asia"
+                }
+              },
+              "seats_detail": [
+                {
+                  "class": "Business",
+                  "price": 100000,
+                  "available_seats": 18
+                },
+                {
+                  "class": "Economy",
+                  "price": 100000,
+                  "available_seats": 54
+                }
+              ]
+            }
+          ]
+        }
+      },
+      "OutboundFlight": {
+        "title": "OutboundFlight",
+        "required": [
+          "plane_id",
+          "airline_id",
+          "airport_id_origin",
+          "airport_id_destination",
+          "departure_time",
+          "arrival_time",
+          "departure_terminal",
+          "baggage_capacity",
+          "plane_code",
+          "cabin_baggage_capacity",
+          "meal_available",
+          "wifi_available",
+          "in_flight_entertainment",
+          "power_outlets",
+          "offers",
+          "duration",
+          "airline",
+          "origin_airport",
+          "destination_airport",
+          "seats_detail"
+        ],
+        "type": "object",
+        "properties": {
+          "plane_id": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "airline_id": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "airport_id_origin": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "airport_id_destination": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "departure_time": {
+            "type": "string"
+          },
+          "arrival_time": {
+            "type": "string"
+          },
+          "departure_terminal": {
+            "type": "string"
+          },
+          "baggage_capacity": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "plane_code": {
+            "type": "string"
+          },
+          "cabin_baggage_capacity": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "meal_available": {
+            "type": "boolean"
+          },
+          "wifi_available": {
+            "type": "boolean"
+          },
+          "in_flight_entertainment": {
+            "type": "boolean"
+          },
+          "power_outlets": {
+            "type": "boolean"
+          },
+          "offers": {
+            "type": "string"
+          },
+          "duration": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "airline": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/Airline"
+              },
+              {}
+            ]
+          },
+          "origin_airport": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/OriginAirport"
+              },
+              {}
+            ]
+          },
+          "destination_airport": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/DestinationAirport"
+              },
+              {}
+            ]
+          },
+          "seats_detail": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SeatsDetail"
+            },
+            "description": ""
+          }
+        },
+        "example": {
+          "plane_id": 17,
+          "airline_id": 10,
+          "airport_id_origin": 10,
+          "airport_id_destination": 11,
+          "departure_time": "2024-12-07T17:00:00.000Z",
+          "arrival_time": "2024-12-07T17:00:00.000Z",
+          "departure_terminal": "Terminal 9",
+          "baggage_capacity": 290,
+          "plane_code": "PLANE-9",
+          "cabin_baggage_capacity": 19,
+          "meal_available": false,
+          "wifi_available": true,
+          "in_flight_entertainment": false,
+          "power_outlets": true,
+          "offers": "Offer 9",
+          "duration": 165,
+          "airline": {
+            "airline_id": 10,
+            "airline_name": "Garuda Indonesia",
+            "image_url": "https://ik.imagekit.io/72mu50jam/garuda-indonesia-logo-8A90F09D68-seeklogo.com.png?updatedAt=1733325174717",
+            "times_used": 100,
+            "file_id": "file-id-10"
+          },
+          "origin_airport": {
+            "airport_id": 10,
+            "name": "Argentina",
+            "address": "Alamat Argentina",
+            "airport_code": "Arg10",
+            "image_url": "https://ik.imagekit.io/72mu50jam/Dubai-United-Arab-Emirates-Burj-Khalifa-top.jpg?updatedAt=1733324845922",
+            "file_id": "airport-file-id-10",
+            "times_visited": 0,
+            "continent_id": 5,
+            "continent": {
+              "continent_id": 5,
+              "name": "South America"
+            }
+          },
+          "destination_airport": {
+            "airport_id": 11,
+            "name": "Indonesia",
+            "address": "Alamat Indonesia",
+            "airport_code": "Ind11",
+            "image_url": "https://ik.imagekit.io/72mu50jam/Dubai-United-Arab-Emirates-Burj-Khalifa-top.jpg?updatedAt=1733324845922",
+            "file_id": "airport-file-id-11",
+            "times_visited": 0,
+            "continent_id": 2,
+            "continent": {
+              "continent_id": 2,
+              "name": "Asia"
+            }
+          },
+          "seats_detail": [
+            {
+              "class": "Business",
+              "price": 1000000,
+              "available_seats": 18
+            },
+            {
+              "class": "Economy",
+              "price": 1000000,
+              "available_seats": 54
+            }
+          ]
+        }
+      },
+      "Airline": {
+        "title": "Airline",
+        "required": [
+          "airline_id",
+          "airline_name",
+          "image_url",
+          "times_used",
+          "file_id"
+        ],
+        "type": "object",
+        "properties": {
+          "airline_id": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "airline_name": {
+            "type": "string"
+          },
+          "image_url": {
+            "type": "string"
+          },
+          "times_used": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "file_id": {
+            "type": "string"
+          }
+        },
+        "example": {
+          "airline_id": 10,
+          "airline_name": "Garuda Indonesia",
+          "image_url": "https://ik.imagekit.io/72mu50jam/garuda-indonesia-logo-8A90F09D68-seeklogo.com.png?updatedAt=1733325174717",
+          "times_used": 100,
+          "file_id": "file-id-10"
+        }
+      },
+      "OriginAirport": {
+        "title": "OriginAirport",
+        "required": [
+          "airport_id",
+          "name",
+          "address",
+          "airport_code",
+          "image_url",
+          "file_id",
+          "times_visited",
+          "continent_id",
+          "continent"
+        ],
+        "type": "object",
+        "properties": {
+          "airport_id": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "name": {
+            "type": "string"
+          },
+          "address": {
+            "type": "string"
+          },
+          "airport_code": {
+            "type": "string"
+          },
+          "image_url": {
+            "type": "string"
+          },
+          "file_id": {
+            "type": "string"
+          },
+          "times_visited": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "continent_id": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "continent": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/Continent"
+              },
+              {}
+            ]
+          }
+        },
+        "example": {
+          "airport_id": 10,
+          "name": "Argentina",
+          "address": "Alamat Argentina",
+          "airport_code": "Arg10",
+          "image_url": "https://ik.imagekit.io/72mu50jam/Dubai-United-Arab-Emirates-Burj-Khalifa-top.jpg?updatedAt=1733324845922",
+          "file_id": "airport-file-id-10",
+          "times_visited": 0,
+          "continent_id": 5,
+          "continent": {
+            "continent_id": 5,
+            "name": "South America"
+          }
+        }
+      },
+      "Continent": {
+        "title": "Continent",
+        "required": [
+          "continent_id",
+          "name"
+        ],
+        "type": "object",
+        "properties": {
+          "continent_id": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "name": {
+            "type": "string"
+          }
+        },
+        "example": {
+          "continent_id": 5,
+          "name": "South America"
+        }
+      },
+      "DestinationAirport": {
+        "title": "DestinationAirport",
+        "required": [
+          "airport_id",
+          "name",
+          "address",
+          "airport_code",
+          "image_url",
+          "file_id",
+          "times_visited",
+          "continent_id",
+          "continent"
+        ],
+        "type": "object",
+        "properties": {
+          "airport_id": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "name": {
+            "type": "string"
+          },
+          "address": {
+            "type": "string"
+          },
+          "airport_code": {
+            "type": "string"
+          },
+          "image_url": {
+            "type": "string"
+          },
+          "file_id": {
+            "type": "string"
+          },
+          "times_visited": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "continent_id": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "continent": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/Continent"
+              },
+              {}
+            ]
+          }
+        },
+        "example": {
+          "airport_id": 11,
+          "name": "Indonesia",
+          "address": "Alamat Indonesia",
+          "airport_code": "Ind11",
+          "image_url": "https://ik.imagekit.io/72mu50jam/Dubai-United-Arab-Emirates-Burj-Khalifa-top.jpg?updatedAt=1733324845922",
+          "file_id": "airport-file-id-11",
+          "times_visited": 0,
+          "continent_id": 2,
+          "continent": {
+            "continent_id": 2,
+            "name": "Asia"
+          }
+        }
+      },
+      "SeatsDetail": {
+        "title": "SeatsDetail",
+        "required": [
+          "class",
+          "price",
+          "available_seats"
+        ],
+        "type": "object",
+        "properties": {
+          "class": {
+            "type": "string"
+          },
+          "price": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "available_seats": {
+            "type": "integer",
+            "format": "int32"
+          }
+        },
+        "example": {
+          "class": "Business",
+          "price": 1000000,
+          "available_seats": 18
+        }
+      },
+      "Pagination": {
+        "title": "Pagination",
+        "required": [
+          "currentPage",
+          "totalPages",
+          "totalItems",
+          "limit",
+          "hasNextPage",
+          "hasPreviousPage"
+        ],
+        "type": "object",
+        "properties": {
+          "currentPage": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalPages": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalItems": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "limit": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "hasNextPage": {
+            "type": "boolean"
+          },
+          "hasPreviousPage": {
+            "type": "boolean"
+          }
+        },
+        "example": {
+          "currentPage": 1,
+          "totalPages": 1,
+          "totalItems": 8,
+          "limit": 10,
+          "hasNextPage": false,
+          "hasPreviousPage": false
+        }
+      },
+      "GetFlightsContinent2": {
+        "title": "GetFlightsContinent2",
+        "required": [
+          "status",
+          "statusCode",
+          "message",
+          "error"
+        ],
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string"
+          },
+          "statusCode": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "message": {
+            "type": "string"
+          },
+          "error": {
+            "type": "string"
+          }
+        },
+        "example": {
+          "status": "fail",
+          "statusCode": 500,
+          "message": "Internal Server Error",
+          "error": "Continent North Carolina not found."
+        }
+      },
+      "GetFlightsSearch": {
+        "title": "GetFlightsSearch",
+        "required": [
+          "status",
+          "message",
+          "data",
+          "pagination"
+        ],
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "message": {
+            "type": "string"
+          },
+          "data": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/Data2"
+              },
+              {}
+            ]
+          },
+          "pagination": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/Pagination"
+              },
+              {}
+            ]
+          }
+        },
+        "example": {
+          "status": 200,
+          "message": "Available flights have been successfully retrieved.",
+          "data": {
+            "outbound_flights": [
+              {
+                "plane_id": 1,
+                "airline_id": 2,
+                "airport_id_origin": 2,
+                "airport_id_destination": 3,
+                "departure_time": "2024-12-07T17:00:00.000Z",
+                "arrival_time": "2024-12-07T17:00:00.000Z",
+                "departure_terminal": "Terminal 1",
+                "baggage_capacity": 210,
+                "plane_code": "PLANE-1",
+                "cabin_baggage_capacity": 11,
+                "meal_available": false,
+                "wifi_available": true,
+                "in_flight_entertainment": false,
+                "power_outlets": true,
+                "offers": "Offer 1",
+                "duration": 125,
+                "airline": {
+                  "airline_id": 2,
+                  "airline_name": "Garuda Indonesia",
+                  "image_url": "https://ik.imagekit.io/72mu50jam/garuda-indonesia-logo-8A90F09D68-seeklogo.com.png?updatedAt=1733325174717",
+                  "times_used": 20,
+                  "file_id": "file-id-2"
+                },
+                "origin_airport": {
+                  "airport_id": 2,
+                  "name": "United States",
+                  "address": "Alamat United States",
+                  "airport_code": "Uni2",
+                  "image_url": "https://ik.imagekit.io/72mu50jam/Dubai-United-Arab-Emirates-Burj-Khalifa-top.jpg?updatedAt=1733324845922",
+                  "file_id": "airport-file-id-2",
+                  "times_visited": 0,
+                  "continent_id": 4,
+                  "continent": {
+                    "continent_id": 4,
+                    "name": "North America"
+                  }
+                },
+                "destination_airport": {
+                  "airport_id": 3,
+                  "name": "Germany",
+                  "address": "Alamat Germany",
+                  "airport_code": "Ger3",
+                  "image_url": "https://ik.imagekit.io/72mu50jam/Dubai-United-Arab-Emirates-Burj-Khalifa-top.jpg?updatedAt=1733324845922",
+                  "file_id": "airport-file-id-3",
+                  "times_visited": 0,
+                  "continent_id": 3,
+                  "continent": {
+                    "continent_id": 3,
+                    "name": "Europe"
+                  }
+                },
+                "seats_detail": [
+                  {
+                    "class": "Economy",
+                    "price": 1000000,
+                    "available_seats": 52
+                  }
+                ]
+              }
+            ],
+            "return_flights": []
+          },
+          "pagination": {
+            "currentPage": 1,
+            "totalPages": 1,
+            "totalItems": 1,
+            "limit": 10,
+            "hasNextPage": false,
+            "hasPreviousPage": false
+          }
+        }
+      },
+      "Data2": {
+        "title": "Data2",
+        "required": [
+          "outbound_flights",
+          "return_flights"
+        ],
+        "type": "object",
+        "properties": {
+          "outbound_flights": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/OutboundFlight"
+            },
+            "description": ""
+          },
+          "return_flights": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": ""
+          }
+        },
+        "example": {
+          "outbound_flights": [
+            {
+              "plane_id": 1,
+              "airline_id": 2,
+              "airport_id_origin": 2,
+              "airport_id_destination": 3,
+              "departure_time": "2024-12-07T17:00:00.000Z",
+              "arrival_time": "2024-12-07T17:00:00.000Z",
+              "departure_terminal": "Terminal 1",
+              "baggage_capacity": 210,
+              "plane_code": "PLANE-1",
+              "cabin_baggage_capacity": 11,
+              "meal_available": false,
+              "wifi_available": true,
+              "in_flight_entertainment": false,
+              "power_outlets": true,
+              "offers": "Offer 1",
+              "duration": 125,
+              "airline": {
+                "airline_id": 2,
+                "airline_name": "Garuda Indonesia",
+                "image_url": "https://ik.imagekit.io/72mu50jam/garuda-indonesia-logo-8A90F09D68-seeklogo.com.png?updatedAt=1733325174717",
+                "times_used": 20,
+                "file_id": "file-id-2"
+              },
+              "origin_airport": {
+                "airport_id": 2,
+                "name": "United States",
+                "address": "Alamat United States",
+                "airport_code": "Uni2",
+                "image_url": "https://ik.imagekit.io/72mu50jam/Dubai-United-Arab-Emirates-Burj-Khalifa-top.jpg?updatedAt=1733324845922",
+                "file_id": "airport-file-id-2",
+                "times_visited": 0,
+                "continent_id": 4,
+                "continent": {
+                  "continent_id": 4,
+                  "name": "North America"
+                }
+              },
+              "destination_airport": {
+                "airport_id": 3,
+                "name": "Germany",
+                "address": "Alamat Germany",
+                "airport_code": "Ger3",
+                "image_url": "https://ik.imagekit.io/72mu50jam/Dubai-United-Arab-Emirates-Burj-Khalifa-top.jpg?updatedAt=1733324845922",
+                "file_id": "airport-file-id-3",
+                "times_visited": 0,
+                "continent_id": 3,
+                "continent": {
+                  "continent_id": 3,
+                  "name": "Europe"
+                }
+              },
+              "seats_detail": [
+                {
+                  "class": "Economy",
+                  "price": 1000000,
+                  "available_seats": 52
+                }
+              ]
+            }
+          ],
+          "return_flights": []
+        }
+      },
+      "Data3": {
+        "title": "Data3",
+        "required": [
+          "outbound_flights",
+          "return_flights"
+        ],
+        "type": "object",
+        "properties": {
+          "outbound_flights": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": ""
+          },
+          "return_flights": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": ""
+          }
+        },
+        "example": {
+          "outbound_flights": [],
+          "return_flights": []
+        }
+      },
+      "GetFlightsSearch2": {
+        "title": "GetFlightsSearch2",
+        "required": [
+          "status",
+          "message",
+          "data",
+          "pagination"
+        ],
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "message": {
+            "type": "string"
+          },
+          "data": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/Data3"
+              },
+              {}
+            ]
+          },
+          "pagination": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/Pagination"
+              },
+              {}
+            ]
+          }
+        },
+        "example": {
+          "status": 404,
+          "message": "No flights found for the specified filters.",
+          "data": {
+            "outbound_flights": [],
+            "return_flights": []
+          },
+          "pagination": {
+            "currentPage": 1,
+            "totalPages": 0,
+            "totalItems": 0,
+            "limit": 10,
+            "hasNextPage": false,
+            "hasPreviousPage": false
+          }
+        }
+      }
+    },
+    "securitySchemes": {
+      "bearer": {
+        "type": "http",
+        "scheme": "bearer"
+      }
+    }
+  },
+  "security": [],
+  "tags": [
+    {
+      "name": "Forgot-password"
+    },
+    {
+      "name": "User"
+    },
+    {
+      "name": "Transaction",
+      "description": "Create ticketing"
+    },
+    {
+      "name": "Payment Midtrans",
+      "description": "Create Payment to Midtrans"
+    },
+    {
+      "name": "Ticket",
+      "description": "Create ticketing"
+    },
+    {
+      "name": "Get filter-search"
+    },
+    {
+      "name": "Get Sorting"
+    },
+    {
+      "name": "Notification"
+    },
+    {
+      "name": "Oauth-setpassword"
+    },
+    {
+      "name": "Airport(Admin)"
+    },
+    {
+      "name": "Airline(Admin)"
+    }
+  ]
+}

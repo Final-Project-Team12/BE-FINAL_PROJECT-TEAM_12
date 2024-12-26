@@ -23,7 +23,7 @@ class AirlineController {
                 message: 'Image successfully uploaded to airline',
                 data: airlineRecord
             });
-        /* istanbul ignore test */
+        /* istanbul ignore next */
         } catch (error) {
             /* istanbul ignore next */
             next(error);
@@ -32,20 +32,28 @@ class AirlineController {
 
     static async getAirlines(req, res, next) {
         try {
-            const airlines = await AirlineService.getAllAirlines();
-
+            const page = parseInt(req.query.page, 10) || 1;
+            const limit = parseInt(req.query.limit, 10) || 10;
+    
+            const { airlines, totalPages } = await AirlineService.getAllAirlines(page, limit);
+    
             res.status(200).json({
                 status: 200,
                 message: 'Airlines retrieved successfully',
-                data: airlines
+                data: airlines,
+                pagination: {
+                    currentPage: page,
+                    totalPages: totalPages,
+                    limit: limit,
+                },
             });
-        /* istanbul ignore test */
+            /* istanbul ignore next */
         } catch (error) {
             /* istanbul ignore next */
             next(error);
         }
     }
-
+    
     static async getAirlineById(req, res, next) {
         const { airline_id } = req.params;
         try {
@@ -62,7 +70,7 @@ class AirlineController {
                 message: 'Airline retrieved successfully',
                 data: airline
             });
-        /* istanbul ignore test */
+        /* istanbul ignore next */
         } catch (error) {
             /* istanbul ignore next */
             next(error);
@@ -88,7 +96,7 @@ class AirlineController {
                 status: 200,
                 message: 'Airline successfully deleted'
             });
-            /* istanbul ignore test */
+            /* istanbul ignore next */
         } catch (error) {
             /* istanbul ignore next */
             next(error);
@@ -129,7 +137,7 @@ class AirlineController {
                 message: 'Airline successfully updated',
                 data: updatedAirline
             });
-        /* istanbul ignore test */
+        /* istanbul ignore next */
         } catch (error) {
             /* istanbul ignore next */
             next(error);

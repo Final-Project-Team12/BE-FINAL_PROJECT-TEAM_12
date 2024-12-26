@@ -51,8 +51,8 @@ describe('User on Flights Integration Tests', () => {
         const response = await request(app)
             .get('/api/v1/flights/search')
             .query({
-                from:'Uni2',
-                to:'Ger3',
+                from:'CGK',
+                to:'DPS',
                 departureDate:'2024-12-07',
                 returnDate:'2024-12-11',
                 seatClass:'Economy',
@@ -72,8 +72,8 @@ describe('User on Flights Integration Tests', () => {
         const response = await request(app)
             .get('/api/v1/flights/search')
             .query({
-                from:'Uni2',
-                to:'Ger3',
+                from:'CGK',
+                to:'DPS',
                 departureDate:'2024-12-07',
                 seatClass:'Economy',
                 passengerAdult:'2',
@@ -92,8 +92,8 @@ describe('User on Flights Integration Tests', () => {
         const response = await request(app)
             .get('/api/v1/flights/search')
             .query({
-                from:'Uni2',
-                to:'Ger3',
+                from:'CGK',
+                to:'DPS',
                 returnDate:'2024-12-11',
                 seatClass:'Economy',
                 passengerAdult:'2',
@@ -112,8 +112,8 @@ describe('User on Flights Integration Tests', () => {
         const response = await request(app)
             .get('/api/v1/flights/search')
             .query({
-                from:'Uni2',
-                to:'Ger3',
+                from:'CGK',
+                to:'DPS',
                 departureDate:'2023-12-07',
                 returnDate:'2023-12-11',
                 seatClass:'Economy',
@@ -133,8 +133,8 @@ describe('User on Flights Integration Tests', () => {
         const response = await request(app)
             .get('/api/v1/flights/search')
             .query({
-                from:'Uni2',
-                to:'Ger3',
+                from:'CGK',
+                to:'DPS',
                 departureDate:'2024-12-07',
                 returnDate:'2024-12-11',
                 seatClass:'Economy',
@@ -152,8 +152,8 @@ describe('User on Flights Integration Tests', () => {
         const response = await request(app)
             .get('/api/v1/flights/search')
             .query({
-                from:'Uni2',
-                to:'Ger3',
+                from:'CGK',
+                to:'DPS',
                 departureDate:'2024-12-07',
                 returnDate:'2024-12-11',
                 seatClass:'Economy',
@@ -172,8 +172,8 @@ describe('User on Flights Integration Tests', () => {
         const response = await request(app)
             .get('/api/v1/flights/search')
             .query({
-                from:'Uni2',
-                to:'Ger3',
+                from:'CGK',
+                to:'DPS',
                 departureDate:'2024-12-07',
                 returnDate:'2024-12-11',
                 seatClass:'Economy',
@@ -194,8 +194,8 @@ describe('User on Flights Integration Tests', () => {
         const response = await request(app)
             .get('/api/v1/flights/search')
             .query({
-                from:'Uni2',
-                to:'Ger3',
+                from:'CGK',
+                to:'DPS',
                 departureDate:'2024-12-07',
                 returnDate:'2024-12-11',
                 seatClass:'Economy',
@@ -213,8 +213,8 @@ describe('User on Flights Integration Tests', () => {
         const response = await request(app)
             .get('/api/v1/flights/search')
             .query({
-                from:'Uni2',
-                to:'Ger3',
+                from:'CGK',
+                to:'DPS',
                 departureDate:'2024-12-07',
                 returnDate:'2024-12-11',
                 seatClass:'Economy',
@@ -232,8 +232,8 @@ describe('User on Flights Integration Tests', () => {
         const response = await request(app)
             .get('/api/v1/flights/search')
             .query({
-                from:'Uni2',
-                to:'Ger3',
+                from:'CGK',
+                to:'DPS',
                 departureDate:'2024-12-07',
                 returnDate:'2024-12-11',
                 seatClass:'Economy',
@@ -251,8 +251,8 @@ describe('User on Flights Integration Tests', () => {
         const response = await request(app)
             .get('/api/v1/flights/search')
             .query({
-                from:'Uni2',
-                to:'Ger3',
+                from:'CGK',
+                to:'DPS',
                 departureDate:'2024-12-07',
                 returnDate:'2024-12-11',
                 seatClass:'Economy',
@@ -270,8 +270,8 @@ describe('User on Flights Integration Tests', () => {
         const response = await request(app)
             .get('/api/v1/flights/search')
             .query({
-                from:'Uni2',
-                to:'Ger3',
+                from:'CGK',
+                to:'DPS',
                 departureDate:'2024-12-07',
                 returnDate:'2024-12-11',
                 seatClass:'Economy',
@@ -289,8 +289,8 @@ describe('User on Flights Integration Tests', () => {
         const response = await request(app)
             .get('/api/v1/flights/search')
             .query({
-                from:'Uni2',
-                to:'Ger3',
+                from:'CGK',
+                to:'DPS',
                 departureDate:'2024-12-07',
                 returnDate:'2024-12-11',
                 seatClass:'Economy',
@@ -308,8 +308,8 @@ describe('User on Flights Integration Tests', () => {
         const response = await request(app)
             .get('/api/v1/flights/search')
             .query({
-                from:'Uni2',
-                to:'Ger3',
+                from:'CGK',
+                to:'DPS',
                 departureDate:'2024-12-07',
                 returnDate:'2024-12-11',
                 seatClass:'Economy',
@@ -327,8 +327,8 @@ describe('User on Flights Integration Tests', () => {
         const response = await request(app)
             .get('/api/v1/flights/search')
             .query({
-                from:'Uni2',
-                to:'Ger3',
+                from:'CGK',
+                to:'DPS',
                 departureDate:'2024-12-07',
                 returnDate:'2024-12-11',
                 seatClass:'Economy',
@@ -349,8 +349,8 @@ describe('User on Flights Integration Tests', () => {
         const response = await request(app)
             .get('/api/v1/flights/search')
             .query({
-                from:'Uni2',
-                to:'Ger3',
+                from:'CGK',
+                to:'DPS',
                 departureDate:'2024-12-07',
                 returnDate:'2024-12-11',
                 seatClass:'Economy',
@@ -370,8 +370,8 @@ describe('User on Flights Integration Tests', () => {
         const response = await request(app)
             .get('/api/v1/flights/search')
             .query({
-                from:'Uni2',
-                to:'Ger3',
+                from:'CGK',
+                to:'DPS',
                 departureDate:'2024-12-07',
                 returnDate:'2024-12-11',
                 seatClass:'Economy',
@@ -391,8 +391,8 @@ describe('User on Flights Integration Tests', () => {
         const response = await request(app)
             .get('/api/v1/flights/search')
             .query({
-                from:'Uni2',
-                to:'Ger3',
+                from:'CGK',
+                to:'DPS',
                 departureDate:'2024-12-07',
                 returnDate:'2024-12-11',
                 seatClass:'Economy',
@@ -412,8 +412,8 @@ describe('User on Flights Integration Tests', () => {
         const response = await request(app)
             .get('/api/v1/flights/search')
             .query({
-                from:'Uni2',
-                to:'Ger3',
+                from:'CGK',
+                to:'DPS',
                 departureDate:'2024-12-07',
                 returnDate:'2024-12-11',
                 seatClass:'Economy',
@@ -432,8 +432,8 @@ describe('User on Flights Integration Tests', () => {
         const response = await request(app)
             .get('/api/v1/flights/search')
             .query({
-                from:'Uni2',
-                to:'Ger3',
+                from:'CGK',
+                to:'DPS',
                 departureDate:'2024-12-07',
                 returnDate:'2024-12-06',
                 seatClass:'Economy',

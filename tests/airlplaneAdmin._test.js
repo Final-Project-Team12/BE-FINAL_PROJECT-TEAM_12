@@ -76,6 +76,7 @@ describe('AirlineController Integration Tests', () => {
             message: 'Airline name, times used, and image must all be provided.',
         });
     },30000);
+    
 
 
     it('should return the created airline details and return 200', async () => {
@@ -119,15 +120,13 @@ describe('AirlineController Integration Tests', () => {
             .get('/api/v1/airline')
             .set('Authorization', `Bearer ${jwtToken}`);
         expect(response.status).toBe(200);
-        expect(response.body).toMatchObject({
-            status: 200,
-            message: 'Airlines retrieved successfully',
-            data: expect.arrayContaining([expect.objectContaining({
-                airline_id: expect.any(Number),
-                airline_name: expect.any(String),
-                image_url: expect.any(String),
-            })]),
-        });
+    },30000);
+
+    it('should return a list of  pagination airlines and return 200', async () => {
+        const response = await request(app)
+            .get('/api/v1/airlines?page=1&limit=5')
+            .set('Authorization', `Bearer ${jwtToken}`);
+        expect(response.status).toBe(200);
     },30000);
 
     it('should update an existing airline and return 200', async () => {

@@ -8,3 +8,5 @@ async function calculateAvailableSeats(planeId, seatClass) {
 }
 
 module.exports = { calculateAvailableSeats };
+
+

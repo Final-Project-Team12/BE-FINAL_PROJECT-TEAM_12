@@ -7,8 +7,20 @@ async function createSeat(data) {
     });
 }
 
-async function getAllSeats() {
-    return await prisma.seat.findMany();
+async function getAllSeats(page, limit) {
+    const offset = (page - 1) * limit;
+    const totalSeats = await prisma.seat.count();
+    const totalPages = Math.ceil(totalSeats / limit);
+
+    const seats = await prisma.seat.findMany({
+        skip: offset,
+        take: limit,
+    });
+
+    return {
+        seats,
+        totalPages,
+    };
 }
 
 async function getSeatById(seat_id) {

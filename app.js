@@ -36,6 +36,8 @@ const notificationRoutes = require("./routes/notificationRoutes");
 const transactionRoutes = require('./routes/transactionsRoutes');
 const ticketRoutes = require('./routes/ticketsRoutes');
 const planeRoutes = require('./routes/planeRoutes');
+const seatRoutes = require('./routes/seatRoutes');
+
 
 
 app.use(cors());
@@ -44,7 +46,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 app.set('view engine', 'ejs');
-app.set('views', path.join(__dirname, 'views')); // Tentukan lokasi folder views
+app.set('views', path.join(__dirname, 'views')); 
 //routes
 const routers = [
   googleAuthRoutes,
@@ -55,6 +57,7 @@ const routers = [
   userRoutes,
   airportRoutes,
   planeRoutes,
+  seatRoutes,
   airlineRoutes,
   //auth semua
   paymentRoutes,

@@ -4,7 +4,6 @@ const NotificationController = require("../controllers/notificationController");
 
 const restrictJwt = require("../middlewares/restrictJwt");
 const restrictJwtAdmin = require("../middlewares/restrictJwtAdmin");
-
 const restrictedRoutesUser = express.Router();
 
 restrictedRoutesUser.get("", NotificationController.getAllNotifications);
@@ -16,10 +15,9 @@ router.use("/notifications", restrictJwt, restrictedRoutesUser);
 
 const restrictedRoutesAdmin = express.Router();
 
-restrictedRoutesAdmin.delete(
-  "/:notification_id",
-  NotificationController.deleteNotification
-);
+restrictedRoutesAdmin.delete("/:notification_id",NotificationController.deleteNotification);
+restrictedRoutesAdmin.post("",NotificationController.createNotification);
+
 
 router.use("/notifications", restrictJwtAdmin, restrictedRoutesAdmin);
 

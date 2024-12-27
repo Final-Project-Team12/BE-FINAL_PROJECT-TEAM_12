@@ -176,6 +176,24 @@ describe('AirportController Integration Tests', () => {
             })]),
         });
     },30000);
+
+    
+    it('should return a list pagination of airports and return 200', async () => {
+        const response = await request(app)
+            .get('/api/v1/airport?limit=5&page=1')
+            .set('Authorization', `Bearer ${jwtToken}`);
+        expect(response.status).toBe(200);
+        expect(response.body).toMatchObject({
+            status: 200,
+            message: 'List of airports successfully retrieved.',
+            data: expect.arrayContaining([expect.objectContaining({
+                airport_id: expect.any(Number),
+                name: expect.any(String),
+                airport_code: expect.any(String),
+            })]),
+        });
+    },30000);
+    
     
 
     it('should update an existing airport and return 200', async () => {

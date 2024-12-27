@@ -104,6 +104,8 @@ describe('AirportController Integration Tests', () => {
         expect(response.body.message).toBe('Image file is required.');
     },30000);
 
+    
+
     // it('should handle unexpected errors during creation and return 500', async () => {
     //     jest.spyOn(prisma.airport, 'create').mockImplementationOnce(() => {
     //         throw new Error('Simulated error');

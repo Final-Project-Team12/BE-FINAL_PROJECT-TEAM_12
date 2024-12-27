@@ -7,8 +7,14 @@ const createAirport = async (data) => {
     });
 };
 
-const getAirports = async () => {
-    return prisma.airport.findMany({
+const getAirports = async (page, limit) => {
+    const offset = (page - 1) * limit;
+    const totalAirports = await prisma.airport.count();
+    const totalPages = Math.ceil(totalAirports / limit);
+
+    const airports = await prisma.airport.findMany({
+        skip: offset,
+        take: limit,
         select: {
             airport_id: true,
             name: true,
@@ -17,7 +23,13 @@ const getAirports = async () => {
             times_visited: true
         }
     });
+
+    return {
+        airports,
+        totalPages,
+    };
 };
+
 
 const getAirportById = async (airport_id) => {
     return prisma.airport.findUnique({

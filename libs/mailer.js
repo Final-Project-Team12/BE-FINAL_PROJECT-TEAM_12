@@ -89,7 +89,6 @@ class Mailer {
       });
     } catch (error) {
       /* istanbul ignore next */
-      console.error('Error sending account verification email:', error);
       throw new Error('Failed to send account verification email');
     }
   }

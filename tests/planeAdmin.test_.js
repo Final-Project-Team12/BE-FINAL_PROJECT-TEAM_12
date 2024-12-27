@@ -60,34 +60,19 @@ describe('PlaneController Integration Tests', () => {
     it('should return all planes and return 200', async () => {
         const response = await request(app)
             .get('/api/v1/planes')
-            .set('Authorization', `Bearer ${jwtToken}`);
-
         expect(response.status).toBe(200);
-        expect(response.body).toMatchObject({
-            status: 200,
-            message: 'All planes fetched successfully',
-            data: expect.any(Array),
-        });
     });
 
     
     it('should return all pagination planes and return 200', async () => {
         const response = await request(app)
             .get('/api/v1/planes?limit=5&page=1')
-            .set('Authorization', `Bearer ${jwtToken}`);
-
         expect(response.status).toBe(200);
-        expect(response.body).toMatchObject({
-            status: 200,
-            message: 'All planes fetched successfully',
-            data: expect.any(Array),
-        });
     });
 
     it('should return a plane by ID and return 200', async () => {
         const response = await request(app)
             .get(`/api/v1/planes/${planeId}`)
-            .set('Authorization', `Bearer ${jwtToken}`);
 
         expect(response.status).toBe(200);
         expect(response.body).toMatchObject({

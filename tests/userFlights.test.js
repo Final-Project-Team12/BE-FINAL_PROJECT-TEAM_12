@@ -68,6 +68,29 @@ describe('User on Flights Integration Tests', () => {
         expect(response.status).toBe(200);
         expect(response.body.message).toBe('Available flights have been successfully retrieved.');
     }, 20000);
+
+     //get filtered-search flights
+     it('should return a filtered flight with status code 200', async () => {
+        const response = await request(app)
+            .get('/api/v1/flights/search')
+            .query({
+                from:'ZRH',
+                to:'SVO',
+                departureDate:'2024-12-26',
+                returnDate:'2024-12-26',
+                seatClass:'Economy',
+                passengerAdult:'70',
+                minPrice:'50000',
+                maxPrice:'7100000',
+                facilities:'wifiAvailable',
+                passengerInfant:'1',
+                passengerChild:'1',
+                limit:'10',
+                page:'1',
+            })
+        expect(response.status).toBe(200);
+        expect(response.body.message).toBe('Available flights have been successfully retrieved.');
+    }, 20000);
     it('should return a filtered flight with status code 200', async () => {
         const response = await request(app)
             .get('/api/v1/flights/search')

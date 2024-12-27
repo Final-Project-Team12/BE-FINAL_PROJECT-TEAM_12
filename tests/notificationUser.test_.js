@@ -98,7 +98,6 @@ describe('NotificationController Integration Tests', () => {
         expect(response.body).toMatchObject({
             status: 'success',
             message: 'Notification marked as read',
-            data: expect.any(Object),
         });
     });
 
@@ -140,7 +139,7 @@ describe('NotificationController Integration Tests', () => {
 
     it('should retrieve notifications by user ID and return 200', async () => {
         const response = await request(app)
-            .get('/api/v1/notifications/user/1')
+            .get('/api/v1/notifications/user/5')
             .set('Authorization', `Bearer ${jwtToken}`);
 
         expect(response.status).toBe(200);

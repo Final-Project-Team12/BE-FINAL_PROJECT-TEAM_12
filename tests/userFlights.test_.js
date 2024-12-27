@@ -51,15 +51,100 @@ describe('User on Flights Integration Tests', () => {
         const response = await request(app)
             .get('/api/v1/flights/search')
             .query({
-                from:'CGK',
-                to:'DPS',
-                departureDate:'2024-12-07',
-                returnDate:'2024-12-11',
+                from:'ZRH',
+                to:'SVO',
+                departureDate:'2024-12-26',
+                returnDate:'2024-12-26',
                 seatClass:'Economy',
                 passengerAdult:'2',
                 minPrice:'50000',
                 maxPrice:'7100000',
-                facilities:'mealAvailable, wifiAvailable, powerOutlets',
+                facilities:'wifiAvailable',
+                passengerInfant:'1',
+                passengerChild:'1',
+                limit:'10',
+                page:'1',
+            })
+        expect(response.status).toBe(200);
+        expect(response.body.message).toBe('Available flights have been successfully retrieved.');
+    }, 20000);
+
+     //get filtered-search flights
+     it('should return a filtered flight with status code 200', async () => {
+        const response = await request(app)
+            .get('/api/v1/flights/search')
+            .query({
+                from:'ZRH',
+                to:'SVO',
+                departureDate:'2024-12-26',
+                returnDate:'2024-12-26',
+                seatClass:'Economy',
+                passengerAdult:'70',
+                minPrice:'50000',
+                maxPrice:'7100000',
+                facilities:'wifiAvailable',
+                passengerInfant:'1',
+                passengerChild:'1',
+                limit:'10',
+                page:'1',
+            })
+        expect(response.status).toBe(404);
+    }, 20000);
+    it('should return a filtered flight with status code 200', async () => {
+        const response = await request(app)
+            .get('/api/v1/flights/search')
+            .query({
+                from:'ZRH',
+                to:'SVO',
+                departureDate:'2024-12-26',
+                returnDate:'2024-12-26',
+                seatClass:'Economy',
+                passengerAdult:'2',
+                minPrice:'50000',
+                maxPrice:'7100000',
+                facilities:'wifiAvailable,mealAvailable,powerOutlets',
+                passengerInfant:'1',
+                passengerChild:'1',
+                limit:'10',
+                page:'1',
+            })
+        expect(response.status).toBe(404);
+    }, 20000);
+
+    it('should return a filtered flight with status code 200', async () => {
+        const response = await request(app)
+            .get('/api/v1/flights/search')
+            .query({
+                from:'ZRH',
+                to:'SVO',
+                departureDate:'2024-12-26',
+                returnDate:'2024-12-26',
+                seatClass:'Economy',
+                passengerAdult:'2',
+                minPrice:'50000',
+                maxPrice:'7100000',
+                facilities:'',
+                passengerInfant:'1',
+                passengerChild:'1',
+                limit:'10',
+                page:'1',
+            })
+        expect(response.status).toBe(200);
+    }, 20000);
+
+    it('should return a filtered flight with status code 200', async () => {
+        const response = await request(app)
+            .get('/api/v1/flights/search')
+            .query({
+                from:'ZRH',
+                to:'SVO',
+                departureDate:'2024-12-26',
+                returnDate:'2024-12-26',
+                seatClass:'Economy',
+                passengerAdult:'2',
+                minPrice:'50000',
+                maxPrice:'7100000',
+                facilities:'wifiAvailable',
                 passengerInfant:'1',
                 passengerChild:'1',
                 limit:'10',
@@ -72,14 +157,13 @@ describe('User on Flights Integration Tests', () => {
         const response = await request(app)
             .get('/api/v1/flights/search')
             .query({
-                from:'CGK',
-                to:'DPS',
-                departureDate:'2024-12-07',
+                from:'ZRH',
+                to:'SVO',
+                departureDate:'2024-12-26',
                 seatClass:'Economy',
                 passengerAdult:'2',
                 minPrice:'50000',
                 maxPrice:'7100000',
-                facilities:'mealAvailable, wifiAvailable, powerOutlets',
                 passengerInfant:'1',
                 passengerChild:'1',
                 limit:'10',
@@ -92,14 +176,13 @@ describe('User on Flights Integration Tests', () => {
         const response = await request(app)
             .get('/api/v1/flights/search')
             .query({
-                from:'CGK',
-                to:'DPS',
-                returnDate:'2024-12-11',
+                from:'ZRH',
+                to:'SVO',
+                returnDate:'2024-12-26',
                 seatClass:'Economy',
                 passengerAdult:'2',
                 minPrice:'50000',
                 maxPrice:'7100000',
-                facilities:'mealAvailable, wifiAvailable, powerOutlets',
                 passengerInfant:'1',
                 passengerChild:'1',
                 limit:'10',
@@ -112,15 +195,15 @@ describe('User on Flights Integration Tests', () => {
         const response = await request(app)
             .get('/api/v1/flights/search')
             .query({
-                from:'CGK',
-                to:'DPS',
-                departureDate:'2023-12-07',
-                returnDate:'2023-12-11',
+                from:'ZRH',
+                to:'SVO',
+                departureDate:'2023-12-26',
+                returnDate:'2023-12-26',
                 seatClass:'Economy',
                 passengerAdult:'2',
                 minPrice:'50000',
                 maxPrice:'7100000',
-                facilities:'mealAvailable, wifiAvailable, powerOutlets',
+                facilities:'wifiAvailable',
                 passengerInfant:'1',
                 passengerChild:'1',
                 limit:'10',
@@ -133,13 +216,13 @@ describe('User on Flights Integration Tests', () => {
         const response = await request(app)
             .get('/api/v1/flights/search')
             .query({
-                from:'CGK',
-                to:'DPS',
-                departureDate:'2024-12-07',
-                returnDate:'2024-12-11',
+                from:'ZRH',
+                to:'SVO',
+                departureDate:'2024-12-26',
+                returnDate:'2024-12-26',
                 seatClass:'Economy',
                 passengerAdult:'2',
-                facilities:'mealAvailable, wifiAvailable, powerOutlets',
+                facilities:'wifiAvailable',
                 passengerInfant:'1',
                 passengerChild:'1',
                 limit:'10',
@@ -152,14 +235,14 @@ describe('User on Flights Integration Tests', () => {
         const response = await request(app)
             .get('/api/v1/flights/search')
             .query({
-                from:'CGK',
-                to:'DPS',
-                departureDate:'2024-12-07',
-                returnDate:'2024-12-11',
+                from:'ZRH',
+                to:'SVO',
+                departureDate:'2024-12-26',
+                returnDate:'2024-12-26',
                 seatClass:'Economy',
                 passengerAdult:'2',
                 maxPrice:'7100000',
-                facilities:'mealAvailable, wifiAvailable, powerOutlets',
+                facilities:'wifiAvailable',
                 passengerInfant:'1',
                 passengerChild:'1',
                 limit:'10',
@@ -172,14 +255,14 @@ describe('User on Flights Integration Tests', () => {
         const response = await request(app)
             .get('/api/v1/flights/search')
             .query({
-                from:'CGK',
-                to:'DPS',
-                departureDate:'2024-12-07',
-                returnDate:'2024-12-11',
+                from:'ZRH',
+                to:'SVO',
+                departureDate:'2024-12-26',
+                returnDate:'2024-12-26',
                 seatClass:'Economy',
                 passengerAdult:'2',
                 minPrice:'50000',
-                facilities:'mealAvailable, wifiAvailable, powerOutlets',
+                facilities:'wifiAvailable',
                 passengerInfant:'1',
                 passengerChild:'1',
                 limit:'10',
@@ -194,10 +277,10 @@ describe('User on Flights Integration Tests', () => {
         const response = await request(app)
             .get('/api/v1/flights/search')
             .query({
-                from:'CGK',
-                to:'DPS',
-                departureDate:'2024-12-07',
-                returnDate:'2024-12-11',
+                from:'ZRH',
+                to:'SVO',
+                departureDate:'2024-12-26',
+                returnDate:'2024-12-26',
                 seatClass:'Economy',
                 passengerAdult:'2',
                 passengerInfant:'1',
@@ -213,10 +296,10 @@ describe('User on Flights Integration Tests', () => {
         const response = await request(app)
             .get('/api/v1/flights/search')
             .query({
-                from:'CGK',
-                to:'DPS',
-                departureDate:'2024-12-07',
-                returnDate:'2024-12-11',
+                from:'ZRH',
+                to:'SVO',
+                departureDate:'2024-12-26',
+                returnDate:'2024-12-26',
                 seatClass:'Economy',
                 passengerAdult:'2',
                 passengerInfant:'1',
@@ -232,10 +315,10 @@ describe('User on Flights Integration Tests', () => {
         const response = await request(app)
             .get('/api/v1/flights/search')
             .query({
-                from:'CGK',
-                to:'DPS',
-                departureDate:'2024-12-07',
-                returnDate:'2024-12-11',
+                from:'ZRH',
+                to:'SVO',
+                departureDate:'2024-12-26',
+                returnDate:'2024-12-26',
                 seatClass:'Economy',
                 passengerAdult:'2',
                 passengerInfant:'1',
@@ -251,10 +334,10 @@ describe('User on Flights Integration Tests', () => {
         const response = await request(app)
             .get('/api/v1/flights/search')
             .query({
-                from:'CGK',
-                to:'DPS',
-                departureDate:'2024-12-07',
-                returnDate:'2024-12-11',
+                from:'ZRH',
+                to:'SVO',
+                departureDate:'2024-12-26',
+                returnDate:'2024-12-26',
                 seatClass:'Economy',
                 passengerAdult:'2',
                 passengerInfant:'1',
@@ -270,10 +353,10 @@ describe('User on Flights Integration Tests', () => {
         const response = await request(app)
             .get('/api/v1/flights/search')
             .query({
-                from:'CGK',
-                to:'DPS',
-                departureDate:'2024-12-07',
-                returnDate:'2024-12-11',
+                from:'ZRH',
+                to:'SVO',
+                departureDate:'2024-12-26',
+                returnDate:'2024-12-26',
                 seatClass:'Economy',
                 passengerAdult:'2',
                 passengerInfant:'1',
@@ -289,10 +372,10 @@ describe('User on Flights Integration Tests', () => {
         const response = await request(app)
             .get('/api/v1/flights/search')
             .query({
-                from:'CGK',
-                to:'DPS',
-                departureDate:'2024-12-07',
-                returnDate:'2024-12-11',
+                from:'ZRH',
+                to:'SVO',
+                departureDate:'2024-12-26',
+                returnDate:'2024-12-26',
                 seatClass:'Economy',
                 passengerAdult:'2',
                 passengerInfant:'1',
@@ -308,10 +391,10 @@ describe('User on Flights Integration Tests', () => {
         const response = await request(app)
             .get('/api/v1/flights/search')
             .query({
-                from:'CGK',
-                to:'DPS',
-                departureDate:'2024-12-07',
-                returnDate:'2024-12-11',
+                from:'ZRH',
+                to:'SVO',
+                departureDate:'2024-12-26',
+                returnDate:'2024-12-26',
                 seatClass:'Economy',
                 passengerAdult:'2',
                 passengerInfant:'1',
@@ -327,10 +410,10 @@ describe('User on Flights Integration Tests', () => {
         const response = await request(app)
             .get('/api/v1/flights/search')
             .query({
-                from:'CGK',
-                to:'DPS',
-                departureDate:'2024-12-07',
-                returnDate:'2024-12-11',
+                from:'ZRH',
+                to:'SVO',
+                departureDate:'2024-12-26',
+                returnDate:'2024-12-26',
                 seatClass:'Economy',
                 passengerAdult:'2',
                 passengerInfant:'1',
@@ -349,10 +432,10 @@ describe('User on Flights Integration Tests', () => {
         const response = await request(app)
             .get('/api/v1/flights/search')
             .query({
-                from:'CGK',
-                to:'DPS',
-                departureDate:'2024-12-07',
-                returnDate:'2024-12-11',
+                from:'ZRH',
+                to:'SVO',
+                departureDate:'2024-12-26',
+                returnDate:'2024-12-26',
                 seatClass:'Economy',
                 passengerAdult:'2',
                 minPrice:'asdads',
@@ -370,10 +453,10 @@ describe('User on Flights Integration Tests', () => {
         const response = await request(app)
             .get('/api/v1/flights/search')
             .query({
-                from:'CGK',
-                to:'DPS',
-                departureDate:'2024-12-07',
-                returnDate:'2024-12-11',
+                from:'ZRH',
+                to:'SVO',
+                departureDate:'2024-12-26',
+                returnDate:'2024-12-26',
                 seatClass:'Economy',
                 passengerAdult:'2',
                 minPrice:'10000',
@@ -391,10 +474,10 @@ describe('User on Flights Integration Tests', () => {
         const response = await request(app)
             .get('/api/v1/flights/search')
             .query({
-                from:'CGK',
-                to:'DPS',
-                departureDate:'2024-12-07',
-                returnDate:'2024-12-11',
+                from:'ZRH',
+                to:'SVO',
+                departureDate:'2024-12-26',
+                returnDate:'2024-12-26',
                 seatClass:'Economy',
                 passengerAdult:'2',
                 minPrice:'1000000',
@@ -412,10 +495,10 @@ describe('User on Flights Integration Tests', () => {
         const response = await request(app)
             .get('/api/v1/flights/search')
             .query({
-                from:'CGK',
-                to:'DPS',
-                departureDate:'2024-12-07',
-                returnDate:'2024-12-11',
+                from:'ZRH',
+                to:'SVO',
+                departureDate:'2024-12-26',
+                returnDate:'2024-12-26',
                 seatClass:'Economy',
                 minPrice:'10000',
                 maxPrice:'7100000',
@@ -432,14 +515,13 @@ describe('User on Flights Integration Tests', () => {
         const response = await request(app)
             .get('/api/v1/flights/search')
             .query({
-                from:'CGK',
-                to:'DPS',
-                departureDate:'2024-12-07',
-                returnDate:'2024-12-06',
+                from:'ZRH',
+                to:'SVO',
+                departureDate:'2024-12-30',
+                returnDate:'2024-12-26',
                 seatClass:'Economy',
                 minPrice:'10000',
                 maxPrice:'7100000',
-                facilities:'mealAvailable, wifiAvailable, powerOutlets',
                 passengerAdult:'2',
                 passengerInfant:'1',
                 passengerChild:'1',

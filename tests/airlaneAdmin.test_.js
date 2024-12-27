@@ -124,7 +124,7 @@ describe('AirlineController Integration Tests', () => {
 
     it('should return a list of  pagination airlines and return 200', async () => {
         const response = await request(app)
-            .get('/api/v1/airlines?page=1&limit=5')
+            .get('/api/v1/airline?limit=2&page=1')
             .set('Authorization', `Bearer ${jwtToken}`);
         expect(response.status).toBe(200);
     },30000);

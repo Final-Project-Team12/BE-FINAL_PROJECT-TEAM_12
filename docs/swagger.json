@@ -7,7 +7,7 @@
   },
   "servers": [
     {
-      "url": "http://example.com",
+      "url": "https://quickfly.my.id",
       "variables": {}
     },
     {
@@ -53,7 +53,7 @@
         "deprecated": false,
         "servers": [
           {
-            "url": "http://example.com",
+            "url": "https://quickfly.my.id",
             "variables": {}
           }
         ]
@@ -102,7 +102,7 @@
         "deprecated": false,
         "servers": [
           {
-            "url": "http://example.com",
+            "url": "https://quickfly.my.id",
             "variables": {}
           }
         ]
@@ -160,7 +160,7 @@
         "deprecated": false,
         "servers": [
           {
-            "url": "http://example.com",
+            "url": "https://quickfly.my.id",
             "variables": {}
           }
         ]
@@ -220,7 +220,7 @@
         "deprecated": false,
         "servers": [
           {
-            "url": "http://example.com",
+            "url": "https://quickfly.my.id",
             "variables": {}
           }
         ]
@@ -268,7 +268,7 @@
         "deprecated": false,
         "servers": [
           {
-            "url": "http://example.com",
+            "url": "https://quickfly.my.id",
             "variables": {}
           }
         ]
@@ -317,7 +317,7 @@
         "deprecated": false,
         "servers": [
           {
-            "url": "http://example.com",
+            "url": "https://quickfly.my.id",
             "variables": {}
           }
         ]
@@ -366,7 +366,7 @@
         "deprecated": false,
         "servers": [
           {
-            "url": "http://example.com",
+            "url": "https://quickfly.my.id",
             "variables": {}
           }
         ]
@@ -414,7 +414,7 @@
         ],
         "servers": [
           {
-            "url": "http://example.com",
+            "url": "https://quickfly.my.id",
             "variables": {}
           }
         ]
@@ -442,7 +442,7 @@
         ],
         "servers": [
           {
-            "url": "http://example.com",
+            "url": "https://quickfly.my.id",
             "variables": {}
           }
         ]
@@ -470,7 +470,7 @@
         ],
         "servers": [
           {
-            "url": "http://example.com",
+            "url": "https://quickfly.my.id",
             "variables": {}
           }
         ]
@@ -587,7 +587,7 @@
         ],
         "servers": [
           {
-            "url": "http://example.com",
+            "url": "https://quickfly.my.id",
             "variables": {}
           }
         ]
@@ -615,7 +615,7 @@
         ],
         "servers": [
           {
-            "url": "http://example.com",
+            "url": "https://quickfly.my.id",
             "variables": {}
           }
         ]
@@ -651,7 +651,7 @@
         "deprecated": false,
         "servers": [
           {
-            "url": "http://example.com",
+            "url": "https://quickfly.my.id",
             "variables": {}
           }
         ]
@@ -832,7 +832,7 @@
         "deprecated": false,
         "servers": [
           {
-            "url": "http://example.com",
+            "url": "https://quickfly.my.id",
             "variables": {}
           }
         ]
@@ -855,7 +855,7 @@
         "deprecated": false,
         "servers": [
           {
-            "url": "http://example.com",
+            "url": "https://quickfly.my.id",
             "variables": {}
           }
         ]
@@ -906,7 +906,7 @@
         ],
         "servers": [
           {
-            "url": "http://example.com",
+            "url": "https://quickfly.my.id",
             "variables": {}
           }
         ]
@@ -929,7 +929,7 @@
         "deprecated": false,
         "servers": [
           {
-            "url": "http://example.com",
+            "url": "https://quickfly.my.id",
             "variables": {}
           }
         ]
@@ -1371,7 +1371,7 @@
         "deprecated": false,
         "servers": [
           {
-            "url": "http://example.com",
+            "url": "https://quickfly.my.id",
             "variables": {}
           }
         ]
@@ -1399,7 +1399,7 @@
         ],
         "servers": [
           {
-            "url": "http://example.com",
+            "url": "https://quickfly.my.id",
             "variables": {}
           }
         ]
@@ -1422,7 +1422,7 @@
         "deprecated": false,
         "servers": [
           {
-            "url": "http://example.com",
+            "url": "https://quickfly.my.id",
             "variables": {}
           }
         ]
@@ -1445,7 +1445,7 @@
         "deprecated": false,
         "servers": [
           {
-            "url": "http://example.com",
+            "url": "https://quickfly.my.id",
             "variables": {}
           }
         ]
@@ -1497,7 +1497,7 @@
         "deprecated": false,
         "servers": [
           {
-            "url": "http://example.com",
+            "url": "https://quickfly.my.id",
             "variables": {}
           }
         ]
@@ -1520,7 +1520,7 @@
         "deprecated": false,
         "servers": [
           {
-            "url": "http://example.com",
+            "url": "https://quickfly.my.id",
             "variables": {}
           }
         ]
@@ -1548,7 +1548,7 @@
         ],
         "servers": [
           {
-            "url": "http://example.com",
+            "url": "https://quickfly.my.id",
             "variables": {}
           }
         ]
@@ -1629,7 +1629,7 @@
         ],
         "servers": [
           {
-            "url": "http://example.com",
+            "url": "https://quickfly.my.id",
             "variables": {}
           }
         ]
@@ -1696,7 +1696,7 @@
         ],
         "servers": [
           {
-            "url": "http://example.com",
+            "url": "https://quickfly.my.id",
             "variables": {}
           }
         ]
@@ -1724,7 +1724,7 @@
         ],
         "servers": [
           {
-            "url": "http://example.com",
+            "url": "https://quickfly.my.id",
             "variables": {}
           }
         ]
@@ -1772,7 +1772,7 @@
         ],
         "servers": [
           {
-            "url": "http://example.com",
+            "url": "https://quickfly.my.id",
             "variables": {}
           }
         ]
@@ -1798,7 +1798,7 @@
         ],
         "servers": [
           {
-            "url": "http://example.com",
+            "url": "https://quickfly.my.id",
             "variables": {}
           }
         ]
@@ -1821,7 +1821,7 @@
         "deprecated": false,
         "servers": [
           {
-            "url": "http://example.com",
+            "url": "https://quickfly.my.id",
             "variables": {}
           }
         ]
@@ -1867,7 +1867,7 @@
         "deprecated": false,
         "servers": [
           {
-            "url": "http://example.com",
+            "url": "https://quickfly.my.id",
             "variables": {}
           }
         ]
@@ -1890,7 +1890,7 @@
         "deprecated": false,
         "servers": [
           {
-            "url": "http://example.com",
+            "url": "https://quickfly.my.id",
             "variables": {}
           }
         ]

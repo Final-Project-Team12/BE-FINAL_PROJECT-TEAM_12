@@ -28,7 +28,7 @@ describe('TransactionsController Integration Tests', () => {
 
     it('should retrieve transactions successfully for a valid user ID and return 200', async () => {
         const response = await request(app)
-            .get('/api/v1/transaction/user/11') // Assume userID x has transactions
+            .get('/api/v1/transaction/user/11')
             .set('Authorization', `Bearer ${jwtToken}`);
 
         console.log('Get Transactions Response:', response.status, response.body);

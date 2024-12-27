@@ -22,7 +22,7 @@ class PlaneController {
             const page = parseInt(req.query.page, 10) || 1;
             const limit = parseInt(req.query.limit, 10) || 5;
     
-            const { planes, totalPages } = await AirlineService.getAllAirlines(page, limit);
+            const { planes, totalPages } = await planeService.getAllPlanes(page, limit);
     
             res.status(200).json({
                 status: 200,

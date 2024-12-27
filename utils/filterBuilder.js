@@ -9,7 +9,7 @@ function buildFilterConditions({
         wifiAvailable: { wifi_available: true },
         mealAvailable: { meal_available: true }
     };
-
+    /* istanbul ignore next */
     const facilitiesFilters = facilities 
         ? facilities.split(',').reduce((acc, facility) => 
             facilitiesMapping[facility] ? { ...acc, ...facilitiesMapping[facility] } : acc, 

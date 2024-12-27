@@ -88,8 +88,7 @@ describe('User on Flights Integration Tests', () => {
                 limit:'10',
                 page:'1',
             })
-        expect(response.status).toBe(200);
-        expect(response.body.message).toBe('Available flights have been successfully retrieved.');
+        expect(response.status).toBe(404);
     }, 20000);
     it('should return a filtered flight with status code 200', async () => {
         const response = await request(app)

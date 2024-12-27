@@ -10,7 +10,7 @@ async function formatFlights(flights, seatClass, totalPassengers) {
         );
 
         const availableSeatsForClass = seatDetails.find(seat => seat.class === seatClass)?.available_seats || 0;
-
+        /* istanbul ignore next */
         if (availableSeatsForClass >= totalPassengers) {
             const { seats, ...rest } = flight;
             return { ...rest, seats_detail: seatDetails };

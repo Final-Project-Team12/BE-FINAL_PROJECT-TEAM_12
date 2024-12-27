@@ -7,7 +7,7 @@ require('dotenv').config({ path: '.env.test' });
 const prisma = new PrismaClient();
 
 const jwtToken = jwt.sign(
-    { user_id: 1, user_email: 'johndoe@example.com', user_role: 'user' },
+    { user_id: 9, user_email: 'user9@example.com', user_role: 'user' },
     process.env.JWT_SECRET || 'jwt-b1n4r14n',
     { expiresIn: '1h' }
 );

@@ -26,7 +26,6 @@ const docsRouter = require("./routes/doucmentationRouter");
 const restrictJwt = require('./middlewares/restrictJwt');
 const errorHandler = require('./middlewares/errorHandler');
 
-const googleAuthRoutes = require('./routes/googleAuthRoutes');
 const ticketListingRoutes = require("./routes/flightsRoutes");
 const userRoutes = require('./routes/userRoutes');
 const airportRoutes = require('./routes/airportRoutes');
@@ -50,7 +49,6 @@ app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views')); 
 //routes
 const routers = [
-  googleAuthRoutes,
   ticketListingRoutes,
   forgotPasswordRoutes,
   transactionRoutes,

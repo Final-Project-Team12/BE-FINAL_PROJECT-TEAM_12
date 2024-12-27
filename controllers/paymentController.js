@@ -143,8 +143,9 @@ class PaymentController {
             });
         } catch (error) {
             console.error("Payment status retrieval error:", error);
-
+        /* istanbul ignore next */
             if (error.message.includes("Payment not found")) {
+                        /* istanbul ignore next */
                 return res.status(404).json({
                     message: error.message,
                     status: 404

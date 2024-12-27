@@ -13,7 +13,7 @@ const jwtToken = jwt.sign(
 
 describe('PaymentController Integration Tests', () => {
     let orderIdTest;
-    const existingOrderId = "1eguvd";
+    const existingOrderId = "spn7oi";
 
     beforeAll(async () => {
         await prisma.$connect();
@@ -31,7 +31,7 @@ describe('PaymentController Integration Tests', () => {
             .post('/api/v1/payments')
             .set('Authorization', `Bearer ${jwtToken}`)
             .send({
-                orderId: "yy6ff",
+                orderId: "spn7oi",
                 amount: 3300000,
                 customerDetails: {
                     name: "User 10",
@@ -144,7 +144,6 @@ describe('PaymentController Integration Tests', () => {
                 ]
             });
     
-        console.log('Response when order ID already exists:', response.body);
     
         expect(response.status).toBe(409);
         expect(response.body).toMatchObject({

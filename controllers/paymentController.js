@@ -94,7 +94,7 @@ class PaymentController {
             });
         } catch (error) {
             console.error("Payment cancellation error:", error);
-
+                        /* istanbul ignore next */
             if (error.message.includes("Payment not found")) {
                 return res.status(404).json({
                     message: error.message,

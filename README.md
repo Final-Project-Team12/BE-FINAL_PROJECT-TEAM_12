@@ -667,7 +667,9 @@ npm test -- users.test.js
 # Run with coverage report
 npm run test:coverage
 ```
-
+<div align="center">
+   <img src="https://ik.imagekit.io/yogiefani/ilustrasi%203.gif?updatedAt=1734903554569" >
+</div>
 <div align="center">
 
 ![Thanks for visiting!](https://readme-typing-svg.demolab.com?font=Fira+Code&size=24&duration=3000&pause=1000&color=38F77CFF&center=true&vCenter=true&width=435&lines=Thanks+for+visiting!;Star+if+you+like+it!+⭐)

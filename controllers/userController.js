@@ -6,6 +6,7 @@ const Mailer = require('../libs/mailer');
 const crypto = require('crypto');
 
 const { getUserByEmail, updateUserByEmail, createUser, updateUserById, getUserById, deleteUserById, checkOtherEmail } = require("../services/userService");
+const generateToken = require('../utils/jwtGenerator');
 
 const HASH = process.env.HASH;
 const JWT_SECRET = process.env.JWT_SECRET;
@@ -384,14 +385,8 @@ class UserController{
                   message: 'The email address has not been verified yet',
                 })
               }
-              const options = {
-                expiresIn: '5d'
-              };
-              const accessToken = jwt.sign({
-                  user_id: userData.user_id,
-                  user_email: userData.email,
-                  user_role: userData.role
-              }, JWT_SECRET, options)
+
+              const accessToken = generateToken(userData);
   
               return res.status(200).json({
                   status: 200,

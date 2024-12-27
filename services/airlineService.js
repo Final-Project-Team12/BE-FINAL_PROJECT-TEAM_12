@@ -15,18 +15,27 @@ class AirlineService {
     static async createAirline(data) {
         return prisma.airline.create({ data });
     }
-
-    static async getAllAirlines() {
-        return prisma.airline.findMany({
+    
+    static async getAllAirlines(page, limit) {
+        const offset = (page - 1) * limit;
+    
+        const totalAirlines = await prisma.airline.count();
+        const totalPages = Math.ceil(totalAirlines / limit);
+    
+        const airlines = await prisma.airline.findMany({
+            skip: offset,
+            take: limit,
             select: {
                 airline_id: true,
                 airline_name: true,
                 image_url: true,
-                times_used: true
-            }
+                times_used: true,
+            },
         });
+    
+        return { airlines, totalPages };
     }
-
+    
     static async getAirlineById(airline_id) {
         return prisma.airline.findUnique({
             where: { airline_id: parseInt(airline_id) }

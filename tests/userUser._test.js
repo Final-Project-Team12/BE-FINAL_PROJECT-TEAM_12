@@ -17,13 +17,13 @@ describe('UserController Integration Tests', () => {
         console.log('Database connected');
         let check = await prisma.users.findFirst({
             where: {
-                email: "dummyemail@gmail.com"
+                email: "user2@example.com"
             }
         })
         if(check){
             await prisma.users.delete({
                 where:{
-                    email: "dummyemail@gmail.com"
+                    email: "user2@example.com"
                 }
             })
         }
@@ -33,11 +33,11 @@ describe('UserController Integration Tests', () => {
         await prisma.$connect();
         let check = await prisma.users.findFirst({
             where: {
-                email: "dummyemail@gmail.com"
+                email: "user2@example.com"
             }
         })
         if (check) {
-            await prisma.users.delete({ where: { email: "dummyemail@gmail.com" } });
+            await prisma.users.delete({ where: { email: "user2@example.com" } });
         }
         await prisma.$disconnect();
     });
@@ -54,8 +54,8 @@ describe('UserController Integration Tests', () => {
             .send({
                 name:'dummy',
                 telephone_number:'0812345678',
-                email:'dummyemail@gmail.com',
-                password:'password',
+                email:'user2@example.com',
+                password:'password2',
                 address:'Smith Road Number 10',
                 gender:'male',
                 identity_number:'127123456789',
@@ -71,8 +71,8 @@ describe('UserController Integration Tests', () => {
             .set('Content-Type', 'application/json')       
             .send({
                 telephone_number:'0812345678',
-                email:'dummyemail@gmail.com',
-                password:'password',
+                email:'user2@example.com',
+                password:'password2',
                 address:'Smith Road Number 10',
                 gender:'male',
                 identity_number:'127123456789',
@@ -88,8 +88,8 @@ describe('UserController Integration Tests', () => {
             .send({
                 name:'dummy',
                 telephone_number:'0812345678',
-                email:'dummyemail@gmail.com',
-                password:'password',
+                email:'user2@example.com',
+                password:'password2',
                 address:'Smith Road Number 10',
                 gender:'male',
                 identity_number:'127123456789',
@@ -105,8 +105,8 @@ describe('UserController Integration Tests', () => {
             .post(`/api/v1//user/resend`)
             .set('Content-Type', 'application/json')
             .send({
-                email:'dummyemail@gmail.com',
-                password:'password',
+                email:'user2@example.com',
+                password:'password2',
             });
         expect(response.status).toBe(200);
         expect(response.body.message).toBe('OTP successfully resent');
@@ -117,7 +117,7 @@ describe('UserController Integration Tests', () => {
             .post(`/api/v1//user/resend`)
             .set('Content-Type', 'application/json')
             .send({
-                password:'password',
+                password:'password2',
             });
         expect(response.status).toBe(400);
         expect(response.body.message).toBe('Input error');
@@ -127,7 +127,7 @@ describe('UserController Integration Tests', () => {
             .post(`/api/v1//user/resend`)
             .set('Content-Type', 'application/json')
             .send({
-                email:'dummyemail123@gmail.com',
+                email:'user2@example.com',
                 password:'password12314421',
             });
         expect(response.status).toBe(401);
@@ -138,8 +138,8 @@ describe('UserController Integration Tests', () => {
             .post(`/api/v1//user/resend`)
             .set('Content-Type', 'application/json')
             .send({
-                email:'dummyemail@gmail.com',
-                password:'password12314421',
+                email:'user2222222@example.com',
+                password:'password2',
             });
         expect(response.status).toBe(401);
         expect(response.body.message).toBe('Invalid login');
@@ -151,8 +151,8 @@ describe('UserController Integration Tests', () => {
             .post(`/api/v1//user/login`)
             .set('Content-Type', 'application/json')
             .send({
-                email:'dummyemail@gmail.com',
-                password:`password`,
+                email:'user2@example.com',
+                password:`password2`,
             });
         expect(response.status).toBe(401);
         expect(response.body.message).toBe('The email address has not been verified yet');
@@ -162,7 +162,7 @@ describe('UserController Integration Tests', () => {
     it('should return the message details of verified and return 200', async () => {
         user = await prisma.users.findFirst({
             where:{
-                email: 'dummyemail@gmail.com'
+                email: 'user2@example.com'
             }
         })
         token = jwt.sign(
@@ -174,7 +174,7 @@ describe('UserController Integration Tests', () => {
             .post(`/api/v1//user/verify`)
             .set('Content-Type', 'application/json')
             .send({
-                email:'dummyemail@gmail.com',
+                email:'user2@example.com',
                 otp:`${user.otp}`,
             });
         expect(response.status).toBe(200);
@@ -186,7 +186,7 @@ describe('UserController Integration Tests', () => {
             .post(`/api/v1//user/verify`)
             .set('Content-Type', 'application/json')
             .send({
-                email:'dummyemail@gmail.com',
+                email:'user2@example.com',
             });
         expect(response.status).toBe(400);
         expect(response.body.message).toBe('Email and OTP are required');
@@ -207,7 +207,7 @@ describe('UserController Integration Tests', () => {
             .post(`/api/v1//user/verify`)
             .set('Content-Type', 'application/json')
             .send({
-                email:'dummyemail@gmail.com',
+                email:'user2@example.com',
                 otp: '12'
             });
         expect(response.status).toBe(400);
@@ -220,8 +220,8 @@ describe('UserController Integration Tests', () => {
             .post(`/api/v1//user/login`)
             .set('Content-Type', 'application/json')
             .send({
-                email:'dummyemail@gmail.com',
-                password:`password`,
+                email:'user2@example.com',
+                password:`password2`,
             });
         expect(response.status).toBe(200);
         expect(response.body.message).toBe('Login success');
@@ -232,7 +232,7 @@ describe('UserController Integration Tests', () => {
             .post(`/api/v1//user/login`)
             .set('Content-Type', 'application/json')
             .send({
-                password:`password`,
+                password:`password2`,
             });
         expect(response.status).toBe(400);
         expect(response.body.message).toBe('input error');
@@ -243,7 +243,7 @@ describe('UserController Integration Tests', () => {
             .set('Content-Type', 'application/json')
             .send({
                 email:'asdadsasd1ads@gmail.com',
-                password:`password`,
+                password:`password2`,
             });
         expect(response.status).toBe(401);
         expect(response.body.message).toBe('invalid login');
@@ -253,13 +253,38 @@ describe('UserController Integration Tests', () => {
             .post(`/api/v1//user/login`)
             .set('Content-Type', 'application/json')
             .send({
-                email:'dummyemail@gmail.com',
+                email:'user2@example.com',
                 password:`password123`,
             });
         expect(response.status).toBe(401);
         expect(response.body.message).toBe('invalid login');
     }, 20000);
 
+
+    //AUTH TESTING
+    it('should return the message details of unauthorized and return 401', async () => {
+        const response = await request(app)
+            .put(`/api/v1//user/${user.user_id}`)
+            .set('Content-Type', 'application/json')
+            .send({
+                name:'dummmy edited',
+                telephone_number:"08123123761"
+            });
+        expect(response.status).toBe(401);
+        expect(response.body.message).toBe('You are not authorized');
+    }, 20000);
+    it('should return the message details of successful update and return 200', async () => {
+        const response = await request(app)
+            .put(`/api/v1//user/${user.user_id}`)
+            .set('Authorization', `Bearer 2abcd123968130813`)
+            .set('Content-Type', 'application/json')
+            .send({
+                name:'dummmy edited',
+                telephone_number:"08123123761"
+            });
+        expect(response.status).toBe(401);
+        expect(response.body.message).toBe('You are not authorized');
+    }, 20000);
 
     //UPDATE USER
     it('should return the message details of successful update and return 200', async () => {
@@ -399,7 +424,7 @@ describe('UserController Integration Tests', () => {
             .post(`/api/v1/password/forgot-password`)
             .set('Content-Type', 'application/json')
             .send({
-                email: 'dummyemail@gmail.com',
+                email: 'user2@example.com',
             })
 
         expect(response.status).toBe(200);
@@ -410,7 +435,7 @@ describe('UserController Integration Tests', () => {
     it('should return the message details bad request and return with status 400', async () => {
         user = await prisma.users.findFirst({
             where:{
-                email: 'dummyemail@gmail.com'
+                email: 'user2@example.com'
             }
         })
         const response = await request(app)
@@ -428,7 +453,7 @@ describe('UserController Integration Tests', () => {
             .post(`/api/v1/password/confirm-otp`)
             .set('Content-Type', 'application/json')
             .send({
-                email: 'dummyemail@gmail.com',
+                email: 'user2@example.com',
             })
 
         expect(response.status).toBe(400);
@@ -452,7 +477,7 @@ describe('UserController Integration Tests', () => {
             .post(`/api/v1/password/confirm-otp`)
             .set('Content-Type', 'application/json')
             .send({
-                email: 'dummyemail@gmail.com',
+                email: 'user2@example.com',
                 otp: `12`
             })
 
@@ -468,7 +493,7 @@ describe('UserController Integration Tests', () => {
             .post(`/api/v1/password/confirm-otp`)
             .set('Content-Type', 'application/json')
             .send({
-                email: 'dummyemail@gmail.com',
+                email: 'user2@example.com',
                 otp: `${user.otp}`
             })
 
@@ -484,7 +509,7 @@ describe('UserController Integration Tests', () => {
             .post(`/api/v1/password/reset-password`)
             .set('Content-Type', 'application/json')
             .send({
-                email: 'dummyemail@gmail.com'
+                email: 'user2@example.com'
             })
 
         expect(response.status).toBe(400);
@@ -495,7 +520,7 @@ describe('UserController Integration Tests', () => {
             .post(`/api/v1/password/reset-password`)
             .set('Content-Type', 'application/json')
             .send({
-                newPassword: 'password'
+                newPassword: 'password2'
             })
 
         expect(response.status).toBe(400);
@@ -506,7 +531,7 @@ describe('UserController Integration Tests', () => {
             .post(`/api/v1/password/reset-password`)
             .set('Content-Type', 'application/json')
             .send({
-                confirmPassword: 'password'
+                confirmPassword: 'password2'
             })
 
         expect(response.status).toBe(400);
@@ -528,9 +553,9 @@ describe('UserController Integration Tests', () => {
             .post(`/api/v1/password/reset-password`)
             .set('Content-Type', 'application/json')
             .send({
-                email: 'dummyemail@gmail.com',
-                newPassword: 'password123',
-                confirmPassword: 'password124',
+                email: 'user2@example.com',
+                newPassword: 'password22',
+                confirmPassword: 'password222',
                 resetToken: `${resetToken}`
             })
 
@@ -548,9 +573,9 @@ describe('UserController Integration Tests', () => {
             .post(`/api/v1/password/reset-password`)
             .set('Content-Type', 'application/json')
             .send({
-                email: 'dummyemail@gmail.com',
-                newPassword: 'password123',
-                confirmPassword: 'password123',
+                email: 'user2@example.com',
+                newPassword: 'password22',
+                confirmPassword: 'password22',
                 resetToken: `${wrongResetToken}`
             })
 
@@ -568,8 +593,8 @@ describe('UserController Integration Tests', () => {
             .set('Content-Type', 'application/json')
             .send({
                 email: 'ohteremail@gmail.com',
-                newPassword: 'password123',
-                confirmPassword: 'password123',
+                newPassword: 'password22',
+                confirmPassword: 'password22',
                 resetToken: `${wrongResetToken}`
             })
 
@@ -583,9 +608,9 @@ describe('UserController Integration Tests', () => {
             .post(`/api/v1/password/reset-password`)
             .set('Content-Type', 'application/json')
             .send({
-                email: 'dummyemail@gmail.com',
-                newPassword: 'password',
-                confirmPassword: 'password',
+                email: 'user2@example.com',
+                newPassword: 'password2',
+                confirmPassword: 'password2',
                 resetToken: `${resetToken}`
             })
 

@@ -2,7 +2,7 @@ const jwt = require('jsonwebtoken');
 const { PrismaClient } = require("@prisma/client");
 const prisma = new PrismaClient();
 
-const { getUserById } = require("../services/userService");
+const { getUserById, getUserByEmail } = require("../services/userService");
 
 let JWT_SECRET = process.env.JWT_SECRET;
 
@@ -29,8 +29,7 @@ class RestrictJwtAdmin{
                 });
             });
 
-            const userData = await getUserById(decoded.user_id)
-
+            const userData = await getUserByEmail(decoded.user_email)
             if (!userData) {
                 return res.status(401).json({
                     status: 401,
@@ -48,7 +47,6 @@ class RestrictJwtAdmin{
             req.user = userData;
             next();
         } catch (err) {
-            console.log(err);
             res.status(401).json({
                 status: 401,
                 message: "You are not authorized",

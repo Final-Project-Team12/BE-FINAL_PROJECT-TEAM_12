@@ -1,69 +1,45 @@
 const googleAuthService = require('../services/googleAuthService');
 
 class GoogleAuthController {
-  static googleLogin(req, res, next) {
-    try {
-      const url = googleAuthService.generateAuthUrl();
-      res.redirect(url);
-    } catch (error) {
-      next(error);
-    }
-  }
-
-  static async googleCallback(req, res, next) {
-    const { code } = req.query;
-
-    if (!code) {
-      return res.status(400).json({
-        status: 400,
-        message: 'No code received from Google. Please try again.',
-      });
+    static async initiateGoogleLogin(req, res, next) {
+        try {
+            const authUrl = googleAuthService.generateAuthUrl();
+            res.status(200).json({ url: authUrl });
+        } catch (error) {
+            next(error);
+        }
     }
 
-    try {
-      const { userInfo } = await googleAuthService.getGoogleUserProfile(code);
-      const response = await googleAuthService.handleGoogleUser(userInfo.data);
+    static async completeGoogleLogin(req, res, next) {
+        const { code } = req.body;
 
-      if (response.resetToken) {
-        return res.status(401).json({
-          status: 401,
-          message: 'Please set your password',
-          resetToken: response.resetToken,
-        });
-      }
+        if (!code) {
+            return res.status(400).json({
+                status: 400,
+                message: 'Authorization code is required.',
+            });
+        }
 
-      return res.status(200).json({
-        status: 200,
-        message: 'Login success',
-        accessToken: response.accessToken,
-      });
-    } catch (error) {
-      next(error);
+        try {
+            const tokens = await googleAuthService.exchangeCodeForToken(code);
+            const userProfile = await googleAuthService.getUserInfo(tokens.access_token);
+            const user = await googleAuthService.handleGoogleUser(userProfile);
+            const accessToken = googleAuthService.generateJWT(user);
+
+            return res.status(200).json({
+                status: 200,
+                message: 'Google login successful',
+                accessToken,
+                user: {
+                    id: user.id,
+                    email: user.email,
+                    name: user.name,
+                },
+            });
+        } catch (error) {
+            next(error);
+        }
     }
-  }
-
-  static async updatePassword(req, res, next) {
-    const { email, password, resetToken } = req.body;
-
-    if (!email || !password || !resetToken) {
-      return res.status(400).json({
-        status: 400,
-        message: 'Email, password, and resetToken are required.',
-      });
-    }
-
-    try {
-      const accessToken = await googleAuthService.setPassword(email, password, resetToken);
-
-      return res.status(200).json({
-        status: 200,
-        message: 'Password updated successfully',
-        accessToken: accessToken      
-      });
-    } catch (error) {
-      next(error);
-    }
-  }
 }
 
 module.exports = GoogleAuthController;

@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Google Login</title>
+</head>
+<body>
+    <h1>Login with Google</h1>
+    <button id="google-login-button">Login with Google</button>
+
+    <script>
+        document.getElementById('google-login-button').addEventListener('click', async () => {
+            try {
+                // Request backend untuk mendapatkan URL otorisasi
+                const response = await fetch('/api/v1/google/initiate');
+                const { url } = await response.json();
+
+                // Redirect pengguna ke URL otorisasi Google
+                window.location.href = url;
+            } catch (error) {
+                console.error('Error initiating Google login:', error);
+            }
+        });
+    </script>
+</body>
+</html>

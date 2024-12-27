@@ -1,9 +1,13 @@
 const dotenv = require('dotenv');
+/* istanbul ignore next */
 if (process.env.NODE_ENV !== 'production') {
+  /* istanbul ignore next */
   if(process.env.NODE_ENV === 'test'){
+    /* istanbul ignore next */
     dotenv.config({ path: '.env.test' });
   }
   else{
+    /* istanbul ignore next */
     dotenv.config({ path: '.env' });
   }
 }
@@ -17,7 +21,8 @@ const path = require('path');
 const app = express();
 const prisma = new PrismaClient();
 
-//middlewares 
+//middlewares
+const docsRouter = require("./routes/doucmentationRouter"); 
 const restrictJwt = require('./middlewares/restrictJwt');
 const errorHandler = require('./middlewares/errorHandler');
 
@@ -31,13 +36,18 @@ const paymentRoutes = require('./routes/paymentRoutes');
 const notificationRoutes = require("./routes/notificationRoutes");
 const transactionRoutes = require('./routes/transactionsRoutes');
 const ticketRoutes = require('./routes/ticketsRoutes');
+const planeRoutes = require('./routes/planeRoutes');
+const seatRoutes = require('./routes/seatRoutes');
+
+
 
 app.use(cors());
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(bodyParser.json());
-
+app.set('view engine', 'ejs');
+app.set('views', path.join(__dirname, 'views')); 
 //routes
 const routers = [
   googleAuthRoutes,
@@ -47,6 +57,8 @@ const routers = [
   //gak semuanya kena auth
   userRoutes,
   airportRoutes,
+  planeRoutes,
+  seatRoutes,
   airlineRoutes,
   //auth semua
   paymentRoutes,
@@ -55,18 +67,17 @@ const routers = [
 ];
 
 routers.forEach(router => app.use('/api/v1', router));
-
-
 app.use(errorHandler);
 //buat nangkap error cek ci-cd 14
 
-app.use((err, req, res, next) => {
-  console.log(err);
-  res.status(500).json({
-    status: false,
-    message : "Lihat error di console"
-  })
-})
+// app.use((err, req, res, next) => {
+//   /* istanbul ignore next */
+//   console.log(err);
+//   res.status(500).json({
+//     status: false,
+//     message : "Lihat error di console"
+//   })
+// })
 
 // Sample query
 // app.get("/users", async (req, res) => {
@@ -75,10 +86,11 @@ app.use((err, req, res, next) => {
 // });
 
 // Start Server
-
+app.use("/api-docs", docsRouter);
 const PORT = process.env.PORT || 3000;
-
+/* istanbul ignore next */
 if (process.env.NODE_ENV !== 'test') {
+  /* istanbul ignore next */
   app.listen(PORT, () => {
     console.log(`Server running on http://localhost:${PORT}`);
   });

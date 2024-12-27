@@ -6,13 +6,14 @@ require('dotenv').config({ path: '.env.test' });
 
 const prisma = new PrismaClient();
 const jwtToken = jwt.sign(
-    { user_id: 1, user_email: 'testuser@example.com', user_role: 'user' },
+    { user_id: 10, user_email: "user10@example.com", user_role: 'admin' },
     process.env.JWT_SECRET || 'jwt-secret',
     { expiresIn: '1h' }
 );
 
 describe('PaymentController Integration Tests', () => {
     let orderIdTest;
+    const existingOrderId = 'yy6ff';
 
     beforeAll(async () => {
         await prisma.$connect();
@@ -30,19 +31,19 @@ describe('PaymentController Integration Tests', () => {
             .post('/api/v1/payments')
             .set('Authorization', `Bearer ${jwtToken}`)
             .send({
-                orderId: "hb20fw",
-                amount: 1000000,
+                orderId: "yy6ff",
+                amount: 3300000,
                 customerDetails: {
-                    name: 'apip',
-                    email: 'anaufal374@gmail.com',
-                    mobile_number: '"12321312323"',
-                    address: '"Jl. Kenangan"'
+                    name: "User 10",
+                    email: "user10@example.com",
+                    mobile_number: "081234567810",
+                    address: "Alamat 10"
                 },
                 productDetails: [
                     {
-                        productId: '11',
-                        productName: 'Flight Ticket Australia-South Africa',
-                        price: 1000000,
+                        productId: '84',
+                        productName: 'Singapore Changi Airport',
+                        price: 3300000,
                         quantity: 1
                     }
                 ]
@@ -120,25 +121,24 @@ describe('PaymentController Integration Tests', () => {
     });
 
     it('should return 409 when order ID already exists', async () => {
-        const existingOrderId = 'TEST_ORDER_4';
     
         const response = await request(app)
             .post('/api/v1/payments')
             .set('Authorization', `Bearer ${jwtToken}`)
             .send({
                 orderId: existingOrderId,
-                amount: 100000,
+                amount: 3300000,
                 customerDetails: {
-                    name: 'Test User',
-                    email: 'testuser@example.com',
-                    mobile_number: '081122334455',
-                    address: '123 Test Street'
+                    name: "User 10",
+                    email: "user10@example.com",
+                    mobile_number: "081234567810",
+                    address: "Alamat 10"
                 },
                 productDetails: [
                     {
-                        productId: 'TICKET-11',
-                        productName: 'Flight Ticket',
-                        price: 100000,
+                        productId: '84',
+                        productName: 'Singapore Changi Airport',
+                        price: 3300000,
                         quantity: 1
                     }
                 ]
@@ -282,7 +282,7 @@ describe('PaymentController Integration Tests', () => {
 
     it('should retrieve payment status successfully and return 200', async () => {
         const response = await request(app)
-            .get(`/api/v1/payments/${orderIdTest}/status`)
+            .get(`/api/v1/payments/${existingOrderId}/status`)
             .set('Authorization', `Bearer ${jwtToken}`);
 
         console.log('Get Payment Status Response:', response.body);

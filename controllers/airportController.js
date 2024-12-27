@@ -49,12 +49,19 @@ class AirportController {
     
     static async getAirports(req, res, next) {
         try {
-            const airports = await AirportService.getAirports();
+            const page = parseInt(req.query.page, 10) || 1;
+            const limit = parseInt(req.query.limit, 10) || 5;
+            const { airports, totalPages } = await AirportService.getAirports(page, limit);
 
             res.status(200).json({
                 status: 200,
                 message: 'List of airports successfully retrieved.',
-                data: airports
+                data: airports,
+                pagination: {
+                    currentPage: page,
+                    totalPages: totalPages,
+                    limit: limit,
+                },
             });
         } 
         /* istanbul ignore test */

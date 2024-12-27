@@ -19,11 +19,20 @@ class PlaneController {
 
     static async getAllPlanesController(req, res, next) {
         try {
-            const planes = await planeService.getAllPlanes();
+            const page = parseInt(req.query.page, 10) || 1;
+            const limit = parseInt(req.query.limit, 10) || 5;
+    
+            const { planes, totalPages } = await AirlineService.getAllAirlines(page, limit);
+    
             res.status(200).json({
                 status: 200,
                 message: 'All planes fetched successfully',
                 data: planes,
+                pagination: {
+                    currentPage: page,
+                    totalPages: totalPages,
+                    limit: limit,
+                },
             });
             /* istanbul ignore test */
         } catch (error) {

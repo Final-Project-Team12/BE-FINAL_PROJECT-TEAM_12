@@ -7,7 +7,7 @@
   },
   "servers": [
     {
-      "url": "http://quickfly.my.id",
+      "url": "https://quickfly.my.id",
       "variables": {}
     },
     {

@@ -1,10 +1,14 @@
 const express = require('express');
-const { createPaymentController, handleNotificationController,cancelPaymentController, } = require('../controllers/paymentController');
-
 const router = express.Router();
+const PaymentController = require('../controllers/paymentController');
+const restrictJwt = require('../middlewares/restrictJwt');
 
-router.post('/payments', createPaymentController);
-router.post('/payments/notification', handleNotificationController);
-router.post('/payments/cancel/:orderId', cancelPaymentController);
+const restrictedRoutes = express.Router();
+
+restrictedRoutes.post('', PaymentController.createPaymentController);
+restrictedRoutes.post('/:orderId/cancel', PaymentController.cancelPaymentController);
+restrictedRoutes.get('/:orderId/status', PaymentController.getPaymentStatus);
+
+router.use('/payments', restrictJwt, restrictedRoutes);
 
 module.exports = router;

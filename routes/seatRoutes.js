@@ -1,8 +1,11 @@
 const express = require('express');
 const router = express.Router();
-const TicketController = require('../controllers/seatController');
+const SeatController = require('../controllers/seatController');
 
-router.get('/seat', TicketController.getSeat)
-router.get('/seat/:seat_id', TicketController.getSeatById)
+router.post('/seats', SeatController.createSeat);
+router.get('/seats', SeatController.getAllSeats);
+router.get('/seats/:seat_id', SeatController.getSeatById);
+router.put('/seats/:seat_id', SeatController.updateSeat);
+router.delete('/seats/:seat_id', SeatController.deleteSeat);
 
 module.exports = router;

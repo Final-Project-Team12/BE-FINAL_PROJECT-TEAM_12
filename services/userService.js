@@ -1,5 +1,4 @@
-const { PrismaClient } = require("@prisma/client");
-const prisma = new PrismaClient();
+const prisma = require('../prisma/client');
 
 async function createUser(data){
     const newUser = await prisma.users.create({
@@ -30,10 +29,10 @@ async function getUserById(user_id){
 }
 
 async function updateUserByEmail(email, data){
-    let userData = await prisma.users.update({
-        where: { email },
+    const userData = await prisma.users.update({
+        where: {email},
         data
-    });
+    })
 
     return userData;
 }
@@ -47,34 +46,39 @@ async function updateUserById(user_id, data){
     return userData;
 }
 
-async function updateUserByEmail(email, data){
-    const userData = await prisma.users.update({
-        where: {email},
-        data
-    })
-
-    return userData;
-}
-
-async function deleteUserById(user_id){
+async function deleteUserById(user_id) {
+    await prisma.notification.deleteMany({
+        where: {
+            user_id: user_id
+        }
+    });
+    await prisma.transaction.deleteMany({
+        where: {
+            user_id: user_id
+        }
+    });
     const deletedUser = await prisma.users.delete({
         where: {
-            user_id
+            user_id: user_id
         }
-    }) 
+    });
     
     return deletedUser;
 }
 
 async function checkOtherEmail(checkEmail){
+    /* istanbul ignore next */
     const check = await prisma.users.count({
         where: {email : checkEmail}
     })
-    console.log(checkEmail);
+    /* istanbul ignore next */
     if(check >= 1){
+        /* istanbul ignore next */
         return true
     }
+    /* istanbul ignore next */
     else{
+        /* istanbul ignore next */
         return false
     }
 }

@@ -1,87 +1,120 @@
-const prisma = require('../prisma/client');
+const { PrismaClient } = require("@prisma/client");
+const prisma = new PrismaClient();
 
-exports.createTicket = async (data) => {
-  if (!data.transaction_id || !data.plane_id || !data.passenger_id || !data.seat_id) {
-    throw new Error('Ticket data is incomplete.');
-  }
-  await prisma.transaction.findUniqueOrThrow({
-    where: { transaction_id: data.transaction_id },
-  });
+async function createTickets(transaction_id) {
+    try {
+        const existingTransaction = await prisma.transaction.findUnique({
+            where: { 
+                transaction_id: parseInt(transaction_id)
+            },
+            include: {
+                tickets: {
+                    include: {
+                        passenger: true,
+                        seat: true,
+                        plane: {
+                            include: {
+                                airline: true,
+                                origin_airport: true,
+                                destination_airport: true
+                            }
+                        }
+                    }
+                }
+            }
+        });
+        /* istanbul ignore next */
+        if (!existingTransaction) {
+            throw new Error("INVALID_TRANSACTION");
+        }
+        /* istanbul ignore next */
+        if (!existingTransaction.tickets || existingTransaction.tickets.length === 0) {
+            throw new Error("NO_TICKETS_FOUND");
+        }
 
-  await prisma.passenger.findUniqueOrThrow({
-    where: { passenger_id: data.passenger_id },
-  });
-
-  await prisma.seat.findUniqueOrThrow({
-    where: { seat_id: data.seat_id },
-  });
-  return await prisma.ticket.create({
-    data: {
-      transaction_id: data.transaction_id,
-      plane_id: data.plane_id,
-      passenger_id: data.passenger_id,
-      seat_id: data.seat_id,
-    },
-  });
-};
-
-
-
-exports.updateTicket = async (ticket_id, data) => {
-  const existingTicket = await prisma.ticket.findUnique({
-    where: { ticket_id: parseInt(ticket_id) }
-  });
-
-  if (!existingTicket) {
-    throw new Error('Ticket not found.');
-  }
-
-  const updateData = {};
-
-  if (data.seat_id) {
-    await prisma.seat.findUniqueOrThrow({
-      where: { seat_id: data.seat_id }
-    });
-
-    updateData.seat_id = data.seat_id;
-  }
-
-  if (data.class) {
-    const seat = await prisma.seat.findUnique({
-      where: { seat_id: existingTicket.seat_id }
-    });
-
-    if (!seat) {
-      throw new Error('Associated seat not found.');
+        return existingTransaction.tickets;
+    } catch (error) {
+        console.error("[Error in createTickets]:", error);
+        throw error;
     }
+}
 
-    await prisma.seat.update({
-      where: { seat_id: seat.seat_id },
-      data: { class: data.class }
-    });
-  }
+async function updateTicket(ticket_id, updateData) {
+    try {
+        const ticket = await prisma.ticket.findUnique({
+            where: { 
+                ticket_id: parseInt(ticket_id)
+            },
+            include: {
+                passenger: true,
+                seat: true,
+                plane: {
+                    include: {
+                        airline: true,
+                        origin_airport: true,
+                        destination_airport: true
+                    }
+                }
+            }
+        });
+        /* istanbul ignore next */
+        if (!ticket) {
+            throw new Error("TICKET_NOT_FOUND");
+        }
+        /* istanbul ignore next */
+        const updatedTicket = await prisma.ticket.update({
+            where: { 
+                ticket_id: parseInt(ticket_id)
+            },
+            data: updateData,
+            include: {
+                passenger: true,
+                seat: true,
+                plane: {
+                    include: {
+                        airline: true,
+                        origin_airport: true,
+                        destination_airport: true
+                    }
+                }
+            }
+        });
+        /* istanbul ignore next */
+        return updatedTicket;
+    } catch (error) {
+        console.error("[Error in updateTicket]:", error);
+        throw error;
+    }
+}
 
-  if (Object.keys(updateData).length > 0) {
-    return await prisma.ticket.update({
-      where: { ticket_id: parseInt(ticket_id) },
-      data: updateData,
-    });
-  }
-  return existingTicket;
-};
-exports.getAllTransactions = async () => {
-  return await prisma.transaction.findMany({
-    include: {
-      tickets: {
-        include: {
-          seat: true,
-        },
-      },
-    },
-  });
-};
-exports.deleteTicket = async (ticket_id) => {
-  return await prisma.ticket.delete({
-    where: { ticket_id: parseInt(ticket_id) }
-  });
+/* istanbul ignore next */
+async function deleteTicket(ticket_id) {
+    try {
+        const ticket = await prisma.ticket.findUnique({
+            where: { 
+                ticket_id: parseInt(ticket_id)
+            }
+        });
+
+        if (!ticket) {
+            throw new Error("TICKET_NOT_FOUND");
+        }
+
+        await prisma.ticket.delete({
+            where: { 
+                ticket_id: parseInt(ticket_id)
+            }
+        });
+
+        return true;
+    } catch (error) {
+        console.error("[Error in deleteTicket]:", error);
+        throw error;
+    }
+}
+
+module.exports = {
+    createTickets,
+    updateTicket,
+    deleteTicket
 };

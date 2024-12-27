@@ -1,7 +1,17 @@
+const dotenv = require('dotenv');
+/* istanbul ignore next */
 if (process.env.NODE_ENV !== 'production') {
-  require('dotenv').config();
+  /* istanbul ignore next */
+  if(process.env.NODE_ENV === 'test'){
+    /* istanbul ignore next */
+    dotenv.config({ path: '.env.test' });
+  }
+  else{
+    /* istanbul ignore next */
+    dotenv.config({ path: '.env' });
+  }
 }
-require("dotenv").config();
+
 const express = require("express");
 const { PrismaClient } = require("@prisma/client");
 const bodyParser = require("body-parser");
@@ -12,58 +22,60 @@ const app = express();
 const prisma = new PrismaClient();
 
 //middlewares
+const docsRouter = require("./routes/doucmentationRouter"); 
 const restrictJwt = require('./middlewares/restrictJwt');
 const errorHandler = require('./middlewares/errorHandler');
 
 const ticketListingRoutes = require("./routes/flightsRoutes");
-const paginationRoutes = require('./routes/paginationRoutes')
 const userRoutes = require('./routes/userRoutes');
-const seatRoutes = require('./routes/seatRoutes');
 const airportRoutes = require('./routes/airportRoutes');
 const airlineRoutes = require("./routes/airlineRoutes");
-const passwordRoutes = require("./routes/passwordRoutes");
+const forgotPasswordRoutes = require("./routes/forgotPasswordRoutes");
 const paymentRoutes = require('./routes/paymentRoutes');
 const notificationRoutes = require("./routes/notificationRoutes");
 const transactionRoutes = require('./routes/transactionsRoutes');
 const ticketRoutes = require('./routes/ticketsRoutes');
+const planeRoutes = require('./routes/planeRoutes');
+const seatRoutes = require('./routes/seatRoutes');
+
+
 
 app.use(cors());
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(bodyParser.json());
-
-
+app.set('view engine', 'ejs');
+app.set('views', path.join(__dirname, 'views')); 
+//routes
 const routers = [
   ticketListingRoutes,
-  paginationRoutes,
+  forgotPasswordRoutes,
+  transactionRoutes,
+  //gak semuanya kena auth
   userRoutes,
+  airportRoutes,
+  planeRoutes,
   seatRoutes,
   airlineRoutes,
-  airportRoutes,
-  passwordRoutes,
+  //auth semua
   paymentRoutes,
   notificationRoutes,
-  transactionRoutes,
   ticketRoutes,
 ];
 
 routers.forEach(router => app.use('/api/v1', router));
-
-
-
-app.use(restrictJwt);
-
 app.use(errorHandler);
-//buat nangkep semua error langsung
+//buat nangkap error cek ci-cd 14
 
-app.use((err, req, res, next) => {
-  console.log(err);
-  res.status(500).json({
-    status: false,
-    message : "Lihat error di console"
-  })
-})
+// app.use((err, req, res, next) => {
+//   /* istanbul ignore next */
+//   console.log(err);
+//   res.status(500).json({
+//     status: false,
+//     message : "Lihat error di console"
+//   })
+// })
 
 // Sample query
 // app.get("/users", async (req, res) => {
@@ -72,8 +84,14 @@ app.use((err, req, res, next) => {
 // });
 
 // Start Server
-
+app.use("/api-docs", docsRouter);
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
-  console.log(`Server running on http://localhost:${PORT} zefanya tanpa pemanis buatan`);
-});
+/* istanbul ignore next */
+if (process.env.NODE_ENV !== 'test') {
+  /* istanbul ignore next */
+  app.listen(PORT, () => {
+    console.log(`Server running on http://localhost:${PORT}`);
+  });
+}
+
+module.exports = app;

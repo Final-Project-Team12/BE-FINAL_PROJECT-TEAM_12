@@ -2,6 +2,8 @@ const express = require('express');
 const router = express.Router();
 const UserController = require('../controllers/userController');
 const restrictJwt = require('../middlewares/restrictJwt')
+const restrictJwtAdmin = require('../middlewares/restrictJwtAdmin')
+
 
 router.post('/user', UserController.registerUser)
 router.post('/user/verify', UserController.verifyUser)

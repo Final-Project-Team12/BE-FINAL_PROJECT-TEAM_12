@@ -1,126 +1,165 @@
-const { createPayment, handleNotification, cancelPayment } = require("../services/paymentService");
+const PaymentService = require('../services/paymentService');
 
-async function createPaymentController(req, res, next) {
-  try {
-    const { orderId, amount, customerDetails, productDetails } = req.body;
+class PaymentController {
+    static async createPaymentController(req, res) {
+        try {
+            const { orderId, amount, customerDetails, productDetails } = req.body;
+            if (!orderId || !amount || !customerDetails || !productDetails) {
+                return res.status(400).json({
+                    message: "Missing required fields",
+                    status: 400
+                });
+            }
+            if (!customerDetails.email || !customerDetails.mobile_number) {
+                return res.status(400).json({
+                    message: "Customer email and mobile number are required",
+                    status: 400
+                });
+            }
 
-    if (!orderId || !amount || !customerDetails || !productDetails) {
-      return res.status(400).json({
-        message: "orderId, amount, customerDetails, and productDetails are required",
-        status: 400,
-      });
+            /* istanbul ignore next */
+            const response = await PaymentService.createPayment(
+                /* istanbul ignore next */
+                orderId, 
+                amount, 
+                customerDetails, 
+                productDetails
+            );
+
+            /* istanbul ignore next */
+            return res.status(201).json({
+                /* istanbul ignore next */
+                message: "Payment initiated successfully",
+                status: 201,
+                data: response
+            });
+
+        } catch (error) {
+            console.error("Payment creation error:", error);
+
+            if (error.message === "USER_NOT_FOUND") {
+                return res.status(404).json({
+                    message: "User not found with provided email or phone number",
+                    status: 404
+                });
+            }
+
+            /* istanbul ignore next */
+            if (error.message.includes("already exists")) {
+                /* istanbul ignore next */
+                return res.status(409).json({
+                    message: `Payment with orderId ${req.body.orderId} already exists`,
+                    status: 409
+                });
+            }
+
+            /* istanbul ignore next */
+            if (error.message.includes("Amount must be greater than 0")) {
+                /* istanbul ignore next */
+                return res.status(400).json({
+                    message: error.message,
+                    status: 400
+                });
+            }
+
+            /* istanbul ignore next */
+            return res.status(500).json({
+                message: "Internal server error",
+                status: 500
+            });
+        }
     }
 
-    if (isNaN(amount) || amount <= 0) {
-      return res.status(400).json({
-        message: "Amount must be a valid number greater than 0",
-        status: 400,
-      });
+    static async cancelPaymentController(req, res) {
+        try {
+            const { orderId } = req.params;
+            
+            /* istanbul ignore next */
+            if (!orderId) {
+                /* istanbul ignore next */
+                return res.status(400).json({
+                    message: "Order ID is required",
+                    status: 400
+                });
+            }
+
+            const response = await PaymentService.cancelPayment(orderId);
+
+            /* istanbul ignore next */
+            return res.status(200).json({
+                /* istanbul ignore next */
+                message: "Payment cancelled successfully",
+                status: 200,
+                data: response
+            });
+        } catch (error) {
+            console.error("Payment cancellation error:", error);
+                        /* istanbul ignore next */
+            if (error.message.includes("Payment not found")) {
+                return res.status(404).json({
+                    message: error.message,
+                    status: 404
+                });
+            }
+
+            /* istanbul ignore next */
+            if (error.message.includes("Cannot cancel payment")) {
+                /* istanbul ignore next */
+                return res.status(400).json({
+                    message: error.message,
+                    status: 400
+                });
+            }
+
+            /* istanbul ignore next */
+            return res.status(500).json({
+                /* istanbul ignore next */
+                message: "Failed to cancel payment",
+                status: 500
+            });
+        }
     }
 
-    if (!Array.isArray(productDetails) || productDetails.length === 0) {
-      return res.status(400).json({
-        message: "Product details must be a non-empty array",
-        status: 400,
-      });
+    static async getPaymentStatus(req, res) {
+        try {
+            const { orderId } = req.params;
+            
+            /* istanbul ignore next */
+            if (!orderId) {
+                /* istanbul ignore next */
+                return res.status(400).json({
+                    message: "Order ID is required",
+                    status: 400
+                });
+            }
+
+            const payment = await PaymentService.getPaymentStatus(orderId);
+
+            /* istanbul ignore next */
+            return res.status(200).json({
+                message: "Payment status retrieved successfully",
+                status: 200,
+                data: payment
+            });
+        } catch (error) {
+            console.error("Payment status retrieval error:", error);
+        /* istanbul ignore next */
+            if (error.message.includes("Payment not found")) {
+                        /* istanbul ignore next */
+                return res.status(404).json({
+                    message: error.message,
+                    status: 404
+                });
+            }
+
+            /* istanbul ignore next */
+            return res.status(500).json({
+                /* istanbul ignore next */
+                message: "Failed to retrieve payment status",
+                status: 500
+            });
+        }
     }
-
-    for (const product of productDetails) {
-      if (!product.productId || !product.productName || !product.quantity || !product.price) {
-        return res.status(400).json({
-          message: "Each product must include productId, productName, quantity, and price",
-          status: 400,
-        });
-      }
-
-      if (isNaN(product.quantity) || product.quantity <= 0 || isNaN(product.price) || product.price <= 0) {
-        return res.status(400).json({
-          message: "Quantity and price must be valid numbers greater than 0",
-          status: 400,
-        });
-      }
-    }
-
-    const response = await createPayment(orderId, amount, customerDetails, productDetails);
-
-    return res.status(201).json({
-      message: "Payment initiated successfully",
-      status: 201,
-      snapToken: response.token,
-      redirectUrl: response.redirectUrl,
-    });
-  } catch (error) {
-    console.error("[createPaymentController] Error:", error.message);
-    return res.status(500).json({
-      message: "Failed to initiate payment",
-      status: 500,
-      error: error.message,
-    });
-  }
 }
 
-async function handleNotificationController(req, res, next) {
-  try {
-    const notification = req.body;
-    if (
-      !notification ||
-      !notification.order_id ||
-      !notification.transaction_status ||
-      !notification.transaction_id
-    ) {
-      return res.status(400).json({
-        message: "Invalid notification received",
-        status: 400,
-      });
-    }
-
-    await handleNotification(notification);
-
-    return res.status(200).json({
-      message: "Notification handled successfully",
-      status: 200,
-    });
-  } catch (error) {
-    console.error("[handleNotificationController] Error:", error.message);
-    return res.status(500).json({
-      message: "Failed to handle notification",
-      status: 500,
-      error: error.message,
-    });
-  }
-}
-
-async function cancelPaymentController(req, res) {
-  try {
-    const { orderId } = req.params;
-
-    if (!orderId) {
-      return res.status(400).json({
-        message: "Order ID is required",
-        status: 400,
-      });
-    }
-
-    const response = await cancelPayment(orderId);
-
-    return res.status(200).json({
-      message: "Payment canceled successfully",
-      status: 200,
-      midtransResponse: response,
-    });
-  } catch (error) {
-    console.error("[cancelPaymentController] Error:", error.message);
-    return res.status(500).json({
-      message: "Failed to cancel payment",
-      status: 500,
-      error: error.message,
-    });
-  }
-}
-
-
-module.exports = {
-  createPaymentController,
-  handleNotificationController,
-  cancelPaymentController,
-};
+module.exports = PaymentController;

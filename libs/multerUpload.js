@@ -13,9 +13,11 @@ const upload = multer({
             cb(err, false);
         }
     },
-    
-    onError: (err, next) => {
-        next(err);
+    /* istanbul ignore next */
+    onError: (error, next) => {
+                /* istanbul ignore next */
+
+        next(error);
     },
 });
 

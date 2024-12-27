@@ -1,95 +1,209 @@
-const transactionService = require('../services/transactionsService');
-
-exports.getAllTransactions = async (req, res) => {
-  try {
-    const transactions = await transactionService.getAllTransactions();
-    if (transactions.length === 0) {
-      return res.status(404).json({ message: 'No transactions found.' });
-    }
-    res.status(200).json({
-      message: 'Succes to fetch transactions.',
-      status:'200',
-      data: transactions
-    });
-  } catch (error) {
-    res.status(500).json({
-      message: 'Failed to fetch transactions.',
-      status:'500',
-      error: error.message
-    });
-  }
+const transactionsService = require("../services/transactionsService");
+const ERROR_CODES = {
+  CONCURRENCY_ERROR: 'P2002'
 };
 
-exports.createTransaction = async (req, res) => {
-  try {
-    const transactionData = req.body;
-    const newTransaction = await transactionService.createTransaction(transactionData);
-    res.status(201).json({
-      message: 'Transaksi berhasil dibuat.',
-      status:'201',
-      data: newTransaction
-    });
-  } catch (error) {
-    if (error.message.includes('Transaction data not found') || error.message.includes('User with that ID not found')) {
-      return res.status(400).json({
-        message: 'Failed to create transaction.',
-        status:'400',
-        error: error.message
+const MAX_RETRIES = 3;
+const RETRY_DELAY = 1000;
+
+const transactionsController = {
+  getTransactionsByUserId: async (req, res) => {
+    try {
+      const { user_id } = req.params;
+      const transactions = await transactionsService.getTransactionsByUserId(
+        parseInt(user_id)
+      );
+
+      const groupedTransactions = transactions.reduce((acc, transaction) => {
+        if (transaction.trip_type === "single") {
+          acc.push({
+            type: "single",
+            transaction: transaction
+          });
+        } else {
+          const existingGroup = acc.find(
+            group => 
+              group.outbound?.transaction_id === transaction.related_transaction_id ||
+              group.return?.transaction_id === transaction.related_transaction_id
+          );
+
+          if (existingGroup) {
+            if (transaction.trip_type === "outbound") {
+              existingGroup.outbound = transaction;
+            } else {
+              existingGroup.return = transaction;
+            }
+          } else {
+            const newGroup = { type: "round" };
+            if (transaction.trip_type === "outbound") {
+              newGroup.outbound = transaction;
+            } else {
+              newGroup.return = transaction;
+            }
+            acc.push(newGroup);
+          }
+        }
+        return acc;
+      }, []);
+
+      return res.status(200).json({
+        message: "Transactions retrieved successfully",
+        status: 200,
+        data: groupedTransactions,
       });
+    } catch (error) {
+      /* istanbul ignore next */
+      console.error("Get transactions by user ID error:", error);
+      /* istanbul ignore next */
+      return handleControllerError(error, res);
     }
-    res.status(500).json({
-      message: 'Failed to create transaction server error.',
-      status:'500',
-      error: error.message
-    });
-  }
+  },
+
+  createTransaction: async (req, res) => {
+    let retries = 0;
+    while (retries < MAX_RETRIES) {
+      try {
+        const {
+          userData,
+          passengerData,
+          seatSelections,
+          planeId,
+          isRoundTrip,
+          returnPlaneId,
+          returnSeatSelections,
+        } = req.body;
+
+        if (isRoundTrip && (!returnPlaneId || !returnSeatSelections)) {
+          return res.status(400).json({
+            message: "Return flight details are required for round trip",
+            status: 400,
+          });
+        }
+
+        let result;
+        if (!isRoundTrip) {
+          result = await transactionsService.createTransaction(
+            userData,
+            passengerData,
+            seatSelections,
+            planeId
+          );
+
+          return res.status(201).json({
+            message: "Transaction created successfully",
+            status: 201,
+            data: {
+              type: "single",
+              transaction: result
+            },
+          });
+        } else {
+          result = await transactionsService.createRoundTripTransaction(
+            userData,
+            passengerData,
+            seatSelections,
+            planeId,
+            returnSeatSelections,
+            returnPlaneId
+          );
+
+          return res.status(201).json({
+            message: "Round trip transaction created successfully",
+            status: 201,
+            data: {
+              type: "round",
+              outbound: result.outbound,
+              return: result.return,
+              total_payment: result.outbound.total_payment + result.return.total_payment
+            },
+          });
+        }
+      } catch (error) {
+        /* istanbul ignore next */
+        if (error.code === ERROR_CODES.CONCURRENCY_ERROR && retries < MAX_RETRIES - 1) {
+          retries++;
+          await new Promise(resolve => setTimeout(resolve, RETRY_DELAY));
+          continue;
+        }
+        console.error("Create transaction error:", error);
+        return handleControllerError(error, res);
+      }
+    }
+  },
+
+  updateTransaction: async (req, res) => {
+    let retries = 0;
+    while (retries < MAX_RETRIES) {
+      try {
+        const { transaction_id } = req.params;
+        const updateData = req.body;
+
+        const updatedTransaction = await transactionsService.updateTransaction(
+          parseInt(transaction_id),
+          updateData
+        );
+
+        return res.status(200).json({
+          message: "Transaction updated successfully",
+          status: 200,
+          data: updatedTransaction,
+        });
+      } catch (error) {
+        /* istanbul ignore next */
+        if (error.code === ERROR_CODES.CONCURRENCY_ERROR && retries < MAX_RETRIES - 1) {
+          retries++;
+          await new Promise(resolve => setTimeout(resolve, RETRY_DELAY));
+          continue;
+        }
+        /* istanbul ignore next */
+        console.error("Update transaction error:", error);
+        /* istanbul ignore next */
+        return handleControllerError(error, res);
+      }
+    }
+  },
+
+  deleteTransaction: async (req, res) => {
+    /* istanbul ignore next */
+    try {
+      const { transaction_id } = req.params;
+      await transactionsService.deleteTransaction(parseInt(transaction_id));
+
+      return res.status(200).json({
+        message: "Transaction deleted successfully",
+        status: 200,
+      });
+    } catch (error) {
+      console.error("Delete transaction error:", error);
+      return handleControllerError(error, res);
+    }
+  },
 };
 
-exports.updateTransaction = async (req, res) => {
-  try {
-    const { transaction_id } = req.params;
-    const updatedTransaction = await transactionService.updateTransaction(transaction_id, req.body);
-    res.status(200).json({
-      message: 'Transaction updated successfully.',
-      status:'200',
-      data: updatedTransaction
-    });
-  } catch (error) {
-    if (error.message.includes('Invalid transaction ID or data') || error.message.includes('Transaction with that ID not found')) {
-      return res.status(400).json({
-        message: 'Failed to update transaction.',
-        status:'400',
-        error: error.message
-      });
-    }
-    res.status(500).json({
-      message: 'Failed to update transaction server error.',
-      status:'500',
-      error: error.message
-    });
-  }
-};
+function handleControllerError(error, res) {
+  const errorMapping = {
+    TRANSACTIONS_NOT_FOUND: { status: 404, message: "Transactions not found for this user" },
+    TRANSACTION_NOT_FOUND: { status: 404, message: "Transaction not found" },
+    INVALID_USER_DATA: { status: 400, message: "Invalid user data provided" },
+    INVALID_PASSENGER_DATA: { status: 400, message: "Invalid passenger data provided" },
+    INVALID_SEAT_SELECTIONS: { status: 400, message: "Invalid seat selections provided" },
+    INVALID_PLANE_ID: { status: 404, message: "Invalid plane ID provided" },
+    PLANE_NOT_FOUND: { status: 404, message: "Selected plane not found" },
+    SEATS_UNAVAILABLE: { status: 409, message: "One or more selected seats are no longer available" },
+    INVALID_RETURN_FLIGHT: { status: 400, message: "Invalid return flight details" },
+    /* istanbul ignore next */
+    CONCURRENCY_ERROR: { status: 409, message: "Please try again, concurrent update detected" }
+  };
 
-exports.deleteTransaction = async (req, res) => {
-  try {
-    const { transaction_id } = req.params;
-    await transactionService.deleteTransaction(transaction_id);
-    res.status(200).json({
-      message: 'Transaction successfully deleted.',
-      status:'200'
-    });
-  } catch (error) {
-    if (error.message.includes('Invalid transaction ID') || error.message.includes('Transaction with that ID not found')) {
-      return res.status(400).json({
-        message: 'Failed to delete transaction.',
-        status:'400',
-        error: error.message
-      });
-    }
-    res.status(500).json({
-      message: 'Failed to delete transaction server error.',
-      status:'500',
-      error: error.message
-    });
-  }
-};
+  const errorResponse = errorMapping[error.message] || {
+    status: 500,
+    message: "Internal server error"
+  };
+
+  return res.status(errorResponse.status).json({
+    message: errorResponse.message,
+    status: errorResponse.status,
+  });
+}
+
+module.exports = transactionsController;

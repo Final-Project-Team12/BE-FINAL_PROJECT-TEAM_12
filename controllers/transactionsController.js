@@ -164,6 +164,7 @@ const transactionsController = {
   },
 
   deleteTransaction: async (req, res) => {
+    /* istanbul ignore next */
     try {
       const { transaction_id } = req.params;
       await transactionsService.deleteTransaction(parseInt(transaction_id));

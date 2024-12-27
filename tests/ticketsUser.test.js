@@ -7,7 +7,7 @@ require('dotenv').config({ path: '.env.test' });
 const prisma = new PrismaClient();
 
 const jwtToken = jwt.sign(
-    { user_id: 1, user_email: 'johndoe@example.com', user_role: 'user' },
+    { user_id: 9, user_email: 'user9@example.com', user_role: 'user' },
     process.env.JWT_SECRET || 'jwt-b1n4r14n',
     { expiresIn: '1h' }
 );
@@ -62,8 +62,8 @@ describe('TicketsController Integration Tests', () => {
 
     // it('should update a ticket and return 200', async () => {
     //     const response = await request(app)
-    //         .put(`/api/v1/ticket/4`)
-    //         .set('Authorization', `Bearer ${jwtToken}`)
+    //         .put(/api/v1/ticket/4)
+    //         .set('Authorization', Bearer ${jwtToken})
     //         .send({
     //             seat_id: 2,
     //             plane_id: 1,
@@ -97,8 +97,8 @@ describe('TicketsController Integration Tests', () => {
 
     // it('should delete a ticket and return 200', async () => {
     //     const response = await request(app)
-    //         .delete(`/api/v1/ticket/14`)
-    //         .set('Authorization', `Bearer ${jwtToken}`);
+    //         .delete(/api/v1/ticket/14)
+    //         .set('Authorization', Bearer ${jwtToken});
 
     //     console.log('Delete Ticket Response:', response.status, response.body);
     //     expect(response.status).toBe(200);
@@ -138,7 +138,7 @@ describe('TicketsController Integration Tests', () => {
     // it('should return 400 if ticket ID is not provided when updating a ticket', async () => {
     //     const response = await request(app)
     //         .put(`/api/v1/ticket/ `)
-    //         .set('Authorization', `Bearer ${jwtToken}`)
+    //         .set('Authorization', Bearer ${jwtToken})
     //         .send({
     //             seat_id: 2,
     //             plane_id: 1,
@@ -157,7 +157,7 @@ describe('TicketsController Integration Tests', () => {
     // it('should return 400 if ticket ID is not provided when deleting a ticket', async () => {
     //     const response = await request(app)
     //         .delete('/api/v1/ticket/')
-    //         .set('Authorization', `Bearer ${jwtToken}`);
+    //         .set('Authorization', Bearer ${jwtToken});
     
     //     console.log('Delete Ticket without Ticket ID Response:', response.status, response.body);
     //     expect(response.status).toBe(400);

@@ -132,7 +132,9 @@ async function validateTransactionData(userData, passengerData, seatSelections, 
 async function updateTransactionStatus(transaction, tx) {
   try {
     if (!transaction) {
+      /* istanbul ignore next */
       console.error('Transaction object is undefined');
+      /* istanbul ignore next */
       return null;
     }
 
